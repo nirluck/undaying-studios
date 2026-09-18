@@ -1,0 +1,20 @@
+# Dependencias y builds
+node_modules
+dist
+
+# Material original del cliente (12 GB: fotos RAW, videos del hero, logotipos).
+# Se procesa con tools/build-assets.py y solo se versiona el resultado en public/.
+material-de-origen/
+
+# Versión 1 archivada (diseño con material de stock), solo local
+archive/
+
+# Temporales de las herramientas
+tools/.logo-raw/
+tools/.logo-src/
+tools/.shots/
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
