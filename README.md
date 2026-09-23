@@ -124,12 +124,13 @@ Trustindex. Para que se actualicen solas:
 2. Sube el contenido de `dist/` a la carpeta `estudio/` del hosting o a la raíz
    del subdominio. Las rutas son relativas.
 
+3. Si vive en subcarpeta dentro del WordPress, agrega `RewriteEngine Off` en el
+   `.htaccess` de esa carpeta para que WordPress no intercepte la ruta.
+
 La versión 01 queda navegable en `/version01/` (por ejemplo
 `undyingstudios.mx/estudio/version01/`). No se enlaza desde ninguna parte de la
 landing y lleva `noindex` más una regla en `robots.txt` para que no aparezca en
 buscadores.
-3. Si vive en subcarpeta dentro del WordPress, agrega `RewriteEngine Off` en el
-   `.htaccess` de esa carpeta para que WordPress no intercepte la ruta.
 
 ## Pruebas automáticas
 
@@ -143,4 +144,5 @@ npx playwright install chromium
 - `node tools/shoot.mjs` toma capturas completas en desktop y móvil.
 - `node tools/interact.mjs` prueba galerías, visor, catálogo, portafolio,
   reproductor, reseñas, modal, FAQ y desbordes en móvil.
-- `node tools/subpath-test.mjs dist` verifica el build servido desde `/estudio/`.
+- `node tools/subpath-test.mjs dist` verifica la landing y la versión 01
+  servidas desde `/estudio/`.
