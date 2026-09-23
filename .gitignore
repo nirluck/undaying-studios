@@ -6,9 +6,6 @@ dist
 # Se procesa con tools/build-assets.py y solo se versiona el resultado en public/.
 material-de-origen/
 
-# Versión 1 archivada (diseño con material de stock), solo local
-archive/
-
 # Temporales de las herramientas
 tools/.logo-raw/
 tools/.logo-src/

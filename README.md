@@ -12,6 +12,7 @@ npm install        # una sola vez
 npm run dev        # servidor local en http://localhost:5173
 npm run build      # genera dist/ listo para subir
 npm run preview    # sirve dist/ para revisarlo
+npm run dev:v1     # versión 01 archivada, en http://localhost:5174
 ```
 
 ## Estructura
@@ -25,6 +26,7 @@ npm run preview    # sirve dist/ para revisarlo
 | `src/styles/v2.css` | Componentes con material real: galerías, catálogo, portafolio, visor, carruseles |
 | `public/` | Fotos, equipo, logotipos, miniaturas, audio y marca ya optimizados |
 | `tools/` | Procesamiento de material y pruebas automáticas |
+| `version01/` | Primera versión, con material de stock. Se conserva solo como referencia para comparar. Ver su propio README |
 
 ## Dónde se edita cada cosa
 
