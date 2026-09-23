@@ -13,6 +13,7 @@ npm run dev        # servidor local en http://localhost:5173
 npm run build      # genera dist/ listo para subir
 npm run preview    # sirve dist/ para revisarlo
 npm run dev:v1     # versión 01 archivada, en http://localhost:5174
+npm run build:v1   # solo la versión 01, dentro de dist/version01
 ```
 
 ## Estructura
@@ -26,7 +27,7 @@ npm run dev:v1     # versión 01 archivada, en http://localhost:5174
 | `src/styles/v2.css` | Componentes con material real: galerías, catálogo, portafolio, visor, carruseles |
 | `public/` | Fotos, equipo, logotipos, miniaturas, audio y marca ya optimizados |
 | `tools/` | Procesamiento de material y pruebas automáticas |
-| `version01/` | Primera versión, con material de stock. Se conserva solo como referencia para comparar. Ver su propio README |
+| `version01/` | Primera versión, con material de stock. Se compila dentro del build principal y queda publicada en `/version01/`. Ver su propio README |
 
 ## Dónde se edita cada cosa
 
@@ -118,9 +119,15 @@ Trustindex. Para que se actualicen solas:
 
 ## Publicar
 
-1. `npm run build`.
+1. `npm run build`. Genera la landing y, dentro, `dist/version01/` con la
+   versión archivada.
 2. Sube el contenido de `dist/` a la carpeta `estudio/` del hosting o a la raíz
    del subdominio. Las rutas son relativas.
+
+La versión 01 queda navegable en `/version01/` (por ejemplo
+`undyingstudios.mx/estudio/version01/`). No se enlaza desde ninguna parte de la
+landing y lleva `noindex` más una regla en `robots.txt` para que no aparezca en
+buscadores.
 3. Si vive en subcarpeta dentro del WordPress, agrega `RewriteEngine Off` en el
    `.htaccess` de esa carpeta para que WordPress no intercepte la ruta.
 
