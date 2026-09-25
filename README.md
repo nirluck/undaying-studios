@@ -12,6 +12,7 @@ npm install        # una sola vez
 npm run dev        # servidor local en http://localhost:5173
 npm run build      # genera dist/ listo para subir
 npm run preview    # sirve dist/ para revisarlo
+npm run sync:clips # refresca src/clips.json desde la playlist de YouTube
 npm run dev:v1     # versión 01 archivada, en http://localhost:5174
 npm run build:v1   # solo la versión 01, dentro de dist/version01
 ```
@@ -38,7 +39,8 @@ Todo está en `src/data.js`.
 | Tarifas y servicios por cotizar | `PRICING` |
 | Salas y amenidades con su galería | `ROOMS` |
 | Catálogo de equipo | `GEAR` |
-| Portafolio destacado y videoclips | `FEATURED` y `CLIPS` |
+| Portafolio destacado | `FEATURED` |
+| Playlist del carrusel de videoclips | `YOUTUBE` |
 | Pistas del reproductor de audio | `TRACKS` |
 | Cinta de clientes | `CLIENTS` |
 | Reseñas de Google | `REVIEWS` |
@@ -83,10 +85,33 @@ las fotos listadas en `HERO.slides`. Cuando esté listo, guárdalo como
 `public/video/hero.mp4` y escribe `video: 'video/hero.mp4'` en `HERO`.
 Recomendado: 1280×720, sin audio, 15 a 20 segundos, alrededor de 1 MB.
 
+### Carrusel de videoclips
+
+El carrusel se arma con la playlist de YouTube del estudio, así que basta con
+agregar o quitar videos en YouTube para cambiar lo que aparece. Funciona de
+dos maneras:
+
+- **Sin API key (como está hoy).** `src/clips.json` guarda una copia de la
+  playlist. Para actualizarla se corre `npm run sync:clips` y se vuelve a
+  publicar. El script lee la playlist directamente de YouTube, sin credenciales.
+- **Con API key (se actualiza solo).** Al pegar una key de YouTube Data API v3
+  en `YOUTUBE.apiKey`, la página consulta la playlist cada vez que alguien
+  entra y guarda la respuesta unas horas en el navegador. Si la consulta falla,
+  usa la copia local. La key se crea en Google Cloud, con la API de YouTube
+  Data v3 activada y restringida al dominio del sitio.
+
+`YOUTUBE.max` define cuántos videos se muestran y `YOUTUBE.newTags` cuántos
+llevan la etiqueta "Nuevo", contando desde el inicio de la playlist.
+
 ### Audios del reproductor
 
 Los cinco audios de `public/audio` todavía son de stock (Mixkit) con nombres de
 ejemplo. Se reemplazan en `TRACKS`.
+
+La playlist de Spotify no se puede leer desde el navegador sin credenciales de
+servidor, y Spotify ya no entrega fragmentos de audio. Por eso el reproductor
+usa archivos propios y el listado se controla en `TRACKS`. El botón lleva a la
+playlist completa en Spotify.
 
 ### Cotizador
 
@@ -146,3 +171,10 @@ npx playwright install chromium
   reproductor, reseñas, modal, FAQ y desbordes en móvil.
 - `node tools/subpath-test.mjs dist` verifica la landing y la versión 01
   servidas desde `/estudio/`.
+
+## Tipografía
+
+`public/fonts/norwester.woff2` se genera con `python tools/build-font.py` a
+partir del OTF original. El script le agrega las vocales acentuadas, la eñe, la
+diéresis, el punto medio y los signos de apertura, que la fuente no trae y que
+el español necesita.

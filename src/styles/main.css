@@ -1,3 +1,13 @@
+/* Norwester (SIL Open Font License). El woff2 se genera con
+   tools/build-font.py, que le agrega acentos, eñe y signos de apertura. */
+@font-face {
+  font-family: "Norwester";
+  src: url("/fonts/norwester.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* =====================================================================
    UNDYING STUDIOS · ESTUDIO DE GRABACIÓN
    Sistema de diseño derivado del kit de Elementor del sitio del foro.
@@ -32,7 +42,7 @@
   /* Tipografía */
   --f-display: "Wix Madefor Display", "Montserrat", sans-serif;
   --f-body: "Montserrat", sans-serif;
-  --f-accent: "Montserrat Alternates", "Montserrat", sans-serif;
+  --f-accent: "Norwester", "Montserrat", sans-serif;
 
   /* Radios y sombras (del sitio actual) */
   --r-card: 16px;
@@ -133,8 +143,8 @@ section { padding-block: var(--sec); position: relative; }
 .nav__inner { width: min(100% - 2 * var(--gutter), var(--container)); margin-inline: auto; height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 .nav__brand { display: flex; align-items: center; gap: 12px; }
 .nav__brand img { width: 40px; height: auto; }
-.nav__word { font-family: var(--f-display); font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; font-size: 15px; color: #fff; display: flex; flex-direction: column; line-height: 1; gap: 4px; }
-.nav__word small { font-family: var(--f-accent); font-weight: 500; font-size: 9px; letter-spacing: 0.22em; color: var(--ink-3); }
+.nav__word { font-family: var(--f-accent); font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; font-size: 20px; color: #fff; display: flex; align-items: baseline; gap: 7px; line-height: 1; }
+.nav__word span { color: var(--ink-3); }
 .nav__links { display: none; gap: 30px; }
 .nav__links a { font-size: 14px; font-weight: 500; color: var(--ink-2); position: relative; padding: 6px 0; }
 .nav__links a::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--orange-2); transform: scaleX(0); transform-origin: left; transition: transform .35s var(--ease); }

@@ -10,12 +10,13 @@ export const LINKS = {
   whatsappNumber: '5215544698604',
   whatsappDisplay: '+52 55 4469 8604',
   whatsappShort: 'https://wa.link/fl03s4',
-  // Calendarios Prospex. POR CONFIRMAR: hoy apuntan al calendario del foro.
+  // Calendarios Prospex del estudio. Cada bloque tiene el suyo y acepta pago
+  // dentro del widget. Si el cliente crea otros, aquí se pega el ID nuevo.
   booking: {
-    '2h': 'https://link.prospex.mx/widget/booking/HmYuE7Ptlsatvpue0Ztz',
-    '4h': 'https://link.prospex.mx/widget/booking/HmYuE7Ptlsatvpue0Ztz',
-    '8h': 'https://link.prospex.mx/widget/booking/HmYuE7Ptlsatvpue0Ztz',
-    scouting: 'https://link.prospex.mx/widget/booking/YdxMvtSMaaPszyPPOpwR',
+    '2h': 'https://link.prospex.mx/widget/booking/rWvK8UKsfxIQcHnye8be',
+    '4h': 'https://link.prospex.mx/widget/booking/qp5rHAwL2U4hLQoX8pEL',
+    '8h': 'https://link.prospex.mx/widget/booking/zZQ4fQp4Pah3D0cKjkZB',
+    scouting: 'https://link.prospex.mx/widget/booking/kL9e9x2EvzkBFHmMRHax',
   },
   bookingScript: 'https://link.prospex.mx/js/form_embed.js',
   maps: 'https://maps.app.goo.gl/FoNYv6muSefCaJnA8',
@@ -43,7 +44,9 @@ export const LINKS = {
    Cuando esté listo el video editado, colócalo en public/video/hero.mp4
    y escribe aquí 'video/hero.mp4'. Mientras esté vacío se usa la foto. */
 export const HERO = {
-  video: '',
+  // Video editado del estudio. Se procesa con ffmpeg a 720p sin audio y se
+  // guarda en public/video/hero.mp4 junto con su portada hero-poster.jpg.
+  video: 'video/hero.mp4',
   image: 'live-12',
   // Slideshow con disolución mientras llega el video. Solo fotos horizontales
   // del Live Room y el Control Room, de preferencia con gente grabando.
@@ -265,16 +268,21 @@ export const FEATURED = [
   },
 ];
 
-export const CLIPS = [
-  { yt: 'JTQTn4a-ajE', title: 'La Copita', artist: 'La Bandera Pesadilla ft. Fran Hevia y Jaun', tag: 'Nuevo' },
-  { yt: 'FaZrvZ7yIpM', title: '13,800 · Live From Undying Studios', artist: 'Cultis', tag: 'Nuevo' },
-  { yt: 'VAXCMwjb568', title: 'Infinito Canto · Live Session', artist: 'Isis Bordetas y Matías Lewin' },
-  { yt: 'uuRFOkEHePY', title: "Pa'l Mar · Live Session", artist: 'Mar Abreu' },
-  { yt: 'ShNGvolpIJE', title: 'Cuánto vales ahora · Session Live', artist: 'Eminente' },
-  { yt: 'VPnYTc6e4no', title: "Pa'l Mar", artist: 'Mar Abreu' },
-  { yt: 'f19f0gvge0Y', title: 'Flashlight (Jessie J cover)', artist: 'Keren' },
-  { yt: 'y3iv4sxZxPQ', title: 'Piel en llamas', artist: 'Chimy y Los VDA' },
-];
+/* ---------- Videoclips ----------
+   El carrusel se arma con la playlist de YouTube: src/clips.json es la copia
+   local (se refresca con `npm run sync:clips`) y, si hay API key, la página
+   consulta la playlist en vivo cada vez que alguien entra. */
+export const YOUTUBE = {
+  playlist: 'PL8bIl-NaTJFhAYKCqkHzfI9zW5719ob63',
+  // API key de YouTube Data v3, restringida al dominio del sitio.
+  // Con la key el carrusel se actualiza solo; sin ella usa src/clips.json.
+  apiKey: '',
+  // Cuántos videos mostrar y por cuántas horas se guarda la respuesta.
+  max: 12,
+  cacheHours: 6,
+  // Etiqueta "Nuevo" en los primeros videos de la playlist.
+  newTags: 2,
+};
 
 /* ---------- Reproductor de audio ----------
    PLACEHOLDER: audios de stock (Mixkit) con nombres de ejemplo, igual que en

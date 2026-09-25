@@ -8,7 +8,8 @@
     "dev:v1": "vite version01 --config version01/vite.config.js",
     "build": "vite build && npm run build:v1",
     "build:v1": "vite build --config version01/vite.config.js",
-    "preview": "vite preview --port 4173"
+    "preview": "vite preview --port 4173",
+    "sync:clips": "node tools/sync-clips.mjs"
   },
   "devDependencies": {
     "ffmpeg-static": "^5.3.0",

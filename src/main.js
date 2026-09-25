@@ -2,8 +2,9 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import {
-  LINKS, HERO, PRICING, ROOMS, GEAR, FEATURED, CLIPS, TRACKS, CLIENTS, REVIEWS, FAQS, AUDIENCES, HOURS, ADDRESS,
+  LINKS, HERO, YOUTUBE, PRICING, ROOMS, GEAR, FEATURED, TRACKS, CLIENTS, REVIEWS, FAQS, AUDIENCES, HOURS, ADDRESS,
 } from './data.js';
+import CLIPS_SNAPSHOT from './clips.json';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -88,7 +89,7 @@ $('#social').innerHTML = Object.entries(LINKS.social).map(([k, v]) => `<a href="
    ===================================================================== */
 const heroMedia = $('#heroMedia');
 if (HERO.video) {
-  heroMedia.innerHTML = `<video class="hero__video" autoplay muted loop playsinline poster="${src(HERO.image, 1600)}" preload="metadata"><source src="${BASE}${HERO.video}" type="video/mp4" /></video>`;
+  heroMedia.innerHTML = `<video class="hero__video" autoplay muted loop playsinline poster="${BASE}video/hero-poster.jpg" preload="metadata"><source src="${BASE}${HERO.video}" type="video/mp4" /></video>`;
 } else {
   // Slideshow con disolución: la primera foto carga de inmediato y las demás
   // se descargan hasta que la página terminó de cargar.
@@ -303,26 +304,67 @@ $('#featured').addEventListener('click', (e) => {
   lightbox.open([{ type: 'yt', id: w.yt, start: w.start, caption: `${w.title} · ${w.client}` }]);
 });
 
-$('#clips').innerHTML = CLIPS.map((c, i) => `
-  <button class="clip" type="button" data-clip="${i}" aria-label="Ver ${esc(c.title)} de ${esc(c.artist)}">
-    <span class="clip__media">
-      <img src="${ytThumb(c.yt)}" alt="" loading="lazy" decoding="async" />
-      <span class="wcard__play" aria-hidden="true">${playIco}</span>
-      ${c.tag ? `<span class="clip__tag">${c.tag}</span>` : ''}
-    </span>
-    <span class="clip__title">${c.title}</span>
-    <span class="clip__artist">${c.artist}</span>
-  </button>`).join('');
-$('#clips').addEventListener('click', (e) => {
-  const b = e.target.closest('.clip'); if (!b) return;
-  lightbox.open(CLIPS.map((c) => ({ type: 'yt', id: c.yt, caption: `${c.title} · ${c.artist}` })), +b.dataset.clip);
-});
+/* Carrusel de videoclips: se arma con la playlist de YouTube.
+   Primero pinta la copia local (src/clips.json) para que nunca esté vacío y,
+   si hay API key, consulta la playlist en vivo y vuelve a pintar. */
+let clips = [];
 const clipsEl = $('#clips');
 const clipStep = () => { const c = $('.clip', clipsEl); return c ? c.getBoundingClientRect().width + 16 : 300; };
 const updateArrows = () => {
   $('#clipsPrev').disabled = clipsEl.scrollLeft < 8;
   $('#clipsNext').disabled = clipsEl.scrollLeft + clipsEl.clientWidth > clipsEl.scrollWidth - 8;
 };
+
+// Quita del carrusel los videos que ya están en trabajos destacados, para no
+// repetirlos. Compara por id y, por si el video se resubió, también por título.
+const norm = (s) => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+const featuredIds = new Set(FEATURED.map((f) => f.yt));
+const featuredTitles = FEATURED.map((f) => norm(f.title)).filter((t) => t.length > 6);
+const isFeatured = (c) => featuredIds.has(c.yt) || featuredTitles.some((t) => norm(c.title).includes(t));
+
+function renderClips(list) {
+  clips = list.filter((c) => !isFeatured(c)).slice(0, YOUTUBE.max);
+  clipsEl.innerHTML = clips.map((c, i) => `
+    <button class="clip" type="button" data-clip="${i}" aria-label="Ver ${esc(c.title)}${c.artist ? ' de ' + esc(c.artist) : ''}">
+      <span class="clip__media">
+        <!-- hqdefault existe siempre; el recorte a 16:9 lo hace el CSS -->
+        <img src="https://i.ytimg.com/vi/${c.yt}/hqdefault.jpg" alt="" loading="lazy" decoding="async" />
+        <span class="wcard__play" aria-hidden="true">${playIco}</span>
+        ${i < YOUTUBE.newTags ? '<span class="clip__tag">Nuevo</span>' : ''}
+      </span>
+      <span class="clip__title">${esc(c.title)}</span>
+      <span class="clip__artist">${esc(c.artist || '')}</span>
+    </button>`).join('');
+  updateArrows();
+  ScrollTrigger.refresh();
+}
+
+async function livePlaylist() {
+  if (!YOUTUBE.apiKey) return null;
+  const key = 'undying:clips';
+  try {
+    const cached = JSON.parse(localStorage.getItem(key) || 'null');
+    if (cached && Date.now() - cached.t < YOUTUBE.cacheHours * 36e5) return cached.items;
+  } catch {}
+  const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=${Math.min(50, YOUTUBE.max)}&playlistId=${YOUTUBE.playlist}&key=${YOUTUBE.apiKey}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('YouTube ' + res.status);
+  const items = (await res.json()).items
+    .filter((i) => i.snippet?.resourceId?.videoId && i.snippet.title !== 'Private video' && i.snippet.title !== 'Deleted video')
+    .map((i) => ({ yt: i.snippet.resourceId.videoId, title: i.snippet.title, artist: i.snippet.videoOwnerChannelTitle || '' }));
+  try { localStorage.setItem(key, JSON.stringify({ t: Date.now(), items })); } catch {}
+  return items;
+}
+
+renderClips(CLIPS_SNAPSHOT.items);
+livePlaylist()
+  .then((items) => { if (items?.length) renderClips(items); })
+  .catch((e) => console.warn('No se pudo leer la playlist de YouTube, se usa la copia local:', e.message));
+
+clipsEl.addEventListener('click', (e) => {
+  const b = e.target.closest('.clip'); if (!b) return;
+  lightbox.open(clips.map((c) => ({ type: 'yt', id: c.yt, caption: [c.title, c.artist].filter(Boolean).join(' · ') })), +b.dataset.clip);
+});
 $('#clipsPrev').addEventListener('click', () => clipsEl.scrollBy({ left: -clipStep() * 2, behavior: 'smooth' }));
 $('#clipsNext').addEventListener('click', () => clipsEl.scrollBy({ left: clipStep() * 2, behavior: 'smooth' }));
 clipsEl.addEventListener('scroll', updateArrows, { passive: true });
@@ -544,7 +586,8 @@ function openBooking(id) {
   const url = LINKS.booking[id] || LINKS.booking['4h'];
   const b = PRICING.blocks.find((x) => x.id === id);
   $('#modalTitle').textContent = id === 'scouting' ? 'Agenda tu visita al estudio' : `Reserva tu bloque de ${b ? b.hours + ' horas' : 'estudio'}`;
-  $('#modalBody').innerHTML = `<iframe src="${url}" title="Calendario de reservas" scrolling="no" id="prospex-${id}-${Date.now()}"></iframe>`;
+  // allow="payment" deja que el widget de Prospex cobre dentro del iframe.
+  $('#modalBody').innerHTML = `<iframe src="${url}" title="Calendario de reservas" allow="payment" scrolling="no" id="prospex-${id}-${Date.now()}"></iframe>`;
   if (!scriptLoaded) { const s = document.createElement('script'); s.src = LINKS.bookingScript; s.async = true; document.body.appendChild(s); scriptLoaded = true; }
   modal.hidden = false; lockScroll(true);
   if (!reduced) gsap.fromTo('.modal__panel', { y: 30, opacity: 0, scale: 0.98 }, { y: 0, opacity: 1, scale: 1, duration: 0.5, ease: 'power3.out' });

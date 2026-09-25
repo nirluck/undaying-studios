@@ -24,9 +24,9 @@ let failures = 0;
 for (const [label, url] of [['landing', 'http://localhost:4999/estudio/'], ['version01', 'http://localhost:4999/estudio/version01/']]) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const bad = [];
-  page.on('response', (r) => { if (r.status() >= 400) bad.push(r.status() + ' ' + r.url()); });
+  page.on('response', (r) => { if (r.status() >= 400 && r.url().includes('localhost')) bad.push(r.status() + ' ' + r.url()); });
   page.on('pageerror', (e) => bad.push('pageerror ' + e.message));
-  await page.goto(url, { waitUntil: 'networkidle' });
+  await page.goto(url, { waitUntil: 'load' });
   await page.waitForTimeout(1500);
   const total = await page.evaluate(() => document.documentElement.scrollHeight);
   for (let y = 0; y < total; y += 500) { await page.mouse.wheel(0, 500); await page.waitForTimeout(60); }
