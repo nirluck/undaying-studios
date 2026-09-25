@@ -1,2 +1,3 @@
 User-agent: *
 Disallow: /version01/
+Disallow: /home-test/

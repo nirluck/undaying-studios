@@ -10,6 +10,16 @@
       ],
       "port": 5173,
       "autoPort": true
+    },
+    {
+      "name": "home",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev:home"
+      ],
+      "port": 5175,
+      "autoPort": true
     }
   ]
 }

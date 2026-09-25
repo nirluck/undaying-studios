@@ -1,5 +1,5 @@
-// Sirve dist/ bajo /estudio/ y comprueba que la landing y la versión 01
-// carguen sin peticiones fallidas, tal como quedarán en el hosting.
+// Sirve dist/ bajo /estudio/ y comprueba que la landing, la versión 01 y el
+// home de prueba carguen sin peticiones fallidas, tal como quedarán en el hosting.
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -21,7 +21,7 @@ const srv = http.createServer((req, res) => {
 
 const browser = await chromium.launch();
 let failures = 0;
-for (const [label, url] of [['landing', 'http://localhost:4999/estudio/'], ['version01', 'http://localhost:4999/estudio/version01/']]) {
+for (const [label, url] of [['landing', 'http://localhost:4999/estudio/'], ['version01', 'http://localhost:4999/estudio/version01/'], ['home-test', 'http://localhost:4999/estudio/home-test/']]) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const bad = [];
   page.on('response', (r) => { if (r.status() >= 400 && r.url().includes('localhost')) bad.push(r.status() + ' ' + r.url()); });

@@ -10,7 +10,7 @@ un subdominio (`estudio.undyingstudios.mx`) sin tocar el sitio existente.
 ```bash
 npm install        # una sola vez
 npm run dev        # servidor local en http://localhost:5173
-npm run build      # genera dist/ listo para subir
+npm run build      # genera dist/ con la landing, /version01/ y /home-test/
 npm run preview    # sirve dist/ para revisarlo
 npm run sync:clips # refresca src/clips.json desde la playlist de YouTube
 npm run dev:v1     # versión 01 archivada, en http://localhost:5174
@@ -28,7 +28,45 @@ npm run build:v1   # solo la versión 01, dentro de dist/version01
 | `src/styles/v2.css` | Componentes con material real: galerías, catálogo, portafolio, visor, carruseles |
 | `public/` | Fotos, equipo, logotipos, miniaturas, audio y marca ya optimizados |
 | `tools/` | Procesamiento de material y pruebas automáticas |
+| `home/` | Portada que reparte entre el foro y el estudio. Por ahora se publica como prueba en `/home-test/` |
 | `version01/` | Primera versión, con material de stock. Se compila dentro del build principal y queda publicada en `/version01/`. Ver su propio README |
+
+## Home (distribuidor)
+
+`home/` es la portada de `undyingstudios.mx`: una sola pantalla que manda a
+cada visitante al foro o al estudio. No compite en buscadores con las dos
+landings; cada una posiciona por su cuenta y el home solo reparte.
+
+- La pantalla se divide en dos fotos reales. La línea que las separa funciona
+  como crossfader de mezcladora: el lado donde está el cursor se abre, y la
+  perilla de abajo o la línea se pueden arrastrar (también con flechas).
+- El foro lleva un visor de cámara con timecode; el estudio, medidores L/R.
+- En móvil son dos tarjetas apiladas.
+- Las URL de cada lado están en los `href` de `home/index.html`. En local, el
+  estudio abre `localhost:5173` y el foro su página actual.
+- Las fotos se regeneran con `python tools/build-home-assets.py`. Hay una
+  alternativa por lado (`foro-alt`, `estudio-alt`) por si se quieren cambiar.
+
+```bash
+npm run dev:home     # http://localhost:5175
+npm run build:home   # solo el home, dentro de dist/home-test
+node tools/home-shoot.mjs   # capturas y pruebas en tools/.shots/home
+```
+
+**Hoy está en prueba.** Se compila dentro del build principal y queda en
+`/home-test/` (por ejemplo `undyingstudios.mx/estudio/home-test/`), con
+`noindex` y una regla en `robots.txt`. El foro apunta a su página actual y el
+estudio a la landing que está un nivel arriba (`../`).
+
+**Para publicarlo como portada** en `undyingstudios.mx/`:
+
+1. Cambiar `outDir` en `home/vite.config.js` a la carpeta que se suba a la raíz.
+2. En `home/index.html`, quitar `noindex`, agregar el `canonical` a la raíz y
+   apuntar los paneles a `/foro/` y `/estudio/`.
+3. Mover la landing actual del foro a `/foro/`, conservando su título y
+   descripción, y registrar la nueva URL en Search Console para no perder lo
+   que ya posiciona.
+4. Quitar `Disallow: /home-test/` de `public/robots.txt`.
 
 ## Dónde se edita cada cosa
 

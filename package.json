@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:home": "vite home --config home/vite.config.js",
     "dev:v1": "vite version01 --config version01/vite.config.js",
-    "build": "vite build && npm run build:v1",
+    "build": "vite build && npm run build:v1 && npm run build:home",
     "build:v1": "vite build --config version01/vite.config.js",
+    "build:home": "vite build --config home/vite.config.js",
     "preview": "vite preview --port 4173",
     "sync:clips": "node tools/sync-clips.mjs"
   },
