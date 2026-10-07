@@ -12,7 +12,7 @@ for (const v of views) {
   const errors = [];
   page.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') errors.push(`[${m.type()}] ${m.text()}`); });
   page.on('pageerror', (e) => errors.push('[pageerror] ' + e.message));
-  await page.goto(url, { waitUntil: 'networkidle' });
+  await page.goto(url, { waitUntil: 'load' });
   await page.waitForTimeout(2500);
   // scroll gradually so ScrollTrigger reveals fire
   const total = await page.evaluate(() => document.documentElement.scrollHeight);

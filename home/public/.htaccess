@@ -1,0 +1,74 @@
+# =====================================================================
+#  Undying Studios · reglas del servidor (Hostinger, LiteSpeed/Apache)
+#  Va en la raíz de public_html. Reemplaza al .htaccess de WordPress.
+# =====================================================================
+
+Options -Indexes
+DirectoryIndex index.html
+ErrorDocument 404 /404.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # --- HTTPS y dominio sin www (el sitio actual ya posiciona sin www) ---
+  RewriteCond %{HTTPS} off [OR]
+  RewriteCond %{HTTP_HOST} ^www\. [NC]
+  RewriteRule ^ https://undyingstudios.mx%{REQUEST_URI} [R=301,L,NE]
+
+  # --- URLs del WordPress anterior → páginas nuevas ---
+  RewriteRule ^reservacion-(3|6|12)-horas/?$ /foro/#tarifas [R=301,L,NE]
+  RewriteRule ^reservacion-12-horas-recolor/?$ /foro/#ciclorama [R=301,L,NE]
+  RewriteRule ^agendar-recorrido/?$ /foro/#scouting [R=301,L,NE]
+  RewriteRule ^privacy-policy/?$ /aviso-de-privacidad/ [R=301,L]
+  RewriteRule ^404-2/?$ / [R=301,L]
+  RewriteRule ^(sitemap_index|page-sitemap|wp-sitemap)\.xml$ /sitemap.xml [R=301,L]
+  RewriteRule ^feed/?$ / [R=301,L]
+
+  # PDF del foro que ya estaban enlazados en otros sitios
+  RewriteRule ^documentos/Reglamento-para-Uso-del-Foro-Undying-Studios\.pdf$ /foro/documentos/reglamento-foro.pdf [R=301,L,NC]
+  RewriteRule ^documentos/terminos-y-condiciones\.pdf$ /foro/documentos/terminos-y-condiciones-foro.pdf [R=301,L,NC]
+  RewriteRule ^wp-content/uploads/2025/09/Manual-Tecnico-US\.pdf$ /foro/documentos/manual-tecnico-foro.pdf [R=301,L,NC]
+
+  # El resto de WordPress ya no existe: 410 para que los buscadores lo olviden
+  RewriteRule ^(wp-admin|wp-includes|wp-content|wp-json)(/.*)?$ - [G,L]
+  RewriteRule ^(wp-login|xmlrpc|wp-cron)\.php$ - [G,L]
+
+  # /estudio y /foro sin diagonal final → con diagonal
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^(.*[^/])$ /$1/ [R=301,L]
+</IfModule>
+
+# --- Compresión (LiteSpeed comprime solo; esto cubre Apache) ---
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/javascript application/json application/xml image/svg+xml application/manifest+json
+</IfModule>
+
+# --- Tipos de archivo ---
+<IfModule mod_mime.c>
+  AddType font/woff2 .woff2
+  AddType image/webp .webp
+  AddType audio/mp4 .m4a
+  AddType application/manifest+json .webmanifest
+</IfModule>
+
+# --- Caché ---
+# Los archivos de assets/ llevan hash en el nombre: se guardan un año.
+# Imágenes, video, audio y PDF: un mes. HTML: siempre se revisa si cambió.
+<IfModule mod_headers.c>
+  <FilesMatch "\.(js|css|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.(webp|jpg|jpeg|png|svg|ico|mp4|m4a|pdf)$">
+    Header set Cache-Control "public, max-age=2592000"
+  </FilesMatch>
+  <FilesMatch "\.(html|xml|txt|webmanifest)$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+
+  # --- Seguridad básica ---
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  Header always set Strict-Transport-Security "max-age=31536000"
+</IfModule>

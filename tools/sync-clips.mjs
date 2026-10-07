@@ -1,13 +1,14 @@
-// Lee la playlist de YouTube y guarda el listado en src/clips.json.
+// Lee una playlist de YouTube y guarda el listado en un JSON local.
 // Se usa como respaldo del carrusel y como contenido inicial mientras
 // la página consulta la playlist en vivo.
 //
-//   node tools/sync-clips.mjs [PLAYLIST_ID]
+//   node tools/sync-clips.mjs                    → playlist del estudio
+//   node tools/sync-clips.mjs <PLAYLIST_ID> <salida.json>
 import fs from 'node:fs';
 import path from 'node:path';
 
 const PLAYLIST = process.argv[2] || 'PL8bIl-NaTJFhAYKCqkHzfI9zW5719ob63';
-const OUT = path.resolve('src/clips.json');
+const OUT = path.resolve(process.argv[3] || 'estudio/src/clips.json');
 
 const html = await fetch(`https://www.youtube.com/playlist?list=${PLAYLIST}&hl=es`, {
   headers: {

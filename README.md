@@ -1,218 +1,269 @@
-# Undying Studios · Landing del Estudio de Grabación
+# Undying Studios · sitio web
 
-Landing page estática (HTML + CSS + JS) construida con Vite, GSAP y Lenis para
-el estudio de grabación de Undying Studios. Convive con el WordPress del foro
-audiovisual: se publica en una subcarpeta (`undyingstudios.mx/estudio/`) o en
-un subdominio (`estudio.undyingstudios.mx`) sin tocar el sitio existente.
+Sitio de [undyingstudios.mx](https://undyingstudios.mx): un home que reparte a
+dos landings, la del estudio de grabación y la del foro audiovisual. HTML, CSS
+y JS estáticos construidos con Vite, GSAP y Lenis. Reemplaza al WordPress
+anterior y se publica en Hostinger.
+
+| URL | Página | Carpeta |
+|---|---|---|
+| `/` | Home: elige entre foro y estudio | `home/` |
+| `/estudio/` | Landing del estudio de grabación | `estudio/` |
+| `/estudio/terminos/` | Términos y condiciones del estudio | `estudio/terminos/` |
+| `/foro/` | Landing del foro audiovisual | `foro/` |
+| `/aviso-de-privacidad/` | Aviso de privacidad (todo el sitio) | `home/aviso-de-privacidad/` |
 
 ## Comandos
 
 ```bash
-npm install        # una sola vez
-npm run dev        # servidor local en http://localhost:5173
-npm run build      # genera dist/ con la landing, /version01/ y /home-test/
-npm run preview    # sirve dist/ para revisarlo
-npm run sync:clips # refresca src/clips.json desde la playlist de YouTube
-npm run dev:v1     # versión 01 archivada, en http://localhost:5174
-npm run build:v1   # solo la versión 01, dentro de dist/version01
+npm install          # una sola vez
+npm run dev          # estudio en http://localhost:5173
+npm run dev:foro     # foro en http://localhost:5176
+npm run dev:home     # home en http://localhost:5175
+npm run build        # genera dist/ con el sitio completo
+npm run preview      # sirve dist/ en http://localhost:4173
+npm run sync:clips   # refresca el showreel del estudio desde YouTube
 ```
+
+En local cada página corre en su propio puerto; los enlaces entre ellas se
+ajustan solos para apuntar al servidor de desarrollo correspondiente.
+
+El menú del estudio tiene la opción "Foro audiovisual" y el del foro
+"Estudio de grabación", para pasar de una landing a la otra sin volver al home.
 
 ## Estructura
 
-| Ruta | Contenido |
-|---|---|
-| `index.html` | Estructura de la página y textos fijos |
-| `src/data.js` | Todo el contenido editable |
-| `src/main.js` | Interacciones y animaciones |
-| `src/styles/main.css` | Sistema de diseño: tokens, tipografía y componentes base |
-| `src/styles/v2.css` | Componentes con material real: galerías, catálogo, portafolio, visor, carruseles |
-| `public/` | Fotos, equipo, logotipos, miniaturas, audio y marca ya optimizados |
-| `tools/` | Procesamiento de material y pruebas automáticas |
-| `home/` | Portada que reparte entre el foro y el estudio. Por ahora se publica como prueba en `/home-test/` |
-| `version01/` | Primera versión, con material de stock. Se compila dentro del build principal y queda publicada en `/version01/`. Ver su propio README |
-
-## Home (distribuidor)
-
-`home/` es la portada de `undyingstudios.mx`: una sola pantalla que manda a
-cada visitante al foro o al estudio. No compite en buscadores con las dos
-landings; cada una posiciona por su cuenta y el home solo reparte.
-
-- La pantalla se divide en dos fotos reales. La línea que las separa funciona
-  como crossfader de mezcladora: el lado donde está el cursor se abre, y la
-  perilla de abajo o la línea se pueden arrastrar (también con flechas).
-- El foro lleva un visor de cámara con timecode; el estudio, medidores L/R.
-- En móvil son dos tarjetas apiladas.
-- Las URL de cada lado están en los `href` de `home/index.html`. En local, el
-  estudio abre `localhost:5173` y el foro su página actual.
-- Las fotos se regeneran con `python tools/build-home-assets.py`. Hay una
-  alternativa por lado (`foro-alt`, `estudio-alt`) por si se quieren cambiar.
-
-```bash
-npm run dev:home     # http://localhost:5175
-npm run build:home   # solo el home, dentro de dist/home-test
-node tools/home-shoot.mjs   # capturas y pruebas en tools/.shots/home
+```
+home/        Home, aviso de privacidad y archivos de la raíz del servidor
+  public/    .htaccess, robots.txt, sitemap.xml, 404.html, íconos, manifest
+estudio/     Landing del estudio y sus términos
+  src/       data.js (todo el contenido), main.js, estudio.css, clips.json
+  public/    Fotos, equipo, logotipos, miniaturas, video del hero
+foro/        Landing del foro
+  src/       data.js, main.js, styles/foro.css, clips.json
+  public/    Fotos y PDF del foro
+shared/      Sistema de diseño común
+  styles/    base.css (tokens y componentes base), components.css, legal.css
+  fonts/     Wix Madefor Display, Montserrat y Norwester (autoalojadas)
+  data/      reviews.js (reseñas de Google del negocio)
+  vite/      seo.js (datos estructurados JSON-LD generados al compilar)
+tools/       Procesamiento de material y pruebas automáticas
+version01/   Primera versión del estudio, archivada. No se publica
 ```
 
-**Hoy está en prueba.** Se compila dentro del build principal y queda en
-`/home-test/` (por ejemplo `undyingstudios.mx/estudio/home-test/`), con
-`noindex` y una regla en `robots.txt`. El foro apunta a su página actual y el
-estudio a la landing que está un nivel arriba (`../`).
-
-**Para publicarlo como portada** en `undyingstudios.mx/`:
-
-1. Cambiar `outDir` en `home/vite.config.js` a la carpeta que se suba a la raíz.
-2. En `home/index.html`, quitar `noindex`, agregar el `canonical` a la raíz y
-   apuntar los paneles a `/foro/` y `/estudio/`.
-3. Mover la landing actual del foro a `/foro/`, conservando su título y
-   descripción, y registrar la nueva URL en Search Console para no perder lo
-   que ya posiciona.
-4. Quitar `Disallow: /home-test/` de `public/robots.txt`.
+`npm run build` compila el home en `dist/`, el estudio en `dist/estudio/` y el
+foro en `dist/foro/`. El resultado es exactamente lo que va en `public_html`.
 
 ## Dónde se edita cada cosa
 
-Todo está en `src/data.js`.
+Todo el contenido está en el `data.js` de cada página. Lo marcado con
+`POR CONFIRMAR` es una suposición que el cliente debe validar y lo marcado con
+`PENDIENTE` espera material del cliente.
+
+**Estudio (`estudio/src/data.js`)**
 
 | Qué | Bloque |
 |---|---|
-| Tarifas y servicios por cotizar | `PRICING` |
-| Salas y amenidades con su galería | `ROOMS` |
-| Catálogo de equipo | `GEAR` |
-| Portafolio destacado | `FEATURED` |
-| Playlist del carrusel de videoclips | `YOUTUBE` |
-| Pistas del reproductor de audio | `TRACKS` |
-| Cinta de clientes | `CLIENTS` |
-| Reseñas de Google | `REVIEWS` |
+| WhatsApp, correo, razón social, calendarios, enlace de pago | `LINKS` |
+| Tarjetas de "para quién" | `AUDIENCES` |
+| Logotipos de artistas | `ARTISTS` |
+| Salas, medidas y fichas | `ROOMS` |
+| Equipo del Estudio A y del Estudio B | `GEAR` |
+| Producciones destacadas | `FEATURED` |
+| Showreel (playlist de YouTube) | `YOUTUBE` |
+| Tracks de "El sonido de Undying" | `TRACKS` |
+| Tarifas, postproducción y combinaciones del cotizador | `PRICING` |
+| Cinta de marcas | `CLIENTS` |
 | Preguntas frecuentes | `FAQS` |
-| WhatsApp, calendarios Prospex, playlists, redes y legales | `LINKS` |
-| Slideshow o video del hero | `HERO` |
 
-Lo marcado con `POR CONFIRMAR` es una suposición razonable que el cliente debe
-validar antes de publicar.
+**Foro**: la landing reproduce la página del foro que estaba en WordPress, con
+el mismo orden, los mismos textos y las mismas fotos. Los textos fijos están en
+`foro/index.html`; en `foro/src/data.js` quedan los calendarios, las tarifas,
+la playlist de videoclips y las preguntas frecuentes. Encima de la página
+original se aplicaron las correcciones del cliente: sección de videoclips
+grabados en el foro, preguntas frecuentes, aforo de 25 personas y equipo
+incluido en 3 y 3.
+
+Las reseñas de Google están en `shared/data/reviews.js` y las usan ambas
+landings.
+
+## Reservas y cotizador
+
+Las reservas usan calendarios de Prospex en un modal. Antes de cargar el
+calendario se pide aceptar el aviso de privacidad y los términos.
+
+- **Estudio**: cada bloque tiene una llave `3h-ing`, `6h-dry`, etc. en
+  `LINKS.booking`. Si la llave está vacía, el botón abre WhatsApp con la reserva
+  ya escrita. Cuando el cliente cree los calendarios, solo se pega la URL.
+- **Cotizador del estudio**: combina horas (con ingeniero o Dry Hire) y piezas
+  de postproducción con cantidad. Con la casilla de aceptación marcada permite
+  reservar las horas o mandar el pedido por WhatsApp. Si se configura
+  `LINKS.checkout` (formulario de pedido de Prospex o liga de Mercado Pago)
+  aparece también el botón de pago en línea.
+- **Foro**: calendarios de 3, 6 y 12 horas, 12 horas con cambio de color del
+  ciclorama y scouting, los mismos que usaba el sitio anterior. La casilla
+  "Personalizar color de ciclorama" de la tarjeta de 12 horas sube el precio a
+  $10,000 y cambia al calendario con cambio de color, como en WordPress.
+
+## SEO
+
+- Cada página tiene título, descripción, `canonical`, Open Graph con imagen de
+  1200×630 y Twitter card. Las imágenes para compartir se regeneran con
+  `node tools/build-meta-images.mjs`.
+- Los datos estructurados se generan al compilar desde `data.js`
+  (`shared/vite/seo.js`): `RecordingStudio` y `LocalBusiness` con tarifas y
+  calificación, `BreadcrumbList` y `FAQPage`. El home lleva `Organization` y
+  `WebSite`.
+- `home/public/sitemap.xml` y `robots.txt` van en la raíz. Al cambiar algo
+  importante, actualiza la fecha `lastmod` del sitemap.
+- El `.htaccess` redirige con 301 las URLs del WordPress anterior (reservas,
+  agendar recorrido, aviso de privacidad, PDF y sitemaps de Yoast) y responde
+  410 a las rutas de WordPress que ya no existen.
+- La landing del foro conserva el título que tenía la página de WordPress.
+
+## Rendimiento
+
+Lighthouse móvil sobre el build (octubre 2026):
+
+| Página | Rendimiento | Accesibilidad | Buenas prácticas | SEO |
+|---|---|---|---|---|
+| Home | 99 | 95 | 100 | 100 |
+| Estudio | 98 | 100 | 100 | 100 |
+| Foro | 98 | 100 | 100 | 100 |
+
+- Tipografías autoalojadas y precargadas; sin Google Fonts.
+- El video del hero está en el HTML con dos versiones: `hero.mp4` (720p) y
+  `hero-mobile.mp4` (540p, para pantallas de hasta 720 px). Con movimiento
+  reducido o ahorro de datos se queda solo la portada (`hero-poster.webp`).
+- Fotos en WebP de 400, 800 y 1600 px con `srcset`; carga diferida fuera de
+  la primera pantalla.
+- El `.htaccess` guarda un año los archivos con hash, un mes las imágenes y
+  revisa el HTML en cada visita.
+- La accesibilidad del home queda en 95 por el contraste del texto blanco
+  sobre el naranja de marca en los botones. Se dejó así para respetar la
+  identidad; para llegar a 100 basta con oscurecer el naranja de los botones a
+  `#a55a27`.
+
+## Publicar en Hostinger
+
+El hosting es el mismo plan de WordPress: el sitio nuevo son archivos
+estáticos y Hostinger los sirve sin cambiar de plan ni de DNS. El correo
+(`@undyingstudios.mx`) no se ve afectado.
+
+### Primera vez: migración desde WordPress
+
+1. **Respaldo completo** del WordPress (hPanel → Respaldos), archivos y base
+   de datos.
+2. En hPanel → Administrador de archivos, mueve el contenido actual de
+   `public_html` a una carpeta fuera de ella (por ejemplo `wp-respaldo/`).
+   No lo borres hasta que el sitio nuevo esté estable.
+3. Conserva la carpeta `documentos/` si hay PDF que no estén en el proyecto.
+4. Publica `dist/` (ver abajo). Debe incluir `.htaccess`.
+5. Purga la caché del CDN de Hostinger (hPanel → Rendimiento → CDN).
+6. Revisa `https://undyingstudios.mx/`, `/estudio/`, `/foro/` y una URL vieja,
+   por ejemplo `/reservacion-6-horas/`, que debe redirigir al foro.
+7. En Google Search Console envía `https://undyingstudios.mx/sitemap.xml`.
+
+### Publicación con GitHub Actions (recomendado)
+
+`.github/workflows/deploy.yml` compila el sitio y sube `dist/` por FTP. Solo
+sube lo que cambió y nunca borra archivos del servidor.
+
+1. En hPanel → Archivos → Cuentas FTP, crea o copia el usuario FTP.
+2. En GitHub → Settings → Secrets and variables → Actions, agrega los secretos
+   `FTP_SERVER`, `FTP_USERNAME` y `FTP_PASSWORD`. Si la carpeta del sitio no es
+   `public_html/` desde la raíz del FTP, agrega la variable `FTP_DIR`.
+3. GitHub → Actions → **Publicar en Hostinger** → Run workflow.
+
+El flujo se ejecuta solo a mano. Cuando la migración esté hecha, puedes
+activar la publicación automática en cada push a `main` quitando el
+comentario de `push` en el archivo.
+
+### Publicación manual
+
+`npm run build`, comprime el contenido de `dist/` (incluido `.htaccess`) y
+extráelo en `public_html` desde el Administrador de archivos.
 
 ## Material del cliente
 
-El material original vive en `material-de-origen/`, que no se versiona porque
-pesa unos 12 GB. El script `tools/build-assets.py` lo convierte a lo que usa la
-página y lo guarda en `public/`:
+El material original vive en `material-de-origen/` (unos 12 GB, no se
+versiona). Scripts en `tools/`:
 
-- Fotos del estudio a WebP de 800 y 1600 px, con la orientación corregida.
-- Fotos de equipo a WebP cuadrado sobre fondo blanco, recortadas al producto.
-- Miniaturas de YouTube del portafolio.
-- Logotipos originales a `tools/.logo-src`.
+| Script | Qué hace |
+|---|---|
+| `build-assets.py` | Fotos del estudio a WebP, fotos de equipo en cuadro blanco, miniaturas de YouTube |
+| `fix-gear.py` | Limpia el fondo de fotos de equipo sobre gris (Apogee Rosetta 800, PSS-780) |
+| `logos-render.mjs` + `logos-mono.py` | Logotipos de clientes en blanco para la cinta |
+| `build-foro-assets.py` | Fotos y PDF del foro (descargados del WordPress anterior); acepta nombres para bajar solo esas fotos |
+| `shoot-original.mjs` | Capturas por pantalla de una página (por omisión, el foro en WordPress) para compararla |
+| `build-meta-images.mjs` | Íconos e imágenes para compartir |
+| `build-font.py` | Norwester con acentos, eñe y signos de apertura |
+| `sync-clips.mjs` | Copia local de una playlist de YouTube |
+| `build-tracks.mjs` | WAV de "El sonido de Undying" a AAC de 256 kbps en `estudio/public/audio/` |
+
+`build-foro-assets.py` descarga del WordPress: ya no funcionará cuando se
+reemplace el sitio, pero las fotos y los PDF ya están en `foro/public/`.
+
+Showreel del estudio: `npm run sync:clips`. Videoclips del foro:
 
 ```bash
-python tools/build-assets.py
+node tools/sync-clips.mjs PL8bIl-NaTJFi3g4-jjmeeWq3_YIqViB25 foro/src/clips.json
 ```
 
-Para regenerar los logotipos blancos de la cinta de clientes:
+## Pendientes del cliente
 
-```bash
-node tools/logos-render.mjs
-```
+**Material que menciona la guía de actualización y no llegó**
 
-```bash
-python tools/logos-mono.py
-```
+- Logotipos de artistas (`ARTISTS`; la sección aparece sola cuando hay logos).
+- Video nuevo del hero del estudio.
+- Fotos de las cuatro tarjetas de "para quién".
+- Fotos del Estudio B y de su equipo; fotos de la guitarra Jay Turser y de las
+  congas.
 
-Paramount y Fiat quedaron fuera de la cinta porque no se leen en monocromo.
+**Configuración**
 
-### Video del hero
+- Calendarios de Prospex del estudio para 3, 6 y 9 horas, con y sin ingeniero.
+- Enlace de pago en línea para el cotizador, si se quiere cobrar ahí.
+- API key de YouTube si se quiere que el showreel se actualice sin publicar.
 
-Mientras llega el video editado, el hero muestra un slideshow con disolución de
-las fotos listadas en `HERO.slides`. Cuando esté listo, guárdalo como
-`public/video/hero.mp4` y escribe `video: 'video/hero.mp4'` en `HERO`.
-Recomendado: 1280×720, sin audio, 15 a 20 segundos, alrededor de 1 MB.
+**Correcciones del foro que esperan material**
 
-### Carrusel de videoclips
+- "Eliminar foto C19 y reemplazar por" una foto de Drive: el archivo no es
+  público y no se sabe cuál es la foto C19.
+- Recorrido horizontal y vertical del foro (Drive, sin acceso público).
 
-El carrusel se arma con la playlist de YouTube del estudio, así que basta con
-agregar o quitar videos en YouTube para cambiar lo que aparece. Funciona de
-dos maneras:
+**Por confirmar**
 
-- **Sin API key (como está hoy).** `src/clips.json` guarda una copia de la
-  playlist. Para actualizarla se corre `npm run sync:clips` y se vuelve a
-  publicar. El script lee la playlist directamente de YouTube, sin credenciales.
-- **Con API key (se actualiza solo).** Al pegar una key de YouTube Data API v3
-  en `YOUTUBE.apiKey`, la página consulta la playlist cada vez que alguien
-  entra y guarda la respuesta unas horas en el navegador. Si la consulta falla,
-  usa la copia local. La key se crea en Google Cloud, con la API de YouTube
-  Data v3 activada y restringida al dominio del sitio.
-
-`YOUTUBE.max` define cuántos videos se muestran y `YOUTUBE.newTags` cuántos
-llevan la etiqueta "Nuevo", contando desde el inicio de la playlist.
-
-### Audios del reproductor
-
-Los cinco audios de `public/audio` todavía son de stock (Mixkit) con nombres de
-ejemplo. Se reemplazan en `TRACKS`.
-
-La playlist de Spotify no se puede leer desde el navegador sin credenciales de
-servidor, y Spotify ya no entrega fragmentos de audio. Por eso el reproductor
-usa archivos propios y el listado se controla en `TRACKS`. El botón lleva a la
-playlist completa en Spotify.
-
-### Cotizador
-
-Está oculto con el atributo `hidden` en `index.html` mientras se itera. El
-código sigue completo; para mostrarlo basta con quitar ese atributo.
-
-### Reseñas de Google
-
-Hoy son las 10 reseñas del foro copiadas textualmente del widget de
-Trustindex. Para que se actualicen solas:
-
-1. **Trustindex (recomendado).** El foro ya lo usa. Desde su panel se copia el
-   código del widget (`<script src="https://cdn.trustindex.io/loader.js?ID">`) y
-   se pega en la sección de reseñas.
-2. **API de Google Places.** Requiere el Place ID del negocio y una API key de
-   Google Cloud con facturación activa. Solo entrega 5 reseñas por consulta.
-
-## Datos por confirmar con el cliente
-
-- Calendarios del estudio en Prospex. Hoy apuntan a los del foro.
-- Medidas de cada sala.
-- Si la sesión de tracking incluye ingeniero de grabación.
-- Precio de la hora extra. Hoy usa $900, el precio por hora del bloque de 2 horas.
-- Horario de atención.
-- Que las políticas de pago, reprogramación, invitados y tolerancia del foro
-  apliquen también al estudio.
-- Aviso de privacidad y términos propios del estudio.
-- URL absoluta para `og:image` una vez publicada.
-- Píxeles de Meta, TikTok y Google Ads si se van a correr campañas.
-
-## Publicar
-
-1. `npm run build`. Genera la landing y, dentro, `dist/version01/` con la
-   versión archivada.
-2. Sube el contenido de `dist/` a la carpeta `estudio/` del hosting o a la raíz
-   del subdominio. Las rutas son relativas.
-
-3. Si vive en subcarpeta dentro del WordPress, agrega `RewriteEngine Off` en el
-   `.htaccess` de esa carpeta para que WordPress no intercepte la ruta.
-
-La versión 01 queda navegable en `/version01/` (por ejemplo
-`undyingstudios.mx/estudio/version01/`). No se enlaza desde ninguna parte de la
-landing y lleva `noindex` más una regla en `robots.txt` para que no aparezca en
-buscadores.
+- Revisión legal del aviso de privacidad y de los términos del estudio.
+- Video de Kinky "Aspirina Sound Off": se usó el que aparece en YouTube con
+  ese título.
+- Descripción del track "Oveja Negra" (la guía repite la de "Dile").
+- Horario de atención del estudio.
+- Correo del foro: la página anterior decía foro@undyingstudio.mx (sin la "s");
+  se usa music@undyingstudios.mx de la guía del cliente.
+- Cancelaciones del foro: el reglamento dice 24 h / 12 h y los términos dicen
+  sin reembolso y reprogramación con 48 h. Las preguntas frecuentes usan los
+  términos.
+- Los PDF del foro (reglamento y términos) traen el contacto viejo:
+  undyingstudios@gmail.com y +52 1 55 4469 8604.
 
 ## Pruebas automáticas
 
-Scripts de Playwright en `tools/`. Requieren `npm run dev` corriendo. Las
-capturas se guardan en `tools/.shots/`.
+Scripts de Playwright (`npx playwright install chromium` la primera vez).
+Capturas en `tools/.shots/`.
 
-```bash
-npx playwright install chromium
-```
-
-- `node tools/shoot.mjs` toma capturas completas en desktop y móvil.
-- `node tools/interact.mjs` prueba galerías, visor, catálogo, portafolio,
-  reproductor, reseñas, modal, FAQ y desbordes en móvil.
-- `node tools/subpath-test.mjs dist` verifica la landing y la versión 01
-  servidas desde `/estudio/`.
+- `node tools/font-audit.mjs` lista los textos visibles del estudio y del foro
+  con letra menor a 16 px (el mínimo del sitio; el menú va en 18 px).
+- `node tools/qa-site.mjs` revisa el build completo: errores, enlaces rotos,
+  etiquetas SEO, JSON-LD, imágenes sin alt y desbordes en móvil.
+- `node tools/interact.mjs` prueba el estudio en local (`npm run dev`).
+- `node tools/foro-shoot.mjs` y `node tools/home-shoot.mjs` prueban el foro y
+  el home en local.
 
 ## Tipografía
 
-`public/fonts/norwester.woff2` se genera con `python tools/build-font.py` a
-partir del OTF original. El script le agrega las vocales acentuadas, la eñe, la
-diéresis, el punto medio y los signos de apertura, que la fuente no trae y que
-el español necesita.
+`shared/fonts/` tiene las tres familias en WOFF2 (licencia SIL Open Font).
+Wix Madefor Display y Montserrat son variables y solo incluyen el subconjunto
+latino. Norwester se genera con `python tools/build-font.py`, que le agrega
+las vocales acentuadas, la eñe, la diéresis, el punto medio y los signos de
+apertura.

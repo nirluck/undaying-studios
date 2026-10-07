@@ -1,16 +1,19 @@
 {
-  "name": "undying-studios-estudio",
+  "name": "undying-studios-sitio",
   "private": true,
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "dev:home": "vite home --config home/vite.config.js",
-    "dev:v1": "vite version01 --config version01/vite.config.js",
-    "build": "vite build && npm run build:v1 && npm run build:home",
-    "build:v1": "vite build --config version01/vite.config.js",
+    "dev": "vite --config estudio/vite.config.js",
+    "dev:home": "vite --config home/vite.config.js",
+    "dev:foro": "vite --config foro/vite.config.js",
+    "dev:v1": "vite --config version01/vite.config.js",
+    "build": "npm run build:home && npm run build:estudio && npm run build:foro",
     "build:home": "vite build --config home/vite.config.js",
-    "preview": "vite preview --port 4173",
+    "build:estudio": "vite build --config estudio/vite.config.js",
+    "build:foro": "vite build --config foro/vite.config.js",
+    "build:v1": "vite build --config version01/vite.config.js",
+    "preview": "vite preview --config home/vite.config.js",
     "sync:clips": "node tools/sync-clips.mjs"
   },
   "devDependencies": {

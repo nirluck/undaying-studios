@@ -1,0 +1,21 @@
+{
+  "name": "Undying Studios",
+  "short_name": "Undying",
+  "description": "Foro audiovisual y estudio de grabación en Naucalpan, a 30 minutos de la CDMX.",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#1b1f21",
+  "theme_color": "#1b1f21",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

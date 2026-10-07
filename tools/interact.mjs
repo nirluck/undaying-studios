@@ -9,7 +9,7 @@ const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 page.on('pageerror', (e) => errors.push('[pageerror] ' + e.message));
 page.on('console', (m) => { if (m.type() === 'error') errors.push('[console] ' + m.text()); });
 page.on('response', (r) => { if (r.status() >= 400 && r.url().includes('localhost')) errors.push(`[${r.status()}] ${r.url()}`); });
-await page.goto(URL, { waitUntil: 'networkidle' }); await page.waitForTimeout(2500);
+await page.goto(URL, { waitUntil: 'load' }); await page.waitForTimeout(2500);
 await page.screenshot({ path: `${OUT}/i-hero.png` });
 const nav = (h) => page.click(`.nav__links a[href="${h}"]`).then(() => page.waitForTimeout(1700));
 
@@ -34,7 +34,7 @@ await page.screenshot({ path: `${OUT}/i-gear.png` });
 console.log('gear mics', gear);
 
 // 3. Portafolio: video destacado, carrusel de clips, reproductor de audio
-await nav('#portafolio');
+await nav('#escucha');
 await page.click('.wcard[data-work="0"]'); await page.waitForTimeout(2500);
 const yt = await page.$eval('#lbStage iframe', (f) => f.src);
 await page.keyboard.press('Escape'); await page.waitForTimeout(400);
@@ -42,8 +42,10 @@ const before = await page.$eval('#clips', (e) => e.scrollLeft);
 await page.click('#clipsNext'); await page.waitForTimeout(900);
 const after = await page.$eval('#clips', (e) => e.scrollLeft);
 const links = await page.evaluate(() => ({ yt: document.querySelector('#ytPlaylist').href, sp: document.querySelector('#spotifyLink').href }));
-await page.click('.track[data-i="2"] .track__play'); await page.waitForTimeout(1800);
-const pl = await page.evaluate(() => ({ visible: document.querySelector('#player').classList.contains('is-visible'), title: document.querySelector('#pTitle').textContent, playing: !document.querySelector('#audio').paused }));
+// Los tracks sin audio solo muestran su desglose; si hay alguno con audio, se prueba
+const playable = await page.$('.track:not(.is-info) .track__play');
+if (playable) { await playable.click(); await page.waitForTimeout(1800); }
+const pl = await page.evaluate(() => ({ tracks: document.querySelectorAll('.track').length, conAudio: document.querySelectorAll('.track:not(.is-info)').length, playing: !document.querySelector('#audio').paused }));
 await page.screenshot({ path: `${OUT}/i-work.png` });
 console.log('portfolio', { yt, scrolled: after > before, links, pl });
 
@@ -64,8 +66,12 @@ console.log('hero', hero);
 
 // 5. Tarifas -> modal Prospex
 await nav('#tarifas');
-await page.click('[data-book="8h"]'); await page.waitForTimeout(2500);
-const modal = await page.evaluate(() => ({ hidden: document.querySelector('#modal').hidden, title: document.querySelector('#modalTitle').textContent }));
+// Scouting: tiene calendario; primero se aceptan aviso y términos
+await page.evaluate(() => document.querySelector('.scout [data-book]').click()); await page.waitForTimeout(800);
+const gate = await page.evaluate(() => ({ consent: !document.querySelector('#modalConsent').hidden, iframe: !!document.querySelector('#modalBody iframe') }));
+await page.click('#modalAccept'); await page.click('#modalGo'); await page.waitForTimeout(2000);
+const modal = await page.evaluate(() => ({ hidden: document.querySelector('#modal').hidden, title: document.querySelector('#modalTitle').textContent, iframe: !!document.querySelector('#modalBody iframe') }));
+console.log('antes de aceptar', gate);
 console.log('modal', modal);
 await page.keyboard.press('Escape'); await page.waitForTimeout(400);
 
@@ -80,7 +86,7 @@ await page.close();
 for (const w of [360, 390, 768]) {
   const m = await browser.newPage({ viewport: { width: w, height: 800 }, isMobile: w < 700, hasTouch: w < 700 });
   m.on('pageerror', (e) => errors.push(`[m${w}] ` + e.message));
-  await m.goto(URL, { waitUntil: 'networkidle' }); await m.waitForTimeout(1500);
+  await m.goto(URL, { waitUntil: 'load' }); await m.waitForTimeout(1500);
   const r = await m.evaluate(() => {
     const vw = document.documentElement.clientWidth; const bad = [];
     document.querySelectorAll('main *, footer *').forEach((el) => {

@@ -1,0 +1,27 @@
+/* Tipografías del sitio, servidas desde el propio dominio.
+   - Wix Madefor Display y Montserrat: fuentes variables de Google Fonts
+     (SIL Open Font License), solo el subconjunto latino, que cubre los
+     acentos, la eñe y los signos de apertura del español.
+   - Norwester: SIL Open Font License. tools/build-font.py le agrega los
+     acentos, la eñe y los signos de apertura que no trae. */
+@font-face {
+  font-family: "Wix Madefor Display";
+  src: url("../fonts/wix-madefor-display.woff2") format("woff2");
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Montserrat";
+  src: url("../fonts/montserrat.woff2") format("woff2");
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Norwester";
+  src: url("../fonts/norwester.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}

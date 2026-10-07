@@ -1,3 +1,5 @@
+import './styles/home.css';
+
 /* =====================================================================
    UNDYING STUDIOS · HOME
    Crossfader entre el foro (A) y el estudio (B). Pasar el cursor por un
@@ -24,6 +26,20 @@ const wide = matchMedia('(min-width: 900px)');
 // para poder revisar el recorrido completo antes de publicar.
 if (import.meta.env.DEV) {
   for (const p of [panelA, panelB]) if (p.dataset.devHref) p.href = p.dataset.devHref;
+  // Los videos viven en cada landing; en local se piden a su servidor
+  document.querySelectorAll('source[data-dev-src]').forEach((s) => (s.src = s.dataset.devSrc));
+  document.querySelectorAll('.panel__media video').forEach((v) => {
+    v.poster = v.dataset.devPoster;
+    v.load();
+  });
+}
+
+// Con movimiento reducido o ahorro de datos se quedan las portadas fijas
+if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || navigator.connection?.saveData) {
+  document.querySelectorAll('.panel__media video').forEach((v) => {
+    v.removeAttribute('autoplay'); v.pause();
+    v.querySelectorAll('source').forEach((s) => s.remove()); v.load();
+  });
 }
 
 /* ---------- Estado del crossfader ---------- */
@@ -66,7 +82,7 @@ stage.addEventListener('pointermove', (e) => {
   // Cerca de la línea o sobre la regla no se cambia de lado: si no, la
   // perilla huye del cursor justo cuando alguien va a tomarla.
   const nearSeam = Math.abs(e.clientX - (cur / 100) * innerWidth) < 48;
-  const onRule = e.clientY > innerHeight - 76;
+  const onRule = e.clientY > innerHeight - 92;
   if (nearSeam || onRule) return;
   target = sideAt(e.clientX) === 'a' ? 50 + HOVER : 50 - HOVER;
 });

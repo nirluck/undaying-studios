@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Genera public/fonts/norwester.woff2 a partir del OTF original.
+"""Genera shared/fonts/norwester.woff2 a partir del OTF original.
 
 Norwester solo trae A-Z, a-z, números y signos básicos: le faltan las vocales
 acentuadas, la eñe, la diéresis, el punto medio y los signos de apertura que
@@ -16,7 +16,7 @@ from fontTools.pens.cu2quPen import Cu2QuPen
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 SRC = os.path.join(ROOT, 'material-de-origen', 'fuente', 'norwester', 'norwester.otf')
-OUT = os.path.join(ROOT, 'public', 'fonts', 'norwester.woff2')
+OUT = os.path.join(ROOT, 'shared', 'fonts', 'norwester.woff2')
 
 font = TTFont(SRC)
 upm = font['head'].unitsPerEm

@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Renta de Estudio de Grabación en CDMX | Undying Studios</title>
+  <meta name="description" content="Estudio de grabación a 30 min de la CDMX: Live Room de 34 m², bloques de 3, 6 y 9 horas con ingeniero o Dry Hire, y mezcla y máster analógico. Desde $2,100." />
+  <link rel="canonical" href="https://undyingstudios.mx/estudio/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="es_MX" />
+  <meta property="og:site_name" content="Undying Studios" />
+  <meta property="og:url" content="https://undyingstudios.mx/estudio/" />
+  <meta property="og:title" content="Renta de Estudio de Grabación en CDMX | Undying Studios" />
+  <meta property="og:description" content="Live Room de 34 m², sesiones con ingeniero o Dry Hire, y mezcla y máster con equipo analógico boutique. A 30 minutos del centro de la CDMX." />
+  <meta property="og:image" content="https://undyingstudios.mx/estudio/og-estudio.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Banda grabando en el Live Room de Undying Studios" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="theme-color" content="#252A2D" />
+  <link rel="icon" href="/brand/monograma-blanco.svg" type="image/svg+xml" />
+  <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="preload" href="../shared/fonts/wix-madefor-display.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="../shared/fonts/norwester.woff2" as="font" type="font/woff2" crossorigin />
+  <!-- La portada del video es lo primero que se ve: se pide de inmediato -->
+  <link rel="preload" href="/video/hero-poster.webp" as="image" type="image/webp" fetchpriority="high" />
+  <link rel="preconnect" href="https://i.ytimg.com" />
+  <!-- RecordingStudio, BreadcrumbList y FAQPage se generan al compilar (vite.config.js) -->
+</head>
+<body>
+  <a class="skip" href="#salas">Ir al contenido</a>
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- ============ NAV ============ -->
+  <header class="nav" id="nav">
+    <div class="nav__inner">
+      <a class="nav__brand" href="#top" aria-label="Undying Studios, inicio">
+        <img class="nav__logo" src="/brand/logo-undying-h.svg" alt="Undying Studios" width="109" height="40" />
+      </a>
+      <nav class="nav__links" aria-label="Secciones">
+        <a href="#salas">Salas</a>
+        <a href="#equipo">Equipo</a>
+        <a href="#escucha">Escucha</a>
+        <a href="#tarifas">Tarifas</a>
+        <a href="#faq">Dudas</a>
+        <a href="#ubicacion">Ubicación</a>
+        <a href="../foro/" data-space="foro">Foro audiovisual</a>
+      </nav>
+      <div class="nav__cta">
+        <span class="rec" aria-hidden="true"><i></i>Agenda abierta</span>
+        <a class="btn btn--primary btn--sm" href="#tarifas">Reservar sesión</a>
+        <button class="nav__burger" id="burger" aria-label="Abrir menú" aria-expanded="false" aria-controls="drawer">
+          <span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="drawer" id="drawer" aria-hidden="true">
+    <nav class="drawer__links" aria-label="Menú móvil">
+      <a href="#salas">Salas</a>
+      <a href="#equipo">Equipo</a>
+      <a href="#escucha">Escucha</a>
+      <a href="#tarifas">Tarifas</a>
+      <a href="#faq">Dudas</a>
+      <a href="#ubicacion">Ubicación</a>
+      <a href="../foro/" data-space="foro">Foro audiovisual</a>
+    </nav>
+    <div class="drawer__foot">
+      <a class="btn btn--primary" href="#tarifas">Reservar sesión</a>
+      <a class="btn btn--ghost" id="drawerWa" href="#" target="_blank" rel="noopener">WhatsApp</a>
+    </div>
+  </div>
+
+  <main id="top">
+    <!-- ============ HERO ============ -->
+    <section class="hero" id="hero">
+      <div class="hero__frame" id="heroFrame">
+        <div class="hero__media" id="heroMedia">
+          <!-- En celular se usa la versión ligera; la portada es lo primero que se pinta -->
+          <video class="hero__video" id="heroVideo" autoplay muted loop playsinline poster="/video/hero-poster.webp" preload="metadata" aria-hidden="true">
+            <source src="/video/hero-mobile.mp4" type="video/mp4" media="(max-width: 720px)" />
+            <source src="/video/hero.mp4" type="video/mp4" />
+          </video>
+        </div>
+        <div class="hero__shade" aria-hidden="true"></div>
+        <div class="hero__content">
+          <p class="eyebrow hero__eyebrow"><span>Estudio de grabación</span></p>
+          <h1 class="hero__title">
+            <span class="line"><span>Renta un estudio de</span></span>
+            <span class="line"><span>grabación <em>profesional</em></span></span>
+            <span class="line"><span>a 30 minutos de la CDMX</span></span>
+          </h1>
+          <p class="hero__sub">Grabación en Live Room de 34 m², bloques con ingeniero incluido y servicios de Mezcla y Máster con equipo analógico boutique.</p>
+          <div class="hero__actions">
+            <a class="btn btn--primary btn--lg" href="#tarifas">Reservar sesión</a>
+            <a class="btn btn--glass btn--lg" href="#escucha">
+              <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 1.5v11l9-5.5z" fill="currentColor"/></svg>
+              Escuchar grabaciones
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CLIENTES ============ -->
+    <section class="clients" aria-label="Clientes">
+      <p class="clients__label">Marcas y medios para los que hemos producido</p>
+      <div class="clients__track" id="clients"></div>
+    </section>
+
+    <!-- ============ ARTISTAS ============ -->
+    <!-- Se llena con ARTISTS en src/data.js; sin logotipos queda oculta -->
+    <section class="artists" id="artistas" aria-labelledby="artistsTitle" hidden>
+      <div class="container">
+        <p class="clients__label" id="artistsTitle">Artistas que han grabado en Undying</p>
+        <ul class="artists__grid" id="artists"></ul>
+      </div>
+    </section>
+
+    <!-- ============ PARA QUIÉN ============ -->
+    <section class="audiences" id="para-quien">
+      <div class="container">
+        <header class="sec-head sec-head--center">
+          <p class="eyebrow">Prodúcelo en Undying</p>
+          <h2>Bandas, solistas, productores y podcasts</h2>
+          <p class="lead">En Undying Studios tenemos los espacios para cualquier tipo de producción sonora y audiovisual. Tú pones las ideas, nosotros las hacemos realidad.</p>
+        </header>
+        <div class="audiences__grid" id="audiences"></div>
+      </div>
+    </section>
+
+    <!-- ============ SALAS ============ -->
+    <section class="rooms" id="salas">
+      <div class="container">
+        <header class="sec-head">
+          <p class="eyebrow"><b>01</b>Las salas</p>
+          <h2>Conoce las salas del estudio</h2>
+          <p class="lead">Live Room con acústica viva, Control Room calibrado para mezcla y máster precisos, y áreas de descanso inspiradoras para largas jornadas.</p>
+        </header>
+        <div class="rooms__layout">
+          <div class="rooms__list" role="tablist" aria-label="Salas" id="roomTabs"></div>
+          <div class="rooms__stage" id="roomStage"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ EQUIPO ============ -->
+    <section class="gear" id="equipo">
+      <div class="container">
+        <header class="sec-head sec-head--split">
+          <div>
+            <p class="eyebrow">El equipo</p>
+            <h2>Todo el equipo para hacer realidad tu idea</h2>
+          </div>
+          <p class="lead">Este es el equipo que está en el estudio y que puedes usar en tu sesión. Si necesitas algo que no aparece, avísanos antes y lo vemos.</p>
+        </header>
+        <div class="gear__studios" role="tablist" aria-label="Sala" id="gearStudios"></div>
+        <div class="gear__tabs" role="tablist" aria-label="Categorías de equipo" id="gearTabs"></div>
+        <p class="gear__intro" id="gearIntro"></p>
+        <div class="gear__grid" id="gearGrid" role="tabpanel"></div>
+        <p class="gear__foot">
+          <a class="link-arrow" id="gearWa" href="#" target="_blank" rel="noopener">Preguntar por un equipo específico</a>
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ PORTAFOLIO ============ -->
+    <section class="work" id="escucha">
+      <div class="container">
+        <header class="sec-head sec-head--split">
+          <div>
+            <p class="eyebrow">Escucha</p>
+            <h2>Producciones</h2>
+          </div>
+          <p class="lead">Producción musical, composición, diseño de audio, jingles, doblaje y locución para proyectos audiovisuales, marcas y artistas. Dale play a nuestra selección:</p>
+        </header>
+        <div class="work__featured" id="featured"></div>
+
+        <div class="work__clips-head">
+          <h3>Showreel y proyectos</h3>
+          <div class="work__arrows">
+            <a class="btn btn--ghost btn--sm work__yt" id="ytPlaylist" href="#" target="_blank" rel="noopener" aria-label="Ver todos los videos en YouTube">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 8.2s-.2-1.6-.9-2.3c-.8-.9-1.8-.9-2.2-1C15.8 4.7 12 4.7 12 4.7s-3.8 0-6.9.2c-.4.1-1.4.1-2.2 1C2.2 6.6 2 8.2 2 8.2S1.8 10 1.8 11.9v1.7c0 1.8.2 3.7.2 3.7s.2 1.6.9 2.3c.8.9 1.9.8 2.4.9 1.8.2 6.7.2 6.7.2s3.8 0 6.9-.2c.4-.1 1.4-.1 2.2-1 .7-.7.9-2.3.9-2.3s.2-1.8.2-3.7v-1.7C22.2 10 22 8.2 22 8.2zM10 15V9l5.5 3z" fill="currentColor"/></svg>
+              <span>Ver todos en YouTube</span>
+            </a>
+            <button type="button" class="arrow" id="clipsPrev" aria-label="Anteriores"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3L5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <button type="button" class="arrow" id="clipsNext" aria-label="Siguientes"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          </div>
+        </div>
+        <div class="work__clips" id="clips"></div>
+
+        <div class="work__listen">
+          <div class="work__listen-head">
+            <div>
+              <h3>El sonido de Undying</h3>
+              <p>Selección de tracks con desglose técnico de grabación, mezcla y equipamiento utilizado.</p>
+            </div>
+            <a class="btn btn--ghost btn--sm work__spotify-btn" id="spotifyLink" href="#" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#1DB954"/><path d="M6.5 9.3c3.6-1 7.7-.7 11 1.1M7.2 12.4c3-.8 6.3-.5 9 1M7.9 15.3c2.4-.6 4.9-.4 7 .8" fill="none" stroke="#0b1a10" stroke-width="1.6" stroke-linecap="round"/></svg>
+              Escucha la playlist en Spotify
+            </a>
+          </div>
+          <ol class="tracks" id="tracks"></ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TARIFAS ============ -->
+    <section class="pricing" id="tarifas">
+      <div class="container">
+        <header class="sec-head sec-head--center">
+          <p class="eyebrow">Tarifas</p>
+          <h2>Tarifas por bloque de horas</h2>
+          <p class="lead">Elige si trabajas con nuestro ingeniero o traes al tuyo.</p>
+        </header>
+        <div class="mode" role="radiogroup" aria-label="Modalidad de la sesión" id="modeSwitch"></div>
+        <div class="pricing__grid" id="pricingGrid"></div>
+        <div class="podcast-strip" id="podcastStrip"></div>
+        <p class="pricing__note" id="pricingPolicy"></p>
+
+        <div class="post">
+          <header class="post__head">
+            <div>
+              <p class="eyebrow">Postproducción</p>
+              <h3>Mezcla, máster y edición por pieza</h3>
+            </div>
+            <p>Contrátalos solos o junto con tus horas de estudio. Agrégalos a tu cotización y elige cuántos necesitas.</p>
+          </header>
+          <div class="post__grid" id="postGrid"></div>
+        </div>
+
+        <div class="custom">
+          <div>
+            <p class="eyebrow">Proyectos a la medida</p>
+            <h3>Cada proyecto es único</h3>
+            <p>Composición, locución para marcas, doblaje y producciones a gran escala se cotizan según requerimientos. Platícanos tus ideas y armamos el plan perfecto.</p>
+          </div>
+          <a class="btn btn--ghost" id="customWa" href="#" target="_blank" rel="noopener">Platicar mi proyecto</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ COTIZADOR ============ -->
+    <section class="quoter" id="cotizador">
+      <div class="container">
+        <header class="sec-head sec-head--center">
+          <p class="eyebrow">Cotizador</p>
+          <h2>Arma tu cotización</h2>
+          <p class="lead">Elige un punto de partida, ajusta las horas y la postproducción, y el total se calcula al momento. Puedes reservar tus horas o mandarnos el pedido.</p>
+        </header>
+        <div class="quoter__layout">
+          <div class="quoter__steps">
+            <div class="qstep">
+              <h3><span>1</span>¿Qué vas a grabar?</h3>
+              <div class="qgrid" id="qPresets"></div>
+            </div>
+            <div class="qstep">
+              <h3><span>2</span>Horas de estudio</h3>
+              <div class="mode mode--sm" role="radiogroup" aria-label="Modalidad" id="qMode"></div>
+              <div class="qblocks qblocks--4" id="qBlocks"></div>
+            </div>
+            <div class="qstep">
+              <h3><span>3</span>Postproducción</h3>
+              <div class="qprods" id="qProducts"></div>
+            </div>
+          </div>
+          <aside class="quote" aria-live="polite">
+            <div class="quote__head">
+              <p class="eyebrow">Tu cotización</p>
+              <p class="quote__total"><span id="qTotal">$0</span><small>MXN · IVA incluido</small></p>
+              <p class="quote__hint" id="qHint">Elige un punto de partida o arma tu sesión pieza por pieza.</p>
+            </div>
+            <ul class="quote__lines" id="qLines"></ul>
+            <label class="consent">
+              <input type="checkbox" id="qConsent" />
+              <span>He leído y acepto el <a class="js-privacy" href="#" target="_blank" rel="noopener">Aviso de Privacidad</a> y los <a class="js-terms" href="#" target="_blank" rel="noopener">Términos y Condiciones</a>.</span>
+            </label>
+            <div class="quote__actions">
+              <button class="btn btn--primary btn--block" id="qBook" type="button" disabled>Reservar horas</button>
+              <a class="btn btn--ghost btn--block is-disabled" id="qWa" href="#" target="_blank" rel="noopener" aria-disabled="true">Mandar pedido por WhatsApp</a>
+              <a class="btn btn--ghost btn--block is-disabled" id="qPay" href="#" target="_blank" rel="noopener" aria-disabled="true" hidden>Pagar en línea</a>
+            </div>
+            <p class="quote__foot" id="qFoot"></p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SCOUTING ============ -->
+    <section class="scout">
+      <div class="container">
+        <div class="scout__card">
+          <div class="scout__media">
+            <img src="/img/control-03-800.webp" srcset="/img/control-03-800.webp 800w, /img/control-03-1600.webp 1600w" sizes="(min-width: 900px) 45vw, 100vw" alt="Control Room de Undying Studios" loading="lazy" />
+          </div>
+          <div class="scout__body">
+            <p class="eyebrow">Visita gratuita</p>
+            <h2>Ven a conocer el estudio</h2>
+            <p>Agenda una visita antes de reservar. Recorres el Live Room y el Control Room, escuchas el monitoreo y platicas tu proyecto con nosotros. No tiene costo.</p>
+            <div class="scout__actions">
+              <button class="btn btn--primary" type="button" data-book="scouting">Agendar visita</button>
+              <a class="link-arrow" id="scoutWa" href="#" target="_blank" rel="noopener">O pregunta por WhatsApp</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TESTIMONIOS ============ -->
+    <section class="reviews" id="opiniones">
+      <div class="container">
+        <div class="reviews__layout">
+          <div class="reviews__score">
+            <p class="eyebrow">Opiniones</p>
+            <p class="reviews__big" id="revScore">5.0</p>
+            <p class="stars" aria-label="Cinco estrellas">★★★★★</p>
+            <p class="muted" id="revCount">Reseñas en Google</p>
+            <svg class="reviews__g" viewBox="0 0 74 24" aria-hidden="true"><text x="0" y="19" font-family="Montserrat, sans-serif" font-weight="600" font-size="20" fill="#FFFFFF">Google</text></svg>
+            <div class="work__arrows reviews__arrows">
+              <button type="button" class="arrow" id="revPrev" aria-label="Reseñas anteriores"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3L5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+              <button type="button" class="arrow" id="revNext" aria-label="Siguientes reseñas"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            </div>
+          </div>
+          <div class="rev-carousel" id="reviews" aria-label="Reseñas de Google"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section class="faq" id="faq">
+      <div class="container">
+        <div class="faq__layout">
+          <header class="sec-head">
+            <p class="eyebrow">Dudas frecuentes</p>
+            <h2>Preguntas frecuentes</h2>
+            <p class="lead">Si tu duda no está aquí, escríbenos por WhatsApp.</p>
+            <a class="btn btn--ghost" id="faqWa" href="#" target="_blank" rel="noopener">Preguntar por WhatsApp</a>
+          </header>
+          <div class="faq__list" id="faqList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ UBICACIÓN ============ -->
+    <section class="where" id="ubicacion">
+      <div class="container">
+        <header class="sec-head sec-head--center">
+          <p class="eyebrow">Ubicación</p>
+          <h2>Dónde está el estudio</h2>
+          <p class="lead">Estamos en Lomas de San Mateo, Naucalpan, a 30 minutos del centro de la Ciudad de México, en una zona residencial y tranquila.</p>
+        </header>
+        <div class="where__layout">
+          <div class="where__map">
+            <iframe title="Mapa de Undying Studios" src="https://www.google.com/maps?q=Arrayanes+13,+Lomas+de+San+Mateo,+53200+Naucalpan+de+Ju%C3%A1rez,+M%C3%A9xico&z=16&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+          </div>
+          <ul class="where__facts">
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="10" r="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+              <div><b>Dirección</b><span id="addr"></span><a id="dirLink" class="link-arrow" href="#" target="_blank" rel="noopener">Cómo llegar</a></div>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+              <div><b>WhatsApp</b><a id="waLink" href="#" target="_blank" rel="noopener"></a></div>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              <div><b>Horario</b><span id="hours"></span></div>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v12H4z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4 7l8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+              <div><b>Correo</b><a id="mailLink" href="#"></a></div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <img class="footer__logo" src="/brand/logo-undying.svg" alt="Undying Studios" width="180" height="92" loading="lazy" />
+          <p class="footer__tagline">Producción audiovisual y audio profesional</p>
+          <ul class="footer__services">
+            <li><b>Audio:</b> producción musical, mezcla, máster, jingles, doblaje y locución.</li>
+            <li><b>Video y foro:</b> renta de foro audiovisual, producción de podcast y contenido para marcas.</li>
+          </ul>
+          <div class="social" id="social"></div>
+        </div>
+        <div class="footer__col">
+          <p class="eyebrow">Estudio</p>
+          <a href="#salas">Salas</a>
+          <a href="#equipo">Equipo</a>
+          <a href="#escucha">Escucha</a>
+          <a href="#tarifas">Tarifas</a>
+        </div>
+        <div class="footer__col">
+          <p class="eyebrow">Undying</p>
+          <a id="foroLink" href="#">Foro audiovisual</a>
+          <a href="#opiniones">Opiniones</a>
+          <a href="#faq">Dudas</a>
+          <a href="#ubicacion">Ubicación</a>
+        </div>
+        <div class="footer__col">
+          <p class="eyebrow">Legal</p>
+          <a class="js-terms" href="#">Términos y condiciones</a>
+          <a class="js-privacy" href="#">Aviso de privacidad</a>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p>© <span id="year"></span> <span id="legalName">Undying Music Entertainment S.A.S. de C.V.</span> Todos los derechos reservados.</p>
+        <p class="muted">Naucalpan de Juárez, Estado de México.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============ PLAYER ============ -->
+  <div class="player" id="player" aria-label="Reproductor" hidden>
+    <button class="player__toggle" id="pPlay" type="button" aria-label="Reproducir o pausar">
+      <svg class="ico-play" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 1.5v11l9-5.5z" fill="currentColor"/></svg>
+      <svg class="ico-pause" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 2h3v10H3zM8 2h3v10H8z" fill="currentColor"/></svg>
+    </button>
+    <div class="player__meta">
+      <b id="pTitle">·</b>
+      <span id="pArtist">·</span>
+    </div>
+    <canvas class="player__wave" id="pWave" width="600" height="40" aria-hidden="true"></canvas>
+    <div class="player__time"><span id="pCur">0:00</span><span>/</span><span id="pDur">0:00</span></div>
+    <div class="player__nav">
+      <button type="button" id="pPrev" aria-label="Pista anterior"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 1h2v10H2zM10 1L4 6l6 5z" fill="currentColor"/></svg></button>
+      <button type="button" id="pNext" aria-label="Siguiente pista"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M8 1h2v10H8zM2 1l6 5-6 5z" fill="currentColor"/></svg></button>
+    </div>
+    <button class="player__close" id="pClose" type="button" aria-label="Cerrar reproductor">×</button>
+    <div class="player__bar" id="pBar"><span id="pProg"></span></div>
+    <audio id="audio" preload="none"></audio>
+  </div>
+
+  <!-- ============ WHATSAPP ============ -->
+  <a class="wa" id="waFloat" href="#" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3C9 3 3.3 8.7 3.3 15.7c0 2.5.7 4.9 2 7L3 29l6.5-2.1c2 1.1 4.2 1.7 6.5 1.7 7 0 12.7-5.7 12.7-12.7S23 3 16 3zm0 23.3c-2 0-4-.6-5.7-1.6l-.4-.2-3.9 1.2 1.3-3.7-.3-.4a10.5 10.5 0 1 1 9 5.1zm5.8-7.8c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2l-1 1.2c-.2.2-.4.2-.7.1-.3-.2-1.3-.5-2.6-1.6-1-.9-1.6-1.9-1.8-2.3-.2-.3 0-.5.1-.6l.5-.6.3-.5c.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.8s1.2 3.2 1.4 3.5c.2.2 2.4 3.6 5.8 5.1.8.4 1.4.6 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.6.3-.8.3-1.4.2-1.6-.1-.1-.3-.2-.6-.4z" fill="currentColor"/></svg>
+    <span>¿Dudas? Escríbenos</span>
+  </a>
+
+  <!-- ============ BOOKING MODAL ============ -->
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" hidden>
+    <div class="modal__backdrop" data-close></div>
+    <div class="modal__panel">
+      <header class="modal__head">
+        <div>
+          <p class="eyebrow">Reserva en línea</p>
+          <h3 id="modalTitle">Elige fecha y hora</h3>
+        </div>
+        <button class="modal__close" type="button" data-close aria-label="Cerrar">×</button>
+      </header>
+      <div class="modal__consent" id="modalConsent">
+        <label class="consent">
+          <input type="checkbox" id="modalAccept" />
+          <span>He leído y acepto el <a class="js-privacy" href="#" target="_blank" rel="noopener">Aviso de Privacidad</a> y los <a class="js-terms" href="#" target="_blank" rel="noopener">Términos y Condiciones</a>.</span>
+        </label>
+        <button class="btn btn--primary" type="button" id="modalGo" disabled>Continuar al calendario</button>
+      </div>
+      <div class="modal__body" id="modalBody"></div>
+      <p class="modal__foot" id="modalFoot"></p>
+    </div>
+  </div>
+
+  <!-- ============ LIGHTBOX (fotos y video) ============ -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Visor" hidden>
+    <div class="lightbox__backdrop" data-lb-close></div>
+    <button class="lightbox__close" type="button" data-lb-close aria-label="Cerrar">×</button>
+    <button class="lightbox__nav lightbox__nav--prev" type="button" id="lbPrev" aria-label="Anterior"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3L5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <div class="lightbox__stage" id="lbStage"></div>
+    <button class="lightbox__nav lightbox__nav--next" type="button" id="lbNext" aria-label="Siguiente"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <p class="lightbox__caption" id="lbCaption"></p>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

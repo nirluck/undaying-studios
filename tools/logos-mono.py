@@ -3,7 +3,7 @@
 # (sirve para logos con caja de color y letras blancas, como Colgate o Samsung).
 import os
 from PIL import Image
-RAW = 'tools/.logo-raw'; OUT = 'public/clients'
+RAW = 'tools/.logo-raw'; OUT = 'estudio/public/clients'
 MODE = {'colgate': 'knockout', 'samsung': 'knockout', 'fiat': 'knockout', 'burger-king': 'knockout'}
 SKIP = {'paramount', 'fiat'}  # fotografía y emblema cromado: no funcionan en monocromo
 def smooth(x, a, b):

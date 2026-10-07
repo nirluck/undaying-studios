@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Procesa material-de-origen/ hacia public/.
+"""Procesa material-de-origen/ hacia estudio/public/.
 Fotos -> WebP 800/1600 con orientación EXIF corregida.
 Equipo -> WebP cuadrado 520 px sobre fondo blanco, recortado al contenido.
 Clientes -> copia de SVG/WebP.
@@ -12,7 +12,7 @@ pillow_heif.register_heif_opener()
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 SRC = os.path.join(ROOT, 'material-de-origen', 'fotos de el estudio')
-PUB = os.path.join(ROOT, 'public')
+PUB = os.path.join(ROOT, 'estudio', 'public')
 for d in ('img', 'gear', 'clients', 'portfolio'):
     os.makedirs(os.path.join(PUB, d), exist_ok=True)
 

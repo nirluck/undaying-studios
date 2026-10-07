@@ -1,6 +1,7 @@
 # Dependencias y builds
 node_modules
 dist
+dist-archive
 
 # Material original del cliente (12 GB: fotos RAW, videos del hero, logotipos).
 # Se procesa con tools/build-assets.py y solo se versiona el resultado en public/.
@@ -10,6 +11,7 @@ material-de-origen/
 tools/.logo-raw/
 tools/.logo-src/
 tools/.shots/
+tools/.meta-tmp.html
 
 # Sistema
 .DS_Store

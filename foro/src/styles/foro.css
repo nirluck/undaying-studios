@@ -1,0 +1,361 @@
+/* =====================================================================
+   FORO AUDIOVISUAL
+   Reproduce la página actual del foro (WordPress + Elementor): mismo orden,
+   mismos textos y las mismas medidas, colores y radios de su kit. Del
+   sistema compartido solo usa tokens, tipografías, modal, visor y casilla.
+   ===================================================================== */
+
+:root {
+  /* Colores de la página actual */
+  --f-bg: #1b1b1b;
+  --f-text: #d7d5d2;
+  --f-soft: #c2c0bc;
+  --f-title: #f7f7f7;
+  --f-peach: #ffceab;
+  --f-price: #e85102;
+  --f-glow: #d83f1d;
+  --f-card: linear-gradient(160deg, #252a2b 0%, #32373d 100%);
+  --f-border: #333333;
+  --f-wrap: 1168px;
+}
+
+body { background: var(--f-bg); color: var(--f-text); }
+section { padding-block: 0; }
+.fwrap { width: min(100% - 2 * var(--gutter), var(--f-wrap)); margin-inline: auto; }
+.fwrap--narrow { --f-wrap: 860px; }
+.ico { width: 24px; height: 24px; flex: none; color: var(--f-soft); }
+
+/* ---------- Botón de la página actual: píldora oscura con relieve ---------- */
+.fbtn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 10px 18px; border-radius: var(--r-pill);
+  font-family: var(--f-body); font-weight: 600; font-size: 16px; letter-spacing: 0.5px; color: #fff6f0;
+  background: linear-gradient(160deg, #252b2b 0%, #32373d 100%);
+  box-shadow: 4px 4px 6px 0 rgba(0, 0, 0, 0.5), -1px -1px 8px 0 rgba(228, 210, 208, 0.1);
+  transition: transform .35s var(--ease), box-shadow .35s, color .3s;
+}
+.fbtn svg { width: 18px; height: 18px; }
+.fbtn:hover { transform: translateY(-2px); color: #fff; box-shadow: 4px 6px 10px 0 rgba(0, 0, 0, 0.55), -1px -1px 10px 0 rgba(228, 210, 208, 0.22); }
+.fbtn--lg { padding: 16px 32px; font-size: 17px; }
+.fbtn--sm { padding: 8px 16px; font-size: 16px; }
+
+/* ---------- Encabezados de sección centrados ---------- */
+.fhead { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px; margin-bottom: clamp(28px, 4vw, 48px); }
+.fhead h2 { font-size: clamp(30px, 3.2vw, 46px); font-weight: 800; color: var(--f-title); letter-spacing: -0.01em; }
+.fhead p { font-size: clamp(16px, 1.3vw, 19px); color: var(--f-text); max-width: 60ch; }
+.fhead .fbtn { margin-top: 10px; }
+
+/* =====================================================================
+   MENÚ: el mismo del estudio (shared/styles/base.css)
+   ===================================================================== */
+/* Al hacer scroll toma el tono de fondo del foro */
+.nav.is-scrolled { background: rgba(27, 27, 27, 0.8); }
+
+/* =====================================================================
+   HERO: video en un marco redondeado con brillo naranja detrás
+   ===================================================================== */
+/* Sin ancho máximo: el marco del video deja un margen fijo a cada lado,
+   16 px en laptop, tablet y celular y 100 px en pantallas grandes */
+.fhero { --bleed: 16px; position: relative; overflow-x: clip; padding: calc(var(--nav-h) + 8px) var(--bleed) 0; }
+@media (min-width: 1600px) { .fhero { --bleed: 100px; } }
+.fhero__glow {
+  position: absolute; z-index: 0; left: 0; right: 0; top: 0; height: min(700px, 90%);
+  background: var(--f-glow); opacity: 0.25; filter: blur(120px); pointer-events: none;
+}
+.fhero__frame {
+  position: relative; z-index: 1;
+  height: clamp(560px, calc(100svh - var(--nav-h) - 36px), 820px);
+  border: 1px solid #32373d; border-radius: 16px; overflow: hidden;
+  background: #252a2d;
+  display: flex; align-items: center;
+}
+.fhero__video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.fhero__shade { position: absolute; inset: 0; background: rgba(37, 42, 45, 0.5); }
+.fhero__content { position: relative; padding: clamp(24px, 4vw, 64px); max-width: 1000px; }
+.fhero h1 {
+  font-size: clamp(34px, 4vw, 58px); font-weight: 800; line-height: 1.18; letter-spacing: -0.01em; color: var(--f-title);
+  text-shadow: 2px 3px 10px rgba(0, 0, 0, 0.45);
+}
+.fhero__sub { margin: 14px 0 34px; font-family: var(--f-display); font-weight: 700; font-size: clamp(20px, 2vw, 28px); line-height: 1.35; color: var(--f-peach); text-shadow: 1px 2px 8px rgba(0, 0, 0, 0.4); }
+@media (max-width: 719px) {
+  .fhero { padding-top: calc(var(--nav-h) + 4px); }
+  .fhero__frame { height: clamp(560px, calc(100svh - var(--nav-h) - 24px), 680px); }
+  .fhero__content { padding: 24px; }
+  .fhero h1 { font-size: 34px; }
+}
+
+/* =====================================================================
+   USOS: tarjetas con ícono que avanzan solas
+   ===================================================================== */
+.fuses { padding-top: clamp(56px, 6vw, 80px); }
+.fuses__viewport {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, rgba(0, 0, 0, 0.35) 6%, #000 22%, #000 78%, rgba(0, 0, 0, 0.35) 94%, transparent 100%);
+          mask-image: linear-gradient(90deg, transparent 0, rgba(0, 0, 0, 0.35) 6%, #000 22%, #000 78%, rgba(0, 0, 0, 0.35) 94%, transparent 100%);
+}
+.fuses__track { display: flex; gap: 12px; width: max-content; padding-inline: 6px; }
+.fuses__track li {
+  flex: none; width: clamp(200px, 19vw, 272px); height: 136px; border-radius: 16px; background: var(--f-card);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+  font-size: 18px; color: var(--f-soft);
+}
+.fuses__track .ico { width: 28px; height: 28px; }
+@media (prefers-reduced-motion: reduce) {
+  .fuses__viewport { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
+}
+
+/* =====================================================================
+   CARACTERÍSTICAS: dos columnas como en la página actual
+   ===================================================================== */
+.fabout { padding-top: clamp(64px, 7vw, 96px); }
+.fabout__grid { display: grid; gap: 40px; }
+@media (min-width: 1000px) { .fabout__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px 48px; } }
+.fabout__col { display: flex; flex-direction: column; gap: clamp(36px, 4vw, 56px); min-width: 0; }
+
+.fabout__intro h2 { font-size: clamp(28px, 2.6vw, 38px); font-weight: 800; line-height: 1.3; color: #fff; margin-bottom: 20px; letter-spacing: 0; }
+.fabout__intro p { font-size: 18px; line-height: 1.6; color: var(--f-text); }
+.fabout__intro p + p { margin-top: 18px; }
+.fabout__intro strong { color: #fff; font-weight: 700; }
+
+.fdims h3, .ffeat h3 { font-size: 23px; font-weight: 800; color: #fff; margin-bottom: 18px; letter-spacing: 0; }
+.fdims ul { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 30px; }
+.fdims li { display: inline-flex; align-items: center; gap: 8px; font-size: 18px; color: var(--f-text); }
+.fdims__actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 30px; }
+
+.fpair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.fpair img { width: 100%; height: auto; aspect-ratio: 284 / 336; object-fit: cover; border-radius: 16px; }
+
+.ffeat__list { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 24px; }
+.ffeat__list li { display: flex; align-items: flex-start; gap: 10px; font-size: 18px; line-height: 1.5; color: var(--f-text); }
+.ffeat__list .ico { margin-top: 2px; }
+#amenidades .ffeat__list { gap: 18px 24px; }
+
+/* Carruseles de fotos */
+.fslider { position: relative; border-radius: 16px; overflow: hidden; aspect-ratio: 3 / 2; background: #222; }
+.fslider--arrows { aspect-ratio: 16 / 9; }
+.fslider__track { position: absolute; inset: 0; }
+.fslider__track img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .9s var(--ease); }
+.fslider__track img.is-on { opacity: 1; }
+.fslider__nav {
+  position: absolute; top: 50%; translate: 0 -50%; z-index: 2; width: 44px; height: 44px; display: grid; place-items: center;
+  color: #fff; filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6)); transition: transform .3s var(--ease);
+}
+.fslider__nav svg { width: 22px; height: 22px; }
+.fslider__nav--prev { left: 6px; }
+.fslider__nav--next { right: 6px; }
+.fslider__nav:hover { transform: scale(1.15); }
+
+@media (max-width: 599px) {
+  .fabout__intro p, .fdims li, .ffeat__list li { font-size: 17px; }
+  .ffeat__list { gap: 18px 16px; }
+  .ffeat__list li { flex-direction: column; gap: 8px; }
+}
+
+/* =====================================================================
+   TARIFAS
+   ===================================================================== */
+.fprices { padding-top: clamp(80px, 8vw, 112px); }
+.fprices__grid { display: grid; gap: 16px; }
+@media (min-width: 900px) { .fprices__grid { grid-template-columns: repeat(3, 1fr); } }
+.fplan {
+  position: relative; overflow: hidden; isolation: isolate;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  padding: 44px clamp(24px, 3.5vw, 46px) 48px; min-height: 560px;
+  border: 1px solid var(--f-border); border-radius: 16px; background: var(--f-bg);
+  box-shadow: -1px -1px 17px 0 rgba(37, 37, 37, 0.69);
+}
+.fplan::before { content: ""; position: absolute; inset: 0; z-index: -1; opacity: 0.5; background: linear-gradient(310deg, rgba(0, 0, 0, 0.64) 0%, #333 100%); }
+.fplan__ribbon {
+  position: absolute; top: 22px; right: -58px; width: 200px; rotate: 45deg;
+  padding: 6px 0; background: #632e09; color: #ffe2cd; font-weight: 700; font-size: 16px; text-align: center;
+}
+.fplan__head { display: flex; align-items: baseline; justify-content: center; gap: 10px; white-space: nowrap; font-size: clamp(32px, 2.7vw, 40px); font-weight: 800; color: var(--f-title); letter-spacing: 0; }
+.fplan__price { display: inline-flex; flex-direction: column; align-items: flex-end; font-family: var(--f-body); font-size: 20px; font-weight: 400; color: var(--f-price); line-height: 1.1; letter-spacing: 0; }
+.fplan__price small { font-size: 16px; text-transform: capitalize; }
+.fplan__inc { margin-top: 18px; font-weight: 700; font-size: 18px; color: var(--f-text); }
+.fplan__list { width: 100%; margin-top: 12px; padding: 14px 0; border-top: 1px solid #c0bdb9; border-bottom: 1px solid #c0bdb9; display: grid; gap: 14px; }
+.fplan__list li { font-size: 16px; line-height: 1.45; color: var(--f-text); }
+.fplan__list b { color: #fff; }
+.fplan__btn { margin-top: auto; }
+.fplan .fcheck + .fplan__btn { margin-top: 44px; }
+.fplan__list + .fplan__btn { margin-top: auto; }
+
+/* Casilla "Personalizar color de ciclorama" de la tarjeta de 12 horas */
+.fcheck { align-self: stretch; display: flex; align-items: center; gap: 16px; margin: 20px 0 auto; text-align: left; font-size: 16px; line-height: 1.3; color: var(--f-soft); cursor: pointer; }
+.fcheck input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.fcheck__box { flex: none; width: 28px; height: 24px; border: 2px solid #e4d2d0; border-radius: 4px; display: grid; place-items: center; transition: background .2s, border-color .2s; }
+.fcheck__box::after { content: ""; width: 10px; height: 6px; border: solid #fff; border-width: 0 0 2px 2px; rotate: -45deg; translate: 0 -1px; opacity: 0; transition: opacity .2s; }
+.fcheck input:checked + .fcheck__box { background: var(--f-price); border-color: var(--f-price); }
+.fcheck input:checked + .fcheck__box::after { opacity: 1; }
+.fcheck input:focus-visible + .fcheck__box { outline: 2px solid var(--orange-2); outline-offset: 2px; }
+
+.fprices__legal { margin-top: 48px; text-align: center; font-family: var(--f-display); font-weight: 700; font-size: 16px; color: var(--f-text); }
+.fprices__legal a { color: var(--orange-2); font-weight: 500; }
+.fprices__legal a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* =====================================================================
+   SCOUTING
+   ===================================================================== */
+.fscout { padding-top: clamp(48px, 5vw, 64px); }
+.fcard {
+  position: relative; overflow: hidden; isolation: isolate;
+  border: 1px solid var(--f-border); border-radius: 16px; background: var(--f-bg);
+  box-shadow: -1px -1px 17px 0 rgba(37, 37, 37, 0.69);
+}
+.fcard::before { content: ""; position: absolute; inset: 0; z-index: -1; opacity: 0.5; background: linear-gradient(310deg, rgba(0, 0, 0, 0.64) 0%, #333 100%); }
+.fscout__card { padding: clamp(40px, 5vw, 56px) 24px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; }
+.fscout__card h2 { font-size: clamp(30px, 3.2vw, 44px); font-weight: 800; color: var(--f-title); }
+.fscout__card p { font-size: 18px; font-weight: 500; color: var(--f-text); max-width: 34ch; }
+.fscout__card .fbtn { margin-top: 12px; }
+
+/* =====================================================================
+   UBICACIÓN
+   ===================================================================== */
+.fwhere { padding-top: clamp(80px, 8vw, 112px); }
+.fwhere__map { border-radius: 16px; overflow: hidden; height: clamp(320px, 34vw, 450px); background: #222; }
+.fwhere__map iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+/* =====================================================================
+   GALERÍA
+   ===================================================================== */
+.fgallery { padding-top: clamp(80px, 8vw, 112px); }
+.fgallery__grid { display: grid; gap: 20px; grid-template-columns: 1fr; }
+@media (min-width: 600px) { .fgallery__grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
+@media (min-width: 1000px) { .fgallery__grid { grid-template-columns: repeat(3, 1fr); gap: 20px; } }
+.fgallery__item { position: relative; display: block; aspect-ratio: 4 / 3; border-radius: 8px; overflow: hidden; cursor: zoom-in; }
+.fgallery__item img { width: 100%; height: 100%; object-fit: cover; transition: transform 1s var(--ease); }
+.fgallery__item::after { content: ""; position: absolute; inset: 0; background: rgba(27, 27, 27, 0.35); opacity: 0; transition: opacity .4s; }
+.fgallery__item:hover img { transform: scale(1.04); }
+.fgallery__item:hover::after { opacity: 1; }
+
+/* =====================================================================
+   PRODUCCIONES: videoclips grabados en el foro
+   ===================================================================== */
+.fwork { padding-top: clamp(80px, 8vw, 112px); }
+.fwork__bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.fwork__arrows { display: flex; gap: 10px; }
+.farrow {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: #fff;
+  background: linear-gradient(160deg, #252b2b 0%, #32373d 100%);
+  box-shadow: 4px 4px 6px 0 rgba(0, 0, 0, 0.5), -1px -1px 8px 0 rgba(228, 210, 208, 0.1);
+  transition: opacity .3s, transform .3s var(--ease);
+}
+.farrow svg { width: 16px; height: 16px; }
+.farrow:hover { transform: translateY(-2px); }
+.farrow:disabled { opacity: 0.35; pointer-events: none; }
+.fwork__clips {
+  display: grid; grid-auto-flow: column; grid-auto-columns: min(80%, 360px); gap: 20px;
+  overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding-bottom: 6px;
+}
+.fwork__clips::-webkit-scrollbar { display: none; }
+.fclip { scroll-snap-align: start; text-align: left; display: flex; flex-direction: column; gap: 4px; }
+.fclip__media { position: relative; display: block; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; margin-bottom: 10px; background: #222; }
+.fclip__media img { width: 100%; height: 100%; object-fit: cover; transition: transform 1s var(--ease); }
+.fclip:hover .fclip__media img { transform: scale(1.05); }
+.fclip__play {
+  position: absolute; left: 50%; top: 50%; translate: -50% -50%; width: 54px; height: 54px; border-radius: 50%;
+  display: grid; place-items: center; color: #fff; background: rgba(27, 27, 27, 0.6); border: 1px solid rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); transition: background .3s, transform .4s var(--ease);
+}
+.fclip__play svg { width: 16px; height: 16px; margin-left: 2px; }
+.fclip:hover .fclip__play { background: var(--f-price); border-color: var(--f-price); transform: scale(1.06); }
+.fclip__title { font-family: var(--f-display); font-weight: 700; font-size: 17px; color: #fff; line-height: 1.3; }
+.fclip__artist { font-size: 16px; color: var(--f-soft); }
+
+/* =====================================================================
+   RESEÑAS: franja con foto de fondo, como el widget de la página actual
+   ===================================================================== */
+.freviews { position: relative; margin-top: clamp(80px, 8vw, 112px); padding: 56px 0; min-height: 400px; display: flex; align-items: center; background: #252a2d; overflow: hidden; }
+.freviews__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.freviews::before { content: ""; position: absolute; inset: 0; z-index: 1; background: rgba(37, 42, 45, 0.75); }
+.freviews__inner { position: relative; z-index: 2; display: grid; gap: 28px; align-items: center; }
+@media (min-width: 900px) { .freviews__inner { grid-template-columns: 200px minmax(0, 1fr); gap: 32px; } }
+.freviews__score { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.freviews__label { font-family: var(--f-display); font-weight: 800; font-size: 22px; letter-spacing: 0.04em; text-transform: uppercase; color: #fff; }
+.freviews__stars { color: #f6bb06; font-size: 26px; letter-spacing: 2px; line-height: 1.2; }
+.freviews__count { font-size: 16px; color: var(--f-text); }
+.freviews__g { width: 96px; height: auto; margin-top: 6px; }
+.freviews__list {
+  display: grid; grid-auto-flow: column; grid-auto-columns: min(82%, 280px); gap: 16px;
+  overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; min-width: 0; padding: 4px 2px;
+}
+.freviews__list::-webkit-scrollbar { display: none; }
+.freviews__arrows { display: flex; justify-content: center; gap: 10px; }
+@media (min-width: 900px) { .freviews__arrows { grid-column: 2; justify-content: flex-end; margin-top: -8px; } }
+.frev {
+  scroll-snap-align: start; display: flex; flex-direction: column; gap: 8px; padding: 18px;
+  border-radius: 10px; background: rgba(27, 27, 27, 0.82); border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
+.frev__who { display: grid; grid-template-columns: 36px 1fr 18px; align-items: center; gap: 10px; }
+.frev__who b { font-size: 16px; color: #fff; font-weight: 600; line-height: 1.25; }
+.frev__who svg { width: 18px; height: 18px; }
+.frev__avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: #3a4046; color: #fff; font-weight: 700; font-size: 16px; }
+.frev__stars { color: #f6bb06; font-size: 16px; letter-spacing: 1px; }
+.frev__text { font-size: 16px; line-height: 1.55; color: var(--f-text); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.frev.is-open .frev__text { -webkit-line-clamp: unset; display: block; }
+.frev__more { display: none; align-self: flex-start; font-size: 16px; color: var(--f-soft); text-decoration: underline; text-underline-offset: 3px; }
+.frev.is-long .frev__more { display: inline; }
+
+/* =====================================================================
+   PREGUNTAS FRECUENTES
+   ===================================================================== */
+.ffaq { padding-block: clamp(80px, 8vw, 112px) 0; }
+.ffaq__list { display: grid; gap: 12px; }
+.ffaq__item { border: 1px solid var(--f-border); border-radius: 16px; background: linear-gradient(160deg, #222527 0%, #272b2f 100%); overflow: hidden; }
+.ffaq__q { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 24px; text-align: left; font-family: var(--f-display); font-weight: 700; font-size: 18px; color: #fff; }
+.ffaq__ico { position: relative; flex: none; width: 16px; height: 16px; }
+.ffaq__ico::before, .ffaq__ico::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 2px; margin-top: -1px; background: var(--orange-2); transition: rotate .35s var(--ease); }
+.ffaq__ico::after { rotate: 90deg; }
+.ffaq__item.is-open .ffaq__ico::after { rotate: 0deg; }
+.ffaq__a { height: 0; overflow: hidden; transition: height .45s var(--ease); }
+.ffaq__a p { padding: 0 24px 22px; font-size: 16px; line-height: 1.65; color: var(--f-text); }
+
+/* =====================================================================
+   CONTACTO / PIE
+   ===================================================================== */
+.ffoot { padding: clamp(80px, 9vw, 120px) 36px 36px; }
+.ffoot__grid { display: grid; gap: 40px; max-width: 1368px; margin: 0 auto; }
+@media (min-width: 900px) { .ffoot__grid { grid-template-columns: minmax(0, 430px) minmax(0, 1fr); gap: 36px; } }
+.ffoot__logo { width: 168px; height: auto; margin-bottom: 30px; }
+.ffoot__brand p { font-size: 18px; line-height: 1.6; color: var(--f-text); }
+.ffoot__brand h3 { margin: 52px 0 6px; font-size: 24px; font-weight: 800; color: var(--f-text); letter-spacing: 0; }
+.ffoot__info { display: flex; flex-direction: column; gap: 40px; padding-top: 32px; min-width: 0; }
+.ffoot__contact { display: flex; flex-wrap: wrap; gap: 24px 80px; }
+.ffoot__contact div { display: flex; flex-direction: column; gap: 2px; }
+.ffoot__contact span { font-size: 16px; color: #a29d97; }
+.ffoot__contact a { font-size: 18px; line-height: 1.55; color: #fff; max-width: 300px; }
+.ffoot__contact a:hover { color: var(--orange-3); }
+.ffoot__social { display: flex; gap: 16px; }
+.ffoot__social a { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 3px; background: #45494d; transition: background .3s, transform .3s var(--ease); }
+.ffoot__social a:hover { background: #5a5f64; transform: translateY(-2px); }
+.ffoot__social .ico { width: 22px; height: 22px; color: #e4d2d0; }
+.ffoot__img { width: 100%; height: clamp(220px, 23vw, 320px); object-fit: cover; border-radius: 16px; }
+.ffoot__bottom { max-width: 1368px; margin: 48px auto 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; font-size: 16px; color: var(--f-soft); }
+.ffoot__legal { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; font-weight: 500; }
+.ffoot__legal a:hover { color: var(--orange-3); }
+@media (max-width: 599px) {
+  .ffoot { padding-inline: 20px; }
+  .ffoot__contact { gap: 20px; }
+  .ffoot__legal span { display: none; }
+  .ffoot__legal { flex-direction: column; align-items: flex-start; }
+}
+
+/* ---------- WhatsApp flotante ---------- */
+.fwa {
+  position: fixed; right: 40px; bottom: 48px; z-index: 54; width: 63px; height: 63px; border-radius: 50%;
+  display: grid; place-items: center; color: #fff; background: linear-gradient(180deg, #2d4831 0%, #333 100%);
+  box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.7); transition: transform .35s var(--ease);
+}
+.fwa svg { width: 34px; height: 34px; }
+.fwa:hover { transform: translateY(-3px) scale(1.04); }
+@media (max-width: 719px) { .fwa { right: 40px; bottom: 48px; } }
+
+/* El menú del foro tiene más opciones que el del estudio: hasta 1320 px se
+   queda la hamburguesa para que nada se apriete */
+@media (min-width: 1240px) and (max-width: 1319px) {
+  .nav__links { display: none; }
+  .nav__burger { display: grid; }
+}
+/* Con el menú móvil abierto, el botón de WhatsApp no tapa sus botones */
+.drawer.is-open ~ .fwa { opacity: 0; pointer-events: none; }

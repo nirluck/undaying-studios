@@ -1,0 +1,55 @@
+# Publica el sitio en Hostinger por FTP.
+#
+# Se ejecuta a mano desde GitHub → Actions → "Publicar en Hostinger" → Run
+# workflow. Así nada se publica por accidente mientras el WordPress sigue
+# en línea. Cuando el sitio nuevo ya esté arriba, se puede activar el
+# despliegue automático en cada push quitando el comentario de `push`.
+#
+# Secretos del repositorio (Settings → Secrets and variables → Actions):
+#   FTP_SERVER    servidor FTP de hPanel (ej. ftp.undyingstudios.mx)
+#   FTP_USERNAME  usuario FTP
+#   FTP_PASSWORD  contraseña FTP
+# Variable opcional:
+#   FTP_DIR       carpeta del sitio en el servidor (por defecto public_html/)
+name: Publicar en Hostinger
+
+on:
+  workflow_dispatch:
+  # push:
+  #   branches: [main]
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # --ignore-scripts: ffmpeg y Playwright solo se usan en local y no
+      # hace falta descargarlos para compilar.
+      - name: Instalar dependencias
+        run: npm ci --ignore-scripts
+
+      - name: Compilar
+        run: npm run build
+
+      - name: Subir dist/ por FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./dist/
+          server-dir: ${{ vars.FTP_DIR || 'public_html/' }}
+          # Solo sube lo que cambió desde la última publicación. Nunca borra
+          # archivos del servidor que no estén en dist/.
+          dangerous-clean-slate: false
