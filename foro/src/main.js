@@ -6,6 +6,7 @@ import Lenis from 'lenis';
 import '../../shared/styles/base.css';
 import '../../shared/styles/components.css';
 import './styles/foro.css';
+import { iniciarReservas, preciosForo } from '../../shared/reservas/landing.ts';
 import { LINKS, PRICING, REVIEWS, FAQS, YOUTUBE } from './data.js';
 import CLIPS from './clips.json';
 
@@ -48,7 +49,10 @@ const lockScroll = (on) => { on ? lenis?.stop() : lenis?.start(); document.body.
    Enlaces
    ===================================================================== */
 // En local el estudio corre en su propio servidor (`npm run dev`).
-if (import.meta.env.DEV) $$('[data-space="estudio"]').forEach((a) => (a.href = 'http://localhost:5173/'));
+if (import.meta.env.DEV) {
+  $$('[data-space="estudio"]').forEach((a) => (a.href = 'http://localhost:5173/'));
+  $('#homeLink2').href = 'http://localhost:5175/';
+}
 const waHello = `https://wa.me/${LINKS.whatsappNumber}?text=${encodeURIComponent('Hola, quiero información para rentar el foro.')}`;
 ['waFloat', 'drawerWa'].forEach((id) => ($('#' + id).href = waHello));
 $('#riderLink').href = BASE + LINKS.docs.manual;
@@ -169,8 +173,10 @@ $$('[data-slider]').forEach((root) => {
    Tarifas (tarjetas de la página actual)
    ===================================================================== */
 const INCLUDES = ['Foro de 72 m²', 'Ciclorama <b>Blanco</b> de 6 x 6.5 x 3.5', 'Equipo de iluminación y audio esencial', 'Zona de tramoya con altura de 3.5', 'Camerinos, sala de estar, terraza'];
+// Al repintar con precios del panel ya no se anima la entrada.
+const renderTarifas = (animar = false) => {
 $('#pricingGrid').innerHTML = PRICING.blocks.map((b) => `
-  <article class="fplan" data-reveal>
+  <article class="fplan" ${animar ? 'data-reveal' : ''}>
     ${b.save ? `<span class="fplan__ribbon">Ahorras ${b.save}%</span>` : ''}
     <h3 class="fplan__head">${b.hours} Horas <span class="fplan__price"><span data-price>/ ${money(b.price)}</span><small>mxn</small></span></h3>
     <p class="fplan__inc">Incluye:</p>
@@ -192,6 +198,22 @@ $$('[data-color]').forEach((box) => {
     $('[data-book]', card).dataset.book = box.checked ? b.color.id : b.id;
   });
 });
+};
+renderTarifas(true);
+
+/* =====================================================================
+   Reserva en línea (sistema propio de calendarios y pagos). Sin
+   VITE_RESERVAS_API no hace nada y todo sigue con los calendarios de Prospex.
+   ===================================================================== */
+const reservas = iniciarReservas('foro', {
+  boton: (k) => {
+    if (k === 'scouting') return { tipo: 'visita' };
+    const horas = k.split('-')[0];
+    const color = k.endsWith('-color');
+    return { tipo: 'reserva', abrir: { carrito: { sesiones: [{ bloqueId: `foro-${horas}`, modalidadId: 'foro-renta', inicio: null, extras: color ? [{ id: 'foro-color', opcion: 'verde' }] : [] }], productos: [] } } };
+  },
+});
+reservas?.catalogo().then((cat) => { if (preciosForo(PRICING, cat)) renderTarifas(); }).catch(() => {});
 
 /* =====================================================================
    Visor de fotos y videos

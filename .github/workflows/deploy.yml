@@ -38,8 +38,14 @@ jobs:
       - name: Instalar dependencias
         run: npm ci --ignore-scripts
 
+      # Reserva en línea: si las variables del repositorio están vacías, el
+      # sitio sigue con WhatsApp y Prospex (Settings → Variables → Actions).
       - name: Compilar
         run: npm run build
+        env:
+          VITE_RESERVAS_API: ${{ vars.RESERVAS_API }}
+          VITE_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
 
       - name: Subir dist/ por FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5

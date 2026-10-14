@@ -5,8 +5,9 @@ import Lenis from 'lenis';
 import '../../shared/styles/base.css';
 import '../../shared/styles/components.css';
 import './estudio.css';
+import { iniciarReservas, reservasActivas, preciosEstudio } from '../../shared/reservas/landing.ts';
 import {
-  LINKS, HERO, YOUTUBE, PRICING, ROOMS, GEAR, FEATURED, TRACKS, CLIENTS, ARTISTS, REVIEWS, FAQS, AUDIENCES, HOURS, ADDRESS,
+  LINKS, HERO, YOUTUBE, PRICING, ROOMS, GEAR, FEATURED, TRACKS, CLIENTS, ARTISTS, REVIEWS, REVIEWS_HIDDEN, FAQS, AUDIENCES, HOURS, ADDRESS,
 } from './data.js';
 import CLIPS_SNAPSHOT from './clips.json';
 
@@ -62,7 +63,16 @@ const waUrl = (text = '') => `https://wa.me/${LINKS.whatsappNumber}${text ? '?te
 const waHello = waUrl('Hola, quiero información del estudio de grabación.');
 ['waFloat', 'drawerWa', 'scoutWa', 'faqWa', 'waLink'].forEach((id) => ($('#' + id).href = waHello));
 $('#gearWa').href = waUrl('Hola, quiero saber si tienen este equipo para mi sesión: ');
-$('#customWa').href = waUrl('Hola, quiero cotizar un proyecto a la medida.');
+$('#customWa').href = waUrl([
+  '¡Hola! Quiero armar una cotización a la medida de mi proyecto en Undying Studios.',
+  '',
+  '1. Nombre o nombre de mi proyecto / marca:',
+  '2. Servicio(s) que necesito: composición / scoring original, producción musical / arreglos, locución comercial / voz en off, doblaje / postproducción de audio, grabación / mezcla / máster de álbum o EP, otro:',
+  '3. Detalles del proyecto: número de canciones, spots o piezas; duración aproximada de cada pieza; para locución o doblaje, ¿se entrega guion final o se requiere redacción o adaptación?',
+  '4. Uso y difusión (solo locución, comercial o jingles): medios, tiempo de uso y territorio:',
+  '5. Enlace a maqueta, demo, guion o referencia:',
+  '6. Fecha estimada de entrega o lanzamiento:',
+].join('\n'));
 $('#waLink').textContent = LINKS.whatsappDisplay;
 $('#addr').textContent = ADDRESS;
 $('#hours').textContent = HOURS;
@@ -70,6 +80,8 @@ $('#dirLink').href = LINKS.directions;
 $('#mailLink').href = 'mailto:' + LINKS.email; $('#mailLink').textContent = LINKS.email;
 // Con `npm run dev` el foro corre en su propio servidor (`npm run dev:foro`).
 $('#foroLink').href = import.meta.env.DEV ? 'http://localhost:5176/' : LINKS.foro;
+// El home corre en su propio servidor en local (`npm run dev:home`)
+if (import.meta.env.DEV) $('#homeLink').href = 'http://localhost:5175/';
 $$('[data-space="foro"]').forEach((a) => (a.href = import.meta.env.DEV ? 'http://localhost:5176/' : LINKS.foro));
 $$('.js-terms').forEach((a) => (a.href = LINKS.legal.terminos));
 $$('.js-privacy').forEach((a) => (a.href = LINKS.legal.privacidad));
@@ -80,7 +92,7 @@ $('#year').textContent = new Date().getFullYear();
 $('#revScore').textContent = REVIEWS.score;
 $('#revCount').textContent = `${REVIEWS.count} reseñas en Google`;
 $('#pricingPolicy').textContent = PRICING.policy;
-$('#modalFoot').textContent = `${PRICING.policy} Cancelaciones con más de 72 horas conservan el anticipo como crédito por 90 días.`;
+$('#modalFoot').textContent = `${PRICING.policy} Reprogramación sin penalización con al menos 48 horas de anticipación. No hay reembolsos por cancelación.`;
 document.documentElement.style.setProperty('--reviews-bg', `url(${new URL(src('live-10', 1600), document.baseURI).href})`);
 
 const socialIcons = {
@@ -144,15 +156,19 @@ $$('main section[id]').forEach((sec) => {
 });
 
 /* =====================================================================
-   Clientes y artistas
+   Cinta de marcas, medios y artistas
    ===================================================================== */
-// El tercer valor es la altura óptica en px para que todos los logos pesen parecido.
-const logos = CLIENTS.map(([file, name, h, ratio]) => `<li><img src="${BASE}clients/${file}.png" alt="${esc(name)}" style="--h:${h}px" width="${Math.round(h * ratio)}" height="${h}" loading="lazy" decoding="async" /></li>`).join('');
-$('#clients').innerHTML = `<ul class="clients__row">${logos}</ul><ul class="clients__row" aria-hidden="true">${logos}</ul>`;
-if (ARTISTS.length) {
-  $('#artistas').hidden = false;
-  $('#artists').innerHTML = ARTISTS.map(([file, name, h]) => `<li><img src="${BASE}artists/${file}.png" alt="${esc(name)}" style="--h:${h}px" loading="lazy" decoding="async" /></li>`).join('');
+// Una sola cinta: marcas, medios y artistas intercalados. El tercer valor de
+// cada logo es su altura óptica en px para que todos pesen parecido.
+const marcas = CLIENTS.map((c) => ['clients', ...c]);
+const artistas = ARTISTS.map((a) => ['artists', ...a]);
+const cinta = [];
+for (let i = 0; i < Math.max(marcas.length, artistas.length); i++) {
+  if (marcas[i]) cinta.push(marcas[i]);
+  if (artistas[i]) cinta.push(artistas[i]);
 }
+const logos = cinta.map(([dir, file, name, h, ratio]) => `<li><img src="${BASE}${dir}/${file}.png" alt="${esc(name)}" style="--h:${h}px" width="${Math.round(h * ratio)}" height="${h}" loading="lazy" decoding="async" /></li>`).join('');
+$('#clients').innerHTML = `<ul class="clients__row">${logos}</ul><ul class="clients__row" aria-hidden="true">${logos}</ul>`;
 
 /* =====================================================================
    Para quién: cada tarjeta arma su cotización
@@ -235,7 +251,7 @@ $('#roomStage').innerHTML = ROOMS.map((r, i) => `
         ${img(r.gallery[0], r.name, '(min-width: 960px) 60vw, 100vw', i === 0)}
         <span class="room__zoom" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M6.5 11a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9zM10 10l4 4M6.5 4.5v4M4.5 6.5h4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
       </button>
-      <span class="room__badge">${r.tag}</span>` : roomCard(r)}
+      <span class="room__badge">${r.badge || r.tag}</span>` : roomCard(r)}
     </div>
     ${r.gallery.length > 1 ? `<div class="room__thumbs">
       ${r.gallery.map((g, k) => `<button class="room__thumb ${k === 0 ? 'is-on' : ''}" type="button" data-index="${k}" aria-label="Foto ${k + 1} de ${esc(r.name)}"><img src="${src(g, 400)}" alt="" width="400" height="300" loading="lazy" decoding="async" /></button>`).join('')}
@@ -499,7 +515,8 @@ const blockById = (id) => PRICING.blocks.find((b) => b.id === id);
 const hourRate = (mode) => PRICING.blocks[0].price[mode] / PRICING.blocks[0].hours;
 const blockLabel = (id, mode) => `${blockById(id).hours} horas ${mode === 'dry' ? 'sin ingeniero (Dry Hire)' : 'con ingeniero'}`;
 // Si el bloque no tiene calendario todavía, la reserva se hace por WhatsApp.
-const bookingAction = (key, label, cls) => (LINKS.booking[key]
+// Con la reserva en línea activa (VITE_RESERVAS_API), el botón abre el widget.
+const bookingAction = (key, label, cls) => (LINKS.booking[key] || reservasActivas()
   ? `<button class="${cls}" type="button" data-book="${key}">${label}</button>`
   : `<a class="${cls}" href="${waUrl(`Hola, quiero reservar ${blockLabel(key.split('-')[0], key.split('-')[1])}. ¿Qué fechas tienen disponibles?`)}" target="_blank" rel="noopener">${label}</a>`);
 
@@ -519,14 +536,13 @@ function renderPricing() {
       ${bookingAction(`${b.id}-${mode}`, `Reservar ${b.hours} horas`, 'btn btn--primary btn--block')}
     </article>`;
   }).join('');
-  const pod = PRICING.podcast; const podBlock = blockById(pod.block);
+  const pod = PRICING.podcast;
   $('#podcastStrip').innerHTML = `
     <div class="podcast-strip__body">
       <p class="eyebrow">${pod.name}</p>
       <p>${pod.desc}</p>
     </div>
-    <p class="podcast-strip__price"><b>${money(podBlock.price[mode])}</b><span>${podBlock.hours} horas ${mode === 'dry' ? 'Dry Hire' : 'con ingeniero'}</span></p>
-    <button class="btn btn--ghost" type="button" data-preset="podcast">Cotizar podcast</button>`;
+    <a class="btn btn--ghost" href="${waUrl(pod.whatsapp)}" target="_blank" rel="noopener">Cotizar por WhatsApp</a>`;
 }
 function setMode(m) {
   mode = m; renderPricing(); quoter.setMode(m, false);
@@ -534,22 +550,28 @@ function setMode(m) {
 renderPricing();
 $('#modeSwitch').addEventListener('click', (e) => { const b = e.target.closest('[data-mode]'); if (b) setMode(b.dataset.mode); });
 
-$('#postGrid').innerHTML = PRICING.products.map((p) => `
-  <article class="prod" data-reveal>
+// Al repintar con precios del panel ya no se anima la entrada.
+const renderPost = (animar = false) => ($('#postGrid').innerHTML = PRICING.products.map((p) => `
+  <article class="prod" ${animar ? 'data-reveal' : ''}>
     <div class="prod__head"><b>${p.name}</b><p class="prod__price">${money(p.price)}<span>${p.unit}</span></p></div>
     <p class="prod__desc">${p.desc}</p>
     <button class="btn btn--ghost btn--sm" type="button" data-add="${p.id}">Agregar a mi cotización</button>
-  </article>`).join('');
+  </article>`).join(''));
+renderPost(true);
 
 /* =====================================================================
    Cotizador: punto de partida + horas + postproducción con cantidades
    ===================================================================== */
 const quoter = (() => {
-  const state = { preset: null, block: '6h', mode: 'ing', items: {} };
+  const state = { preset: null, block: '6h', mode: 'ing', items: {}, video: false };
+  // En el cotizador Mezcla va primero; en Tarifas se respeta el orden del catálogo
+  const productos = () => (PRICING.quoterOrder || []).map((id) => PRICING.products.find((p) => p.id === id)).filter(Boolean)
+    .concat(PRICING.products.filter((p) => !(PRICING.quoterOrder || []).includes(p.id)));
+  const videoWrap = $('#qVideoWrap'); const videoBox = $('#qVideo');
   const presetsEl = $('#qPresets'); const blocksEl = $('#qBlocks'); const prodsEl = $('#qProducts'); const modeEl = $('#qMode');
   const consent = $('#qConsent');
   presetsEl.innerHTML = PRICING.presets.map((p) => `<button class="qopt" type="button" data-id="${p.id}" aria-pressed="false"><b>${p.name}</b><span>${p.desc}</span></button>`).join('');
-  prodsEl.innerHTML = PRICING.products.map((p) => `
+  const pintarProductos = () => (prodsEl.innerHTML = productos().map((p) => `
     <div class="qprod" data-id="${p.id}">
       <div class="qprod__info"><b>${p.name}</b><span>${money(p.price)} ${p.unit}</span></div>
       <div class="qstepper" role="group" aria-label="Cantidad de ${esc(p.name)}">
@@ -557,7 +579,8 @@ const quoter = (() => {
         <output>0</output>
         <button type="button" data-step="1" aria-label="Agregar uno">+</button>
       </div>
-    </div>`).join('');
+    </div>`).join(''));
+  pintarProductos();
 
   const lines = () => {
     const out = [];
@@ -565,7 +588,9 @@ const quoter = (() => {
       const b = blockById(state.block);
       out.push({ label: `Estudio · ${b.hours} horas ${state.mode === 'dry' ? '(Dry Hire)' : 'con ingeniero'}`, amount: b.price[state.mode] });
     }
-    PRICING.products.forEach((p) => { const q = state.items[p.id] || 0; if (q) out.push({ label: `${p.name}${q > 1 ? ` × ${q}` : ''}`, amount: p.price * q }); });
+    productos().forEach((p) => { const q = state.items[p.id] || 0; if (q) out.push({ label: `${p.name}${q > 1 ? ` × ${q}` : ''}`, amount: p.price * q }); });
+    // Video e iluminación para podcast: se cotiza aparte, no suma al total
+    if (state.video && PRICING.presets.find((x) => x.id === state.preset)?.videoOption) out.push({ label: 'Equipo de video e iluminación', amount: 0, aparte: true });
     return out;
   };
   let shown = 0;
@@ -577,9 +602,10 @@ const quoter = (() => {
       + `<button class="qblock qblock--none" type="button" data-id="" aria-pressed="${!state.block}"><b>0h</b><span>Solo postproducción</span></button>`;
     $$('.qprod', prodsEl).forEach((row) => { const q = state.items[row.dataset.id] || 0; $('output', row).textContent = q; row.classList.toggle('is-on', q > 0); });
     $('#qLines').innerHTML = ls.length
-      ? ls.map((l) => `<li><span>${l.label}</span><b>${money(l.amount)}</b></li>`).join('')
+      ? ls.map((l) => `<li><span>${l.label}</span><b>${l.aparte ? 'Por cotizar' : money(l.amount)}</b></li>`).join('')
       : '<li class="is-empty">Todavía no hay nada en tu cotización</li>';
     const p = PRICING.presets.find((x) => x.id === state.preset);
+    videoWrap.hidden = !p?.videoOption; videoBox.checked = state.video;
     $('#qHint').textContent = p ? `Punto de partida: ${p.name.toLowerCase()}. Ajusta lo que necesites.` : 'Elige un punto de partida o arma tu sesión pieza por pieza.';
     const num = $('#qTotal');
     if (reduced) num.textContent = money(total);
@@ -590,13 +616,13 @@ const quoter = (() => {
     const book = $('#qBook');
     book.disabled = !(ok && state.block);
     book.textContent = state.block ? `Reservar ${blockById(state.block).hours} horas` : 'Reservar horas';
-    const summary = `Hola, armé esta cotización en la página del estudio:\n${ls.map((l) => `• ${l.label}: ${money(l.amount)}`).join('\n')}\nTotal: ${money(total)} MXN con IVA.\n¿Me ayudan a confirmarla?`;
+    const summary = `Hola, armé esta cotización en la página del estudio:\n${ls.map((l) => `• ${l.label}: ${l.aparte ? 'por cotizar' : money(l.amount)}`).join('\n')}\nTotal: ${money(total)} MXN con IVA.\n¿Me ayudan a confirmarla?`;
     const wa = $('#qWa'); const active = ok && ls.length;
     wa.href = active ? waUrl(summary) : '#';
     wa.classList.toggle('is-disabled', !active); wa.setAttribute('aria-disabled', String(!active));
     const pay = $('#qPay');
-    pay.hidden = !LINKS.checkout;
-    if (LINKS.checkout) { pay.href = active ? LINKS.checkout : '#'; pay.classList.toggle('is-disabled', !active); pay.setAttribute('aria-disabled', String(!active)); }
+    pay.hidden = !(LINKS.checkout || reservasActivas());
+    if (LINKS.checkout || reservasActivas()) { pay.href = active && !reservasActivas() ? LINKS.checkout : '#'; pay.classList.toggle('is-disabled', !active); pay.setAttribute('aria-disabled', String(!active)); }
     $('#qFoot').textContent = ok ? PRICING.policy : 'Acepta el aviso de privacidad y los términos para continuar.';
   };
 
@@ -610,6 +636,7 @@ const quoter = (() => {
     state.preset = null; render();
   });
   consent.addEventListener('change', render);
+  videoBox.addEventListener('change', () => { state.video = videoBox.checked; render(); });
   $('#qWa').addEventListener('click', (e) => { if (e.currentTarget.classList.contains('is-disabled')) e.preventDefault(); });
   $('#qPay').addEventListener('click', (e) => { if (e.currentTarget.classList.contains('is-disabled')) e.preventDefault(); });
   $('#qBook').addEventListener('click', () => { if (state.block) openBooking(`${state.block}-${state.mode}`, { accepted: true }); });
@@ -617,15 +644,35 @@ const quoter = (() => {
   const api = {
     preset(id) {
       const p = PRICING.presets.find((x) => x.id === id); if (!p) return;
-      state.preset = id; state.block = p.block; state.items = { ...p.products };
+      state.preset = id; state.block = p.block; state.items = { ...p.products }; state.video = false;
       render();
     },
     setMode(m, rerender = true) { state.mode = m; if (rerender) setMode(m); else render(); },
     add(id) { state.items[id] = (state.items[id] || 0) + 1; state.preset = null; render(); },
+    estado: () => ({ block: state.block, mode: state.mode, items: { ...state.items } }),
+    repintarProductos() { pintarProductos(); render(); },
   };
   render();
   return api;
 })();
+
+/* =====================================================================
+   Reserva en línea (sistema propio de calendarios y pagos). Sin
+   VITE_RESERVAS_API no hace nada y todo sigue con WhatsApp y Prospex.
+   ===================================================================== */
+const reservas = iniciarReservas('estudio', {
+  boton: (k) => (k === 'scouting' ? { tipo: 'visita' } : { tipo: 'reserva', abrir: { bloqueId: `estudio-${k.split('-')[0]}`, modalidadId: `estudio-${k.split('-')[1]}` } }),
+  carrito: () => {
+    const s = quoter.estado();
+    return {
+      sesiones: s.block ? [{ bloqueId: `estudio-${s.block}`, modalidadId: `estudio-${s.mode}`, inicio: null, extras: [] }] : [],
+      productos: Object.entries(s.items).filter(([, n]) => n > 0).map(([id, cantidad]) => ({ id, cantidad, sesion: s.block ? 0 : null })),
+    };
+  },
+  aviso: (t) => toast(t),
+});
+// Los precios del panel mandan: si cambiaron, se vuelven a pintar las tarjetas.
+reservas?.catalogo().then((cat) => { if (preciosEstudio(PRICING, cat)) { renderPricing(); renderPost(); quoter.repintarProductos(); } }).catch(() => {});
 
 // Tarjetas de "para quién", podcast y productos alimentan el cotizador
 document.addEventListener('click', (e) => {
@@ -647,7 +694,7 @@ document.addEventListener('click', (e) => {
    Reseñas + FAQ
    ===================================================================== */
 const revEl = $('#reviews');
-revEl.innerHTML = REVIEWS.items.map((t) => `
+revEl.innerHTML = REVIEWS.items.filter((t) => !REVIEWS_HIDDEN.includes(t.name)).map((t) => `
   <article class="review">
     <div class="review__who"><span class="review__avatar">${esc(t.name.split(' ').map((n) => n[0]).slice(0, 2).join(''))}</span><div><b>${esc(t.name)}</b><span>Reseña de Google</span></div></div>
     <p class="stars" aria-label="5 estrellas">★★★★★</p>

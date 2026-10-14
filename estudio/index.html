@@ -41,14 +41,11 @@
       <nav class="nav__links" aria-label="Secciones">
         <a href="#salas">Salas</a>
         <a href="#equipo">Equipo</a>
-        <a href="#escucha">Escucha</a>
+        <a href="#escucha">Portafolio</a>
         <a href="#tarifas">Tarifas</a>
-        <a href="#faq">Dudas</a>
-        <a href="#ubicacion">Ubicación</a>
         <a href="../foro/" data-space="foro">Foro audiovisual</a>
       </nav>
       <div class="nav__cta">
-        <span class="rec" aria-hidden="true"><i></i>Agenda abierta</span>
         <a class="btn btn--primary btn--sm" href="#tarifas">Reservar sesión</a>
         <button class="nav__burger" id="burger" aria-label="Abrir menú" aria-expanded="false" aria-controls="drawer">
           <span></span><span></span>
@@ -61,10 +58,8 @@
     <nav class="drawer__links" aria-label="Menú móvil">
       <a href="#salas">Salas</a>
       <a href="#equipo">Equipo</a>
-      <a href="#escucha">Escucha</a>
+      <a href="#escucha">Portafolio</a>
       <a href="#tarifas">Tarifas</a>
-      <a href="#faq">Dudas</a>
-      <a href="#ubicacion">Ubicación</a>
       <a href="../foro/" data-space="foro">Foro audiovisual</a>
     </nav>
     <div class="drawer__foot">
@@ -86,7 +81,7 @@
         </div>
         <div class="hero__shade" aria-hidden="true"></div>
         <div class="hero__content">
-          <p class="eyebrow hero__eyebrow"><span>Estudio de grabación</span></p>
+          <p class="eyebrow hero__eyebrow"><span>Estudio de grabación</span><span class="dot"></span><span>Estado de México</span></p>
           <h1 class="hero__title">
             <span class="line"><span>Renta un estudio de</span></span>
             <span class="line"><span>grabación <em>profesional</em></span></span>
@@ -104,19 +99,11 @@
       </div>
     </section>
 
-    <!-- ============ CLIENTES ============ -->
-    <section class="clients" aria-label="Clientes">
-      <p class="clients__label">Marcas y medios para los que hemos producido</p>
+    <!-- ============ MARCAS, MEDIOS Y ARTISTAS ============ -->
+    <!-- Una sola cinta con CLIENTS y ARTISTS de src/data.js, intercalados -->
+    <section class="clients" aria-label="Artistas, marcas y medios con los que hemos trabajado">
+      <p class="clients__label">Han confiado en nuestro sonido</p>
       <div class="clients__track" id="clients"></div>
-    </section>
-
-    <!-- ============ ARTISTAS ============ -->
-    <!-- Se llena con ARTISTS en src/data.js; sin logotipos queda oculta -->
-    <section class="artists" id="artistas" aria-labelledby="artistsTitle" hidden>
-      <div class="container">
-        <p class="clients__label" id="artistsTitle">Artistas que han grabado en Undying</p>
-        <ul class="artists__grid" id="artists"></ul>
-      </div>
     </section>
 
     <!-- ============ PARA QUIÉN ============ -->
@@ -124,8 +111,8 @@
       <div class="container">
         <header class="sec-head sec-head--center">
           <p class="eyebrow">Prodúcelo en Undying</p>
-          <h2>Bandas, solistas, productores y podcasts</h2>
-          <p class="lead">En Undying Studios tenemos los espacios para cualquier tipo de producción sonora y audiovisual. Tú pones las ideas, nosotros las hacemos realidad.</p>
+          <h2>El lugar perfecto para producir tu idea</h2>
+          <p class="lead">En Undying Studios tenemos los espacios para cualquier tipo de producción sonora y audiovisual.</p>
         </header>
         <div class="audiences__grid" id="audiences"></div>
       </div>
@@ -135,7 +122,7 @@
     <section class="rooms" id="salas">
       <div class="container">
         <header class="sec-head">
-          <p class="eyebrow"><b>01</b>Las salas</p>
+          <p class="eyebrow">Espacios</p>
           <h2>Conoce las salas del estudio</h2>
           <p class="lead">Live Room con acústica viva, Control Room calibrado para mezcla y máster precisos, y áreas de descanso inspiradoras para largas jornadas.</p>
         </header>
@@ -255,6 +242,10 @@
             <div class="qstep">
               <h3><span>1</span>¿Qué vas a grabar?</h3>
               <div class="qgrid" id="qPresets"></div>
+              <label class="consent qvideo" id="qVideoWrap" hidden>
+                <input type="checkbox" id="qVideo" />
+                <span>Necesito equipo de video e iluminación (se cotiza aparte)</span>
+              </label>
             </div>
             <div class="qstep">
               <h3><span>2</span>Horas de estudio</h3>
@@ -293,7 +284,7 @@
       <div class="container">
         <div class="scout__card">
           <div class="scout__media">
-            <img src="/img/control-03-800.webp" srcset="/img/control-03-800.webp 800w, /img/control-03-1600.webp 1600w" sizes="(min-width: 900px) 45vw, 100vw" alt="Control Room de Undying Studios" loading="lazy" />
+            <img src="/img/cr-03-800.webp" srcset="/img/cr-03-800.webp 800w, /img/cr-03-1600.webp 1600w" sizes="(min-width: 900px) 45vw, 100vw" alt="Control Room de Undying Studios" loading="lazy" />
           </div>
           <div class="scout__body">
             <p class="eyebrow">Visita gratuita</p>
@@ -400,6 +391,7 @@
         </div>
         <div class="footer__col">
           <p class="eyebrow">Undying</p>
+          <a id="homeLink" href="../">Inicio</a>
           <a id="foroLink" href="#">Foro audiovisual</a>
           <a href="#opiniones">Opiniones</a>
           <a href="#faq">Dudas</a>

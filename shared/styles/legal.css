@@ -9,7 +9,10 @@
 .legal__doc h2 { font-size: clamp(20px, 2vw, 24px); margin: 40px 0 12px; }
 .legal__doc p, .legal__doc li { color: var(--ink-2); line-height: 1.75; font-size: 16px; }
 .legal__doc p + p { margin-top: 12px; }
-.legal__doc ul { list-style: disc; padding-left: 22px; display: grid; gap: 6px; margin-top: 10px; }
+.legal__doc h3 { font-size: 18px; margin: 24px 0 8px; }
+.legal__doc ul, .legal__doc ol { list-style: disc; padding-left: 22px; display: grid; gap: 6px; margin-top: 10px; }
+.legal__doc ol { list-style: decimal; }
+.legal__doc ul + p, .legal__doc ol + p { margin-top: 12px; }
 .legal__doc a { color: var(--orange-2); text-decoration: underline; text-underline-offset: 2px; }
 .legal__doc strong { color: var(--ink); font-weight: 600; }
 .legal-foot { border-top: 1px solid var(--line); padding: 28px 0; }

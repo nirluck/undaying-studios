@@ -1,6 +1,9 @@
 import { defineConfig } from 'vite';
 import { fileURLToPath } from 'node:url';
 
+import { envDir } from '../shared/vite/reservas.js';
+import { cssEnDesarrollo } from '../shared/vite/css-dev.js';
+
 const here = (p) => fileURLToPath(new URL(p, import.meta.url));
 
 // Home de Undying Studios → raíz del dominio (undyingstudios.mx/).
@@ -10,12 +13,18 @@ const here = (p) => fileURLToPath(new URL(p, import.meta.url));
 // 404.html, íconos y manifest. El aviso de privacidad vive en la raíz.
 export default defineConfig({
   root: here('.'),
+  envDir,
   base: './',
+  plugins: [cssEnDesarrollo({
+    '/index.html': ['home/src/styles/home.css'],
+    '/reservas/index.html': ['shared/styles/base.css', 'shared/styles/legal.css', 'shared/reservas/reservas.css'],
+    '*': ['shared/styles/base.css', 'shared/styles/legal.css'],
+  })],
   build: {
     outDir: here('../dist'),
     emptyOutDir: true,
     assetsInlineLimit: 4096,
-    rollupOptions: { input: { main: here('index.html'), privacidad: here('aviso-de-privacidad/index.html') } },
+    rollupOptions: { input: { main: here('index.html'), privacidad: here('aviso-de-privacidad/index.html'), reservas: here('reservas/index.html') } },
   },
   server: { host: true, port: Number(process.env.PORT) || 5175, strictPort: false },
   // `npm run preview` sirve dist/ completo, con las tres páginas.

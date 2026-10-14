@@ -34,6 +34,22 @@ if (import.meta.env.DEV) {
   });
 }
 
+// Prueba de fondos fijos (2a revisión del cliente): ?fondo=foto1 o ?fondo=foto2
+// cambia los videos por fotos del foro (opción 1 o 2) y del Live Room.
+const FONDOS = { foto1: ['fondo-foro-1', 'fondo-live-room'], foto2: ['fondo-foro-2', 'fondo-live-room'] };
+const fondo = FONDOS[new URLSearchParams(location.search).get('fondo')];
+if (fondo) {
+  const img = (n) => `${import.meta.env.BASE_URL}img/${n}`;
+  [panelA, panelB].forEach((panel, i) => {
+    const v = panel.querySelector('.panel__media video');
+    const foto = document.createElement('img');
+    foto.src = img(`${fondo[i]}-1600.webp`);
+    foto.srcset = `${img(`${fondo[i]}-900.webp`)} 900w, ${img(`${fondo[i]}-1600.webp`)} 1600w`;
+    foto.sizes = '(min-width: 900px) 84vw, 100vw'; foto.alt = ''; foto.decoding = 'async';
+    v.replaceWith(foto);
+  });
+}
+
 // Con movimiento reducido o ahorro de datos se quedan las portadas fijas
 if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || navigator.connection?.saveData) {
   document.querySelectorAll('.panel__media video').forEach((v) => {

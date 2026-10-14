@@ -63,26 +63,39 @@ export const HERO = {
 };
 
 /* ---------- Para quién ----------
-   PENDIENTE: la guía trae una foto nueva por tarjeta. Mientras tanto se usan
-   fotos reales del estudio. `preset` arma la cotización correspondiente. */
+   Fotos sugeridas por el cliente (tools/build-estudio-b.py); "Voces y
+   solistas" conserva la del Live Room. `preset` arma la cotización. */
 export const AUDIENCES = [
-  { id: 'banda', name: 'Bandas', desc: 'Grabación en simultáneo de banda completa. Espacio amplio para capturar la energía de tus Live Sessions.', img: 'live-12', preset: 'banda' },
-  { id: 'voz', name: 'Voces y solistas', desc: 'Captura de voz impecable para solistas y ensambles vocales de cualquier género.', img: 'live-13', preset: 'voz' },
-  { id: 'productores', name: 'Productores e ingenieros', desc: 'Modalidad Dry Hire: conéctate a la interfaz y opera la sesión desde tu computadora con total autonomía.', img: 'control-02', preset: 'dry' },
-  { id: 'podcast', name: 'Podcast y locución', desc: 'Optimizado para locución profesional y podcasts, con opción de equipo de audio, video e iluminación.', img: 'engineer', preset: 'podcast' },
+  { id: 'banda', name: 'Bandas', desc: 'Grabación en simultáneo para bandas y la energía de Live Sessions.', img: 'aud-banda', preset: 'banda' },
+  { id: 'voz', name: 'Voces y solistas', desc: 'Grabación de voz profesional para todo género.', img: 'live-13', preset: 'voz' },
+  { id: 'productores', name: 'Productores e ingenieros', desc: 'Modalidad Dry Hire: trae a tu ingeniero y opera con autonomía.', img: 'aud-productores', preset: 'dry' },
+  { id: 'podcast', name: 'Podcast y locución', desc: 'Ideal para locución y podcast. Equipamiento de video e iluminación opcional.', img: 'aud-podcast', preset: 'podcast' },
 ];
 
-// PENDIENTE: logotipos de artistas (la guía los menciona como adjuntos).
-// Formato: ['archivo-en-public/artists sin extensión', 'Nombre', altura óptica en px].
-// Mientras esté vacío, la sección no se muestra.
-export const ARTISTS = [];
+/* ---------- Artistas (PNG blancos en public/artists, generados con tools/build-artists.mjs) ----------
+   [archivo, nombre, altura óptica en px, proporción ancho/alto del PNG].
+   Van en la misma cinta que CLIENTS, intercalados con las marcas y medios. */
+export const ARTISTS = [
+  ['bomba-estereo', 'Bomba Estéreo', 31, 3.39],
+  ['carlos-rivera', 'Carlos Rivera', 35, 2.64],
+  ['cazzu', 'Cazzu', 44, 0.88],
+  ['gloria-trevi', 'Gloria Trevi', 21, 7.14],
+  ['kinky', 'Kinky', 37, 2.45],
+  ['la-bandera-pesadilla', 'La Bandera Pesadilla', 43, 1.78],
+  ['los-angeles-azules', 'Los Ángeles Azules', 44, 1.43],
+  ['moenia', 'Moenia', 39, 2.19],
+  ['ozuna', 'Ozuna', 37, 2.4],
+  ['santos-bravos', 'Santos Bravos', 30, 3.63],
+  ['yerimua', 'Yerimua', 32, 3.29],
+];
 
 /* ---------- Salas (medidas y fichas de la guía del cliente) ---------- */
 export const ROOMS = [
   {
     id: 'live',
     name: 'Live Room',
-    tag: 'Estudio A',
+    tag: 'Grabación',
+    badge: 'Estudio A',
     area: '34.40 m²',
     desc: 'Con una acústica viva de decaimiento corto, el Live Room está optimizado para la captura limpia de voces, instrumentos, coros y Live Sessions, ofreciendo visibilidad directa e integración total con el Control Room.',
     facts: [
@@ -92,12 +105,14 @@ export const ROOMS = [
       ['Acústica', 'Viva y controlada'],
     ],
     bullets: ['18 canales de grabación simultáneos y 10 retornos', 'Equipada con monitores de campo cercano', 'Equipada con PA para ensayos', 'Iluminación regulable y clima independiente'],
-    gallery: ['live-12', 'live-04', 'live-01', 'live-05', 'live-11', 'live-13', 'live-14', 'live-03'],
+    // Selección del cliente (tools/build-salas.py)
+    gallery: ['lr-01', 'lr-02', 'lr-03', 'lr-04', 'lr-05', 'lr-06', 'lr-07', 'lr-08', 'lr-09', 'lr-10', 'lr-11', 'lr-12'],
   },
   {
     id: 'control',
     name: 'Control Room',
-    tag: 'Estudio A',
+    tag: 'Grabación y Mezcla',
+    badge: 'Estudio A',
     area: '19.35 m²',
     desc: 'Diseñado para jornadas largas y sin fatiga, con la estación de trabajo al centro, acceso rápido a periféricos y vista directa al Live Room. Cuenta con monitores Yamaha y KRK y un cómodo sofá posterior para artistas e invitados.',
     facts: [
@@ -107,12 +122,12 @@ export const ROOMS = [
       ['Acústica', 'Sweet spot calibrado'],
     ],
     bullets: ['18 canales de preamplificación analógica (High-End Audiophile, BLA Mod & Clean)', 'Monitoreo principal full-range de 3 vías y campo cercano A/B', 'Outboard en rack a la mano', 'Clima independiente y luz cálida'],
-    gallery: ['control-02', 'control-03', 'control-01', 'engineer', 'control-05', 'control-06', 'control-04', 'control-07'],
+    gallery: ['cr-01', 'cr-02', 'cr-03', 'cr-04', 'cr-05', 'cr-06', 'cr-07', 'cr-08'],
   },
   {
     id: 'estudio-b',
-    name: 'Estudio B',
-    tag: 'Mezcla y máster',
+    name: 'Estudio Post',
+    tag: 'Mezcla y Máster',
     area: '12.60 m²',
     desc: 'Nuestra sala dedicada a mezcla, máster y postproducción analógica. Optimizada para el trabajo a distancia y sesiones de escucha crítica con la máxima fidelidad sonora.',
     facts: [
@@ -122,8 +137,7 @@ export const ROOMS = [
       ['Acústica', 'Sweet spot calibrado'],
     ],
     bullets: ['Sumado y masterización analógica high-end (SSL X-Desk, G-Comp, Fusion y Bettermaker)', 'Conversión y reloj de referencia (BURL Bomber ADC y Antelope Orion 32+)', 'Monitoreo de campo cercano con gran extensión de graves (Dynaudio BM15A)', 'Entorno acústico quirúrgico con clima independiente'],
-    // PENDIENTE: fotos del Estudio B. Sin fotos, la sala muestra su ficha.
-    gallery: [],
+    gallery: ['eb-01', 'eb-02', 'eb-03', 'eb-04', 'eb-05', 'eb-06', 'eb-07'],
   },
   {
     id: 'amenidades',
@@ -136,7 +150,7 @@ export const ROOMS = [
       ['Capacidad', 'Hasta 15 personas'],
     ],
     amenities: ['Sala de espera', 'Camerino', 'Maquinita arcade', 'Cocina', 'Asador', 'Terraza con vista', '2 baños', 'Regadera'],
-    gallery: ['lounge-02', 'lounge-03', 'lounge-01'],
+    gallery: ['am-01', 'am-02', 'am-03', 'am-04', 'am-05', 'am-06', 'am-07', 'am-08'],
   },
 ];
 
@@ -144,8 +158,8 @@ export const ROOMS = [
    Cada estudio tiene sus categorías. En el Estudio A van primero las que
    definen el sonido grabado (micrófonos, preamps y conversión), luego el
    backline, el monitoreo y lo demás. Las piezas sin foto se muestran con
-   tarjeta tipográfica. PENDIENTE: fotos del equipo del Estudio B, de la
-   guitarra Jay Turser y de las congas. */
+   tarjeta tipográfica. Fotos del Estudio Post: tools/build-estudio-b.py;
+   reemplazos y faltantes del Estudio A: tools/build-salas.py. */
 export const GEAR = [
   {
     id: 'a',
@@ -193,8 +207,8 @@ export const GEAR = [
           { name: 'Yamaha PortaSound PSS-470', kind: 'Teclado', img: 'yamaha-pss470' },
           { name: 'Casio MT-750', kind: 'Teclado', img: 'casio-mt750' },
           { name: 'Guitarra SG Standard TV Yellow', kind: 'Guitarra eléctrica', img: 'epiphone-sg' },
-          { name: 'Jay Turser', kind: 'Guitarra electroacústica', img: null },
-          { name: 'Par de congas', kind: 'Percusión', img: null },
+          { name: 'Jay Turser', kind: 'Guitarra electroacústica', img: 'jay-turser' },
+          { name: 'Par de congas', kind: 'Percusión', img: 'congas' },
         ],
       },
       {
@@ -232,7 +246,7 @@ export const GEAR = [
   },
   {
     id: 'b',
-    name: 'Estudio B',
+    name: 'Estudio Post',
     note: 'Mezcla, máster y postproducción',
     cats: [
       {
@@ -240,8 +254,8 @@ export const GEAR = [
         name: 'Micrófonos',
         intro: 'Condensadores de diafragma grande para voces e instrumentos.',
         items: [
-          { name: 'Lauten Audio Atlantis FC-387', kind: 'Condensador de diafragma grande', img: null },
-          { name: 'Wunder Audio CM7-GT', kind: 'Condensador de diafragma grande', img: null },
+          { name: 'Lauten Audio Atlantis FC-387', kind: 'Condensador de diafragma grande', img: 'lauten-atlantis' },
+          { name: 'Wunder Audio CM7-GT', kind: 'Condensador de diafragma grande', img: 'wunder-cm7' },
         ],
       },
       {
@@ -249,10 +263,10 @@ export const GEAR = [
         name: 'Preamps y conversión',
         intro: 'Sumado analógico, canal de bulbos y conversión de referencia.',
         items: [
-          { name: 'Antelope Orion 32+', kind: 'Interfaz, conversión y reloj', img: null },
-          { name: 'SSL X-Desk', kind: 'Mezcladora de sumado analógico', img: null },
-          { name: 'Avalon VT-737SP', kind: 'Channel strip de bulbos', img: null },
-          { name: 'BURL Bomber ADC', kind: 'Convertidor analógico a digital', img: null },
+          { name: 'Antelope Orion 32+', kind: 'Interfaz, conversión y reloj', img: 'antelope-orion-32' },
+          { name: 'SSL X-Desk', kind: 'Mezcladora de sumado analógico', img: 'ssl-xdesk' },
+          { name: 'Avalon VT-737SP', kind: 'Channel strip de bulbos', img: 'avalon-vt737sp' },
+          { name: 'BURL Bomber ADC', kind: 'Convertidor analógico a digital', img: 'burl-bomber-adc' },
         ],
       },
       {
@@ -260,7 +274,7 @@ export const GEAR = [
         name: 'Monitoreo',
         intro: 'Campo cercano con gran extensión de graves para escucha crítica.',
         items: [
-          { name: 'Dynaudio BM15A', kind: 'Monitores de campo cercano', img: null },
+          { name: 'Dynaudio BM15A', kind: 'Monitores de campo cercano', img: 'dynaudio-bm15a' },
         ],
       },
       {
@@ -268,11 +282,11 @@ export const GEAR = [
         name: 'Outboard',
         intro: 'Procesadores analógicos para mezcla y masterización.',
         items: [
-          { name: 'SSL G-Series Stereo Compressor', kind: 'Compresor de bus estéreo', img: null },
-          { name: 'SSL Fusion', kind: 'Procesador analógico de master', img: null },
-          { name: 'Bettermaker Mastering Limiter V2', kind: 'Limitador de masterización', img: null },
-          { name: 'Bettermaker Valve Stereo Passive EQ', kind: 'Ecualizador pasivo de bulbos', img: null },
-          { name: 'Darkglass Anagram', kind: 'Multiefectos', img: null },
+          { name: 'SSL G-Series Stereo Compressor', kind: 'Compresor de bus estéreo', img: 'ssl-g-comp' },
+          { name: 'SSL Fusion', kind: 'Procesador analógico de master', img: 'ssl-fusion' },
+          { name: 'Bettermaker Mastering Limiter V2', kind: 'Limitador de masterización', img: 'bettermaker-limiter' },
+          { name: 'Bettermaker Valve Stereo Passive EQ', kind: 'Ecualizador pasivo de bulbos', img: 'bettermaker-eq' },
+          { name: 'Darkglass Anagram', kind: 'Multiefectos', img: 'darkglass-anagram' },
         ],
       },
     ],
@@ -344,33 +358,33 @@ export const YOUTUBE = {
 export const TRACKS = [
   {
     title: 'Illuminate', artist: 'Astral King', genre: 'Rock progresivo',
-    src: 'audio/illuminate.m4a', cover: 'live-04',
+    src: 'audio/illuminate.m4a', cover: 'cover-illuminate',
     note: 'Tracking y edición de batería RMV en Live Room. Captura con micrófonos Shure, Audio-Technica y Slate, preamps Focusrite/ProFire y conversión A/D Apogee Rosetta 800.',
     chain: ['Live Room', 'Batería RMV', 'Beta 52A', 'ATM450', 'ProFire 2626', 'OctoPre MkII', 'Apogee Rosetta 800'],
   },
   {
-    title: 'Dile', artist: 'Eva Davis', genre: 'Urbano pop',
-    src: 'audio/dile.m4a', cover: 'control-06',
-    note: 'Mezcla y masterización estéreo en Estudio B con sumado analógico SSL X-Desk, procesamiento dinámico SSL G-Comp y Fusion, ecualización Bettermaker y conversión A/D BURL Bomber.',
-    chain: ['Estudio B', 'SSL X-Desk', 'SSL Fusion', 'SSL G-Series', 'Bettermaker Passive EQ', 'BURL Bomber ADC'],
+    title: 'A La Que Venga', artist: 'Eva Davis', genre: 'Urbano pop',
+    src: 'audio/dile.m4a', cover: 'cover-a-la-que-venga',
+    note: 'Mezcla y masterización estéreo en Estudio Post con sumado analógico SSL X-Desk, procesamiento dinámico SSL G-Comp y Fusion, ecualización Bettermaker y conversión A/D BURL Bomber.',
+    chain: ['Estudio Post', 'SSL X-Desk', 'SSL Fusion', 'SSL G-Series', 'Bettermaker Passive EQ', 'BURL Bomber ADC'],
   },
   {
     title: 'Flashlight', artist: 'Keren', genre: 'Pop',
-    src: 'audio/flashlight.m4a', cover: 'live-13',
+    src: 'audio/flashlight.m4a', cover: 'cover-flashlight',
     note: 'Producción vocal grabada en Live Room. Captura con AKG C414, preamp Broadhurst Gardens No. 1 y conversión A/D Apogee Rosetta 800.',
     chain: ['Live Room', 'AKG C414', 'Broadhurst Gardens No. 1', 'Apogee Rosetta 800'],
   },
   {
     title: 'Oveja Negra', artist: 'Gael Morante', genre: 'Corrido tumbado',
-    src: 'audio/oveja-negra.m4a', cover: 'control-05',
+    src: 'audio/oveja-negra.m4a', cover: 'cover-oveja-negra',
     // POR CONFIRMAR: la guía repite la descripción de "Dile", que menciona el
     // BURL Bomber aunque las etiquetas de este track dicen Antelope Orion 32+.
-    note: 'Mezcla y masterización estéreo en Estudio B con sumado analógico SSL X-Desk, procesamiento dinámico SSL G-Comp y Fusion, ecualización Bettermaker y conversión A/D BURL Bomber.',
-    chain: ['Estudio B', 'Antelope Orion 32+', 'SSL X-Desk', 'Bettermaker Limiter', 'SSL Fusion'],
+    note: 'Mezcla y masterización estéreo en Estudio Post con sumado analógico SSL X-Desk, procesamiento dinámico SSL G-Comp y Fusion, ecualización Bettermaker y conversión A/D BURL Bomber.',
+    chain: ['Estudio Post', 'Antelope Orion 32+', 'SSL X-Desk', 'Bettermaker Limiter', 'SSL Fusion'],
   },
   {
-    title: 'Camino a un Sueño (Extended Version)', artist: 'Enrique Barragán y Keren', genre: 'J-Rock',
-    src: 'audio/camino-a-un-sueno.m4a', cover: 'control-02',
+    title: 'Camino a un Sueño (From "Captain Tsubasa") - Extended Version', artist: 'Enrique Barragán y Keren', genre: 'J-Rock',
+    src: 'audio/camino-a-un-sueno.m4a', cover: 'cover-camino-a-un-sueno',
     note: 'Producción musical, arreglos e instrumentación. Tracking de guitarras y bajos eléctricos capturados con interfaz ProFire 2626 y conversión A/D Apogee Rosetta 800.',
     chain: ['Control Room', 'ProFire 2626', 'Apogee Rosetta 800'],
   },
@@ -378,7 +392,7 @@ export const TRACKS = [
 
 /* ---------- Tarifas y cotizador (MXN, IVA incluido) ---------- */
 export const PRICING = {
-  policy: 'Precios en MXN con IVA incluido. Pago al 100% con 48 horas de anticipación.',
+  policy: 'Precios en MXN con IVA incluido. Pago al 100% al reservar.',
   modes: {
     ing: { label: 'Con ingeniero', note: 'Tarifa estándar' },
     dry: { label: 'Sin ingeniero', note: 'Modalidad Dry Hire' },
@@ -392,26 +406,30 @@ export const PRICING = {
     ing: ['Ingeniero de grabación incluido', 'Live Room y Control Room', 'Microfonía, preamps y backline del Estudio A', 'Acceso a amenidades'],
     dry: ['Tu ingeniero opera la sesión', 'Inducción del setup y plantillas de Pro Tools y Ableton Live', 'Asistencia de sala durante tu reserva', 'Acceso a amenidades'],
   },
+  // Se cotiza por WhatsApp: sin precio ni horas en la tarjeta (2a revisión)
   podcast: {
     name: 'Podcast y locución',
-    desc: 'Hasta 4 micrófonos, equipo de video opcional, archivos el mismo día.',
-    block: '3h',
+    desc: 'Hasta 4 micrófonos, equipo de video e iluminación opcional, archivos el mismo día.',
+    whatsapp: 'Hola, quiero cotizar una sesión de podcast o locución en Undying Studios.\n\n1. Nombre del proyecto:\n2. Número de personas o micrófonos:\n3. ¿Necesitas equipo de video e iluminación? (sí / no)\n4. Fecha estimada:',
   },
   // Postproducción: se cotiza por pieza, con o sin horas de estudio.
   products: [
+    { id: 'edicion', name: 'Edición multitrack', desc: 'Limpieza, alineación y cuantización rítmica para sesiones de hasta 24 tracks.', price: 3500, unit: 'por canción' },
     { id: 'mezcla', name: 'Mezcla multitrack', desc: 'Balance de niveles, limpieza de frecuencias, procesamiento y diseño espacial de pistas en formato estéreo. Incluye 2 revisiones.', price: 5500, unit: 'por canción' },
-    { id: 'master', name: 'Máster por track', desc: 'Optimización y nivelación comercial de tu mezcla estéreo para plataformas de streaming y medios físicos. Incluye 2 revisiones.', price: 2000, unit: 'por canción' },
-    { id: 'edicion', name: 'Edición multitrack', desc: 'Alineación y cuantización rítmica para sesiones de hasta 24 tracks.', price: 3500, unit: 'por canción' },
-    { id: 'vocal', name: 'Edición y afinación vocal', desc: 'Comping, alineación rítmica y afinación detallada de hasta 6 pistas de voz por canción.', price: 2500, unit: 'por canción' },
+    { id: 'master', name: 'Máster por track', desc: 'Optimización y nivelación comercial de tu mezcla estéreo para plataformas de streaming y medios físicos. Incluye 2 revisiones.', price: 2500, unit: 'por canción' },
+    { id: 'vocal', name: 'Edición y afinación vocal', desc: 'Comping, limpieza, alineación rítmica y afinación detallada de hasta 6 pistas de voz por canción.', price: 3000, unit: 'por canción' },
     { id: 'productor', name: 'Productor musical', desc: 'Dirección artística, arreglos y producción musical durante la sesión de grabación.', price: 7000, unit: 'por sesión' },
     { id: 'musico', name: 'Músico de sesión', desc: 'Músico profesional de nuestra red.', price: 2500, unit: 'por sesión' },
   ],
+  // Orden de los productos en el cotizador (Mezcla primero); en Tarifas se
+  // usa el orden de `products`, que sigue el catálogo del cliente.
+  quoterOrder: ['mezcla', 'edicion', 'master', 'vocal', 'productor', 'musico'],
   // Combinaciones sugeridas de la guía
   presets: [
     { id: 'banda', name: 'Banda', desc: 'Grabación en vivo, edición, mezcla y máster.', block: '6h', products: { edicion: 1, mezcla: 1, master: 1 } },
     { id: 'voz', name: 'Solista o voces', desc: 'Voz sobre tu pista, afinación, mezcla y máster.', block: '3h', products: { vocal: 1, mezcla: 1, master: 1 } },
-    { id: 'produccion', name: 'Producción de un tema', desc: 'Del demo a la canción terminada con nuestro productor.', block: '9h', products: { productor: 1, vocal: 1, mezcla: 1, master: 1 } },
-    { id: 'podcast', name: 'Podcast o locución', desc: 'Hasta 4 micrófonos y archivos el mismo día.', block: '3h', products: {} },
+    { id: 'produccion', name: 'Producción de un tema', desc: 'Del demo a la canción terminada con nuestro productor.', block: '9h', products: { productor: 1, edicion: 1, vocal: 1, mezcla: 1, master: 1 } },
+    { id: 'podcast', name: 'Podcast o locución', desc: 'Hasta 4 micrófonos, equipo de video e iluminación opcional, archivos el mismo día.', block: '3h', videoOption: true, products: {} },
   ],
 };
 
@@ -425,12 +443,14 @@ export const CLIENTS = [
 
 // Las reseñas son del negocio completo y se comparten con el foro.
 export { REVIEWS } from '../../shared/data/reviews.js';
+// Reseñas que no se muestran en el estudio (2a revisión del cliente)
+export const REVIEWS_HIDDEN = ['Sebastian Ortega'];
 
 /* ---------- Preguntas frecuentes (guía del cliente) ---------- */
 export const FAQS = [
   {
     q: '¿Cómo reservo una sesión?',
-    a: 'Elige tu bloque de horas y si trabajas con nuestro ingeniero o con el tuyo, escoge fecha y hora y confirma tu reserva. El pago se cubre al 100% con 48 horas de anticipación.',
+    a: 'Elige tu bloque de horas y si trabajas con nuestro ingeniero o con el tuyo, escoge fecha y hora y paga para confirmar tu reserva. El pago se cubre al 100% al reservar, con tarjeta o en OXXO.',
   },
   {
     q: '¿Puedo traer mi propio ingeniero?',
@@ -446,7 +466,8 @@ export const FAQS = [
   },
   {
     q: '¿Cuál es la política de cancelación?',
-    a: 'Cancelaciones con más de 72 horas de anticipación conservan el anticipo como crédito para otra fecha dentro de 90 días. Con menos de 72 horas el anticipo no es reembolsable.',
+    // Alineada con los términos oficiales del estudio (sección 6)
+    a: 'No hacemos reembolsos cuando el cliente cancela. Puedes reprogramar tu sesión sin penalización con al menos 48 horas de anticipación, sujeto a disponibilidad de agenda. Las cancelaciones con menos de 24 horas pierden el pago completo. Si el estudio tiene que cancelar por fuerza mayor o una falla técnica, te ofrecemos una nueva fecha con prioridad o el reembolso total.',
   },
   {
     q: '¿Me entregan los archivos el mismo día?',

@@ -39,6 +39,49 @@
       ],
       "port": 5176,
       "autoPort": true
+    },
+    {
+      "name": "reservas-api",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "tools/reservas/servidor.ts",
+        "--sitio",
+        "http://localhost:4180"
+      ],
+      "port": 54321
+    },
+    {
+      "name": "admin",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev:admin"
+      ],
+      "port": 5177,
+      "autoPort": true
+    },
+    {
+      "name": "sitio-reservas",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "vite",
+        "preview",
+        "--config",
+        "home/vite.config.js",
+        "--port",
+        "4180",
+        "--strictPort"
+      ],
+      "port": 4180
+    },
+    {
+      "name": "v1",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev:v1"
+      ],
+      "port": 5174
     }
   ]
 }

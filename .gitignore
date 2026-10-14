@@ -17,3 +17,13 @@ tools/.meta-tmp.html
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Variables locales (la plantilla es .env.example)
+.env
+.env.*
+!.env.example
+
+# Datos del servidor local de reservas
+tools/reservas/.datos/
+supabase/.temp/
+supabase/.branches/

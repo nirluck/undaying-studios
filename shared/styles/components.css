@@ -170,9 +170,6 @@
   .hero__img, .hero__slide.is-on { animation: none; }
 }
 
-/* ---------- Hero: texto centrado verticalmente ---------- */
-.hero__frame { justify-content: center; }
-.hero__content { padding-block: clamp(40px, 6vw, 88px); }
 
 /* Los títulos vienen de YouTube y varían mucho de largo: se recortan a dos
    líneas para que todas las tarjetas del carrusel midan lo mismo. */

@@ -26,9 +26,8 @@ export const LINKS = {
   maps: 'https://maps.app.goo.gl/FoNYv6muSefCaJnA8',
   directions:
     'https://maps.google.com/maps/dir//UndyingStudios+Arrayanes+13+Lomas+de+San+Mateo+53200+Naucalpan+de+Ju%C3%A1rez,+M%C3%A9x./@19.4954628,-99.2705957,18z/data=!4m5!4m4!1m0!1m2!1m1!1s0x85d203bae4f3f96d:0xec47b9f5110bf978',
-  // Correo de la guía del cliente. La página actual dice foro@undyingstudio.mx
-  // (sin la "s" de undyingstudios). POR CONFIRMAR cuál mostrar.
-  email: 'music@undyingstudios.mx',
+  // Correo de contacto de los términos y condiciones del foro (octubre 2026)
+  email: 'foro@undyingstudios.mx',
   social: {
     facebook: 'https://www.facebook.com/UndyingStudios',
     instagram: 'https://www.instagram.com/undyingstudios',
@@ -47,11 +46,11 @@ export const LINKS = {
 /* ---------- Tarifas (MXN) · las tres tarjetas de la página actual ---------- */
 export const PRICING = {
   blocks: [
-    { id: '3h', hours: 3, price: 2000 },
-    { id: '6h', hours: 6, price: 3000, save: 25 },
-    // La casilla "Personalizar color de ciclorama" suma $4,800 y cambia al
+    { id: '3h', hours: 3, price: 2400 },
+    { id: '6h', hours: 6, price: 3600, save: 25 },
+    // La casilla "Personalizar color de ciclorama" suma $5,800 y cambia al
     // calendario de 12 horas con cambio de color.
-    { id: '12h', hours: 12, price: 5200, save: 35, color: { id: '12h-color', extra: 4800 } },
+    { id: '12h', hours: 12, price: 6200, save: 35, color: { id: '12h-color', extra: 5800 } },
   ],
 };
 
@@ -66,10 +65,8 @@ export const YOUTUBE = {
 
 /* ---------- Preguntas frecuentes ----------
    Nota del cliente en "Correcciones foro". Cada respuesta sale de la página
-   actual, de los términos y condiciones o del reglamento del foro.
-   OJO: el reglamento (2.3) dice que se cancela con 24 h y que con menos de
-   12 h no hay reembolso; los términos (5) dicen que no hay reembolso y que se
-   reprograma con 48 h. Aquí se usan los términos. POR CONFIRMAR. */
+   actual, de los términos y condiciones del foro (versión de octubre 2026)
+   o de su reglamento. Donde no coinciden, mandan los términos. */
 export const FAQS = [
   {
     q: '¿Cómo reservo el foro?',
@@ -81,19 +78,19 @@ export const FAQS = [
   },
   {
     q: '¿Puedo cambiar el color del ciclorama?',
-    a: 'Sí. En la renta de 12 horas puedes personalizar el color del ciclorama por $4,800 MXN adicionales. Marca la casilla en la tarjeta de 12 horas antes de seleccionar.',
+    a: 'Sí. En la renta de 12 horas puedes personalizar el color del ciclorama por $5,800 MXN adicionales. Marca la casilla en la tarjeta de 12 horas antes de seleccionar; el cambio se confirma con al menos 72 horas de anticipación.',
   },
   {
     q: '¿Puedo cancelar o cambiar la fecha de mi reservación?',
-    a: 'No se hacen reembolsos cuando el cliente cancela, pero puedes reprogramar con al menos 48 horas de anticipación, sujeto a disponibilidad. Si el foro cancela, te ofrecemos una nueva fecha o el reembolso total del pago.',
+    a: 'No se hacen reembolsos cuando el cliente cancela, pero puedes reprogramar sin penalización con al menos 48 horas de anticipación, sujeto a disponibilidad. Si cancelas o no te presentas con menos de 24 horas, se pierde el pago completo. Si el foro cancela, te ofrecemos una nueva fecha con prioridad o el reembolso total del pago.',
   },
   {
     q: '¿Cuántas personas pueden estar en el foro?',
-    a: 'El aforo es de 25 personas. Las visitas a tu sesión deben registrarse antes; si no, tendrán que esperar fuera de las instalaciones o se cobra un cargo de $100 MXN por persona.',
+    a: 'El aforo es de 25 personas. Envía la lista completa del crew, talentos y acompañantes con al menos 24 horas de anticipación; las personas no registradas pueden quedarse fuera o generar un cargo de $100 MXN por persona.',
   },
   {
     q: '¿Qué pasa al terminar mi tiempo?',
-    a: 'El tiempo de renta inicia y termina según tu reservación. Hay 15 minutos de tolerancia para desalojar el foro; pasado ese tiempo puede haber cargos adicionales.',
+    a: 'El tiempo de renta inicia puntualmente a la hora reservada, y el montaje, maquillaje y desmontaje forman parte de tu bloque. Al terminar hay 30 minutos de tolerancia para desalojar el foro; pasado ese tiempo se cobra la hora extra vigente, sujeto a disponibilidad.',
   },
   {
     q: '¿Se puede comer, fumar o beber alcohol?',

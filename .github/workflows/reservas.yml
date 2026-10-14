@@ -1,0 +1,60 @@
+# Sistema de reservas: pruebas, migraciones de la base y Edge Function.
+#
+# Se ejecuta a mano desde GitHub → Actions → "Reservas: Supabase" → Run
+# workflow. Corre las pruebas y, si pasan, aplica las migraciones y publica
+# la función `api` en el proyecto de Supabase.
+#
+# Secretos del repositorio:
+#   SUPABASE_ACCESS_TOKEN  token personal (supabase.com → Account → Access Tokens)
+#   SUPABASE_DB_PASSWORD   contraseña de la base de datos del proyecto
+# Variable:
+#   SUPABASE_PROJECT_ID    referencia del proyecto (la parte de <ref>.supabase.co)
+name: 'Reservas: Supabase'
+
+on:
+  workflow_dispatch:
+    inputs:
+      seed:
+        description: 'Cargar los datos iniciales (solo la primera vez)'
+        type: boolean
+        default: false
+
+concurrency:
+  group: reservas
+  cancel-in-progress: false
+
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Pruebas del núcleo y de la API
+        run: npm run test:reservas
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Tipos de la Edge Function
+        run: deno check --config supabase/functions/deno.json supabase/functions/api/index.ts
+
+  publicar:
+    needs: pruebas
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Vincular el proyecto
+        run: supabase link --project-ref ${{ vars.SUPABASE_PROJECT_ID }}
+      - name: Migraciones
+        run: supabase db push ${{ inputs.seed && '--include-seed' || '' }}
+      - name: Edge Function
+        run: supabase functions deploy api --project-ref ${{ vars.SUPABASE_PROJECT_ID }} --no-verify-jwt

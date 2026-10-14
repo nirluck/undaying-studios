@@ -3,11 +3,18 @@
    Se carga después del sistema compartido (shared/styles).
    ===================================================================== */
 
-/* ---------- Artistas: cuadrícula de logotipos ---------- */
-.artists { padding: clamp(36px, 5vw, 56px) 0 0; }
-.artists__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 28px 32px; align-items: center; justify-items: center; }
-.artists__grid img { height: var(--h, 34px); width: auto; max-width: 150px; object-fit: contain; opacity: .55; transition: opacity .3s; }
-.artists__grid li:hover img { opacity: .95; }
+/* ---------- Cinta de marcas, medios y artistas ---------- */
+/* La cinta lleva el doble de logos con artistas: más lenta para que se lean */
+.clients__row { animation-duration: 90s; }
+
+/* ---------- Menú: con 5 enlaces cabe completo desde 1024 px ---------- */
+@media (min-width: 1024px) {
+  .nav__links { display: flex; }
+  .nav__burger { display: none; }
+}
+
+/* ---------- Prodúcelo en Undying: título repartido parejo, sin palabra suelta ---------- */
+.audiences .sec-head h2 { text-wrap: balance; }
 
 /* ---------- Salas: área en la pestaña y ficha para salas sin fotos ---------- */
 .rtab__area { font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -76,7 +83,8 @@
   padding: clamp(20px, 3vw, 28px); border-radius: var(--r-card); border: 1px solid var(--line-2);
   background: linear-gradient(110deg, rgba(201, 116, 56, 0.14), rgba(37, 42, 45, 0) 60%), var(--card);
 }
-@media (min-width: 800px) { .podcast-strip { grid-template-columns: 1fr auto auto; } }
+@media (min-width: 800px) { .podcast-strip { grid-template-columns: 1fr auto; } }
+.qvideo { margin-top: 14px; }
 .podcast-strip__body .eyebrow { margin-bottom: 6px; }
 .podcast-strip__body p:not(.eyebrow) { color: var(--ink-2); font-size: 16px; }
 .podcast-strip__price { display: flex; flex-direction: column; }
@@ -121,3 +129,16 @@
   .room__card-wave i { animation: none; }
 }
 .track__meta span:last-child::after { content: none; }
+
+/* Hero: texto centrado verticalmente; la sombra se oscurece a la altura del texto */
+.hero__frame { justify-content: center; }
+.hero__content { padding-block: clamp(40px, 6vw, 88px); }
+.hero__shade {
+  background:
+    radial-gradient(90% 80% at 20% 50%, rgba(37, 42, 45, 0.92) 0%, rgba(37, 42, 45, 0.5) 50%, rgba(37, 42, 45, 0.15) 100%),
+    linear-gradient(180deg, rgba(27, 31, 33, 0.55) 0%, rgba(27, 31, 33, 0.1) 30%, rgba(27, 31, 33, 0.1) 70%, rgba(27, 31, 33, 0.55) 100%),
+    radial-gradient(60% 50% at 85% 10%, rgba(201, 116, 56, 0.25) 0%, transparent 70%);
+}
+
+/* Hero: "Estado de México" en blanco junto a "Estudio de grabación" (2a revisión) */
+.hero__eyebrow span:last-child:not(:first-child) { color: #fff; }

@@ -154,7 +154,7 @@ h1, h2, p { margin: 0; }
 
 .panel__word {
   font-family: var(--f-accent); font-weight: 400; text-transform: uppercase;
-  font-size: clamp(52px, min(6.6vw, 12vh), 128px); line-height: 0.84; letter-spacing: 0.01em;
+  font-size: clamp(44px, min(5.4vw, 10vh), 104px); line-height: 0.84; letter-spacing: 0.01em;
   color: var(--ink); margin: 0 0 20px;
   /* Nunca pasa de 1: crece hacia arriba y chocaría con el eyebrow */
   transform: scale(calc(0.72 + var(--d) * 0.28));
@@ -171,14 +171,6 @@ h1, h2, p { margin: 0; }
 }
 .panel__title { font-family: var(--f-display); font-weight: 600; font-size: clamp(18px, 1.5vw, 22px); color: var(--ink); line-height: 1.2; margin-bottom: 8px; }
 .panel__desc { font-size: 15px; color: var(--ink-2); max-width: 42ch; margin-bottom: 16px; }
-.panel__meta { display: flex; flex-wrap: wrap; gap: 8px; }
-.panel--b .panel__meta { justify-content: flex-end; }
-.panel__meta li {
-  font-size: 12.5px; font-weight: 500; color: var(--ink); line-height: 1;
-  padding: 8px 13px; border-radius: var(--r-pill);
-  background: rgba(var(--scrim), 0.42); border: 1px solid var(--line-2);
-  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-}
 
 .panel__cta {
   margin-top: 24px;
@@ -364,11 +356,9 @@ h1, h2, p { margin: 0; }
 
   .panel--a .panel__body, .panel--b .panel__body { position: relative; left: auto; right: auto; top: auto; translate: none; width: auto; align-items: flex-start; text-align: left; }
   .panel--b .panel__eyebrow { flex-direction: row; }
-  .panel--b .panel__meta { justify-content: flex-start; }
-  .panel__word { font-size: clamp(52px, 15vw, 76px); transform: none; margin-bottom: 10px; }
+  .panel__word { font-size: clamp(44px, 12.5vw, 64px); transform: none; margin-bottom: 10px; }
   .panel__title { font-size: 17px; margin-bottom: 12px; }
   .panel__desc { display: none; }
-  .panel__meta li { font-size: 12px; padding: 7px 11px; }
   .panel__cta { margin-top: 16px; padding: 13px 20px; font-size: 14.5px; }
 
   /* En la tarjeta solo quedan las esquinas de arriba del visor */

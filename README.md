@@ -12,6 +12,8 @@ anterior y se publica en Hostinger.
 | `/estudio/terminos/` | Términos y condiciones del estudio | `estudio/terminos/` |
 | `/foro/` | Landing del foro audiovisual | `foro/` |
 | `/aviso-de-privacidad/` | Aviso de privacidad (todo el sitio) | `home/aviso-de-privacidad/` |
+| `/reservas/` | Confirmación de pago y Mis reservas | `home/reservas/` |
+| `/admin/` | Panel de reservas | `admin/` |
 
 ## Comandos
 
@@ -23,6 +25,10 @@ npm run dev:home     # home en http://localhost:5175
 npm run build        # genera dist/ con el sitio completo
 npm run preview      # sirve dist/ en http://localhost:4173
 npm run sync:clips   # refresca el showreel del estudio desde YouTube
+npm run dev:admin    # panel de reservas en http://localhost:5177
+npm run reservas:api # API de reservas local en http://localhost:54321/api
+npm run test:reservas  # pruebas del sistema de reservas
+npm run check:reservas # tipos de la Edge Function (Deno)
 ```
 
 En local cada página corre en su propio puerto; los enlaces entre ellas se
@@ -47,7 +53,13 @@ shared/      Sistema de diseño común
   fonts/     Wix Madefor Display, Montserrat y Norwester (autoalojadas)
   data/      reviews.js (reseñas de Google del negocio)
   vite/      seo.js (datos estructurados JSON-LD generados al compilar)
-tools/       Procesamiento de material y pruebas automáticas
+admin/       Panel de reservas (Svelte)
+supabase/    Base de datos, catálogo inicial y Edge Function de reservas
+  functions/_shared/core/    Precios, calendario y políticas (lo usan API, sitio y panel)
+  functions/_shared/server/  Rutas, pedidos, Stripe, correos y tareas programadas
+shared/reservas/  Widget de reserva y página Mis reservas
+docs/        Propuesta del sistema de reservas y guía de puesta en marcha
+tools/       Procesamiento de material y pruebas automáticas (tools/reservas: servidor local y pruebas)
 version01/   Primera versión del estudio, archivada. No se publica
 ```
 
@@ -89,21 +101,29 @@ landings.
 
 ## Reservas y cotizador
 
-Las reservas usan calendarios de Prospex en un modal. Antes de cargar el
-calendario se pide aceptar el aviso de privacidad y los términos.
+El sitio tiene un sistema propio de reservas: calendario por espacio,
+cotizador con varias sesiones, extras y postproducción, pago con Stripe
+(tarjeta y OXXO), correos, Mis reservas y un panel en `/admin/`. La propuesta
+está en [docs/sistema-de-reservas.md](docs/sistema-de-reservas.md) y la guía
+para activarlo en [docs/reservas-puesta-en-marcha.md](docs/reservas-puesta-en-marcha.md).
+
+Se activa con la variable `VITE_RESERVAS_API` (archivo `.env`, ver
+`.env.example`, o variables del repositorio en el despliegue). **Mientras esté
+vacía, todo funciona como antes:**
 
 - **Estudio**: cada bloque tiene una llave `3h-ing`, `6h-dry`, etc. en
   `LINKS.booking`. Si la llave está vacía, el botón abre WhatsApp con la reserva
-  ya escrita. Cuando el cliente cree los calendarios, solo se pega la URL.
+  ya escrita.
 - **Cotizador del estudio**: combina horas (con ingeniero o Dry Hire) y piezas
-  de postproducción con cantidad. Con la casilla de aceptación marcada permite
-  reservar las horas o mandar el pedido por WhatsApp. Si se configura
-  `LINKS.checkout` (formulario de pedido de Prospex o liga de Mercado Pago)
-  aparece también el botón de pago en línea.
-- **Foro**: calendarios de 3, 6 y 12 horas, 12 horas con cambio de color del
-  ciclorama y scouting, los mismos que usaba el sitio anterior. La casilla
-  "Personalizar color de ciclorama" de la tarjeta de 12 horas sube el precio a
-  $10,000 y cambia al calendario con cambio de color, como en WordPress.
+  de postproducción con cantidad, y permite reservar las horas o mandar el
+  pedido por WhatsApp.
+- **Foro**: calendarios de Prospex de 3, 6 y 12 horas, 12 horas con cambio de
+  color del ciclorama y scouting.
+
+Con `VITE_RESERVAS_API` configurada, esos mismos botones (y el cotizador)
+abren el widget propio, los precios de las tarjetas se toman del panel y el
+JSON-LD de SEO se genera con esos precios al compilar. El widget se descarga
+solo cuando alguien abre una reserva.
 
 ## SEO
 
@@ -200,6 +220,10 @@ versiona). Scripts en `tools/`:
 | `build-font.py` | Norwester con acentos, eñe y signos de apertura |
 | `sync-clips.mjs` | Copia local de una playlist de YouTube |
 | `build-tracks.mjs` | WAV de "El sonido de Undying" a AAC de 256 kbps en `estudio/public/audio/` |
+| `build-artists.mjs` | Logotipos de artistas a PNG blanco en `estudio/public/artists/` |
+| `build-salas.py` | Galerías de Live Room, Control Room, Amenidades y Estudio B con la selección del cliente; reemplazos de equipo (Rosetta 800, PSS-780) y faltantes (Jay Turser, congas). Sustituye a `fix-gear.py` |
+| `build-feedback2.py` | Material nuevo de la 2a revisión: portadas de los tracks, fotos de prueba del home y términos del foro |
+| `build-estudio-b.py` | Equipo del Estudio B (cuadro blanco) y fotos sugeridas de las tarjetas de "para quién" |
 
 `build-foro-assets.py` descarga del WordPress: ya no funcionará cuando se
 reemplace el sitio, pero las fotos y los PDF ya están en `foro/public/`.
@@ -214,11 +238,7 @@ node tools/sync-clips.mjs PL8bIl-NaTJFi3g4-jjmeeWq3_YIqViB25 foro/src/clips.json
 
 **Material que menciona la guía de actualización y no llegó**
 
-- Logotipos de artistas (`ARTISTS`; la sección aparece sola cuando hay logos).
 - Video nuevo del hero del estudio.
-- Fotos de las cuatro tarjetas de "para quién".
-- Fotos del Estudio B y de su equipo; fotos de la guitarra Jay Turser y de las
-  congas.
 
 **Configuración**
 
@@ -234,7 +254,24 @@ node tools/sync-clips.mjs PL8bIl-NaTJFi3g4-jjmeeWq3_YIqViB25 foro/src/clips.json
 
 **Por confirmar**
 
-- Revisión legal del aviso de privacidad y de los términos del estudio.
+- Precios de postproducción: se aplicó la columna "Precio Público Base" del
+  catálogo (Máster $2,500, Edición vocal $3,000). Falta decidir si se usa el
+  "Precio Público Ajustado" (Edición $4,400, Mezcla $6,900, Máster $3,000,
+  Edición vocal $3,800) y si se agrega "Master Stems" ($3,500).
+- Home: fondo con video o con foto. La prueba con fotos se ve en
+  `/?fondo=foto1` (foro opción 1) y `/?fondo=foto2` (foro opción 2).
+- Portada de "Oveja Negra": dice "Gael Morantes"; el sitio dice "Gael Morante".
+- Calendarios de Prospex del foro: actualizar a $2,400 / $3,600 / $6,200 y
+  color $5,800, o el cobro no coincidirá con la página.
+- Sistema de reservas: el cambio de color del foro se pide con 7 días de
+  anticipación; los términos nuevos del foro dicen 72 horas.
+- Servicios legales (10 productos de la hoja del cliente): falta decidir si
+  van como extras del cotizador o en una sección propia.
+
+- El sistema de reservas (otra sesión) aplica la regla de 72 h para cambios y
+  cancelaciones; los términos oficiales dicen 48 h para reprogramar y sin
+  reembolso. La pregunta frecuente ya sigue los términos.
+
 - Video de Kinky "Aspirina Sound Off": se usó el que aparece en YouTube con
   ese título.
 - Descripción del track "Oveja Negra" (la guía repite la de "Dile").

@@ -1,0 +1,24 @@
+# Configuración de Supabase CLI para el sistema de reservas.
+# Solo se usa lo necesario: base de datos, Auth (panel) y la función `api`.
+project_id = "undying-reservas"
+
+[db]
+major_version = 17
+
+[auth]
+enabled = true
+site_url = "https://undyingstudios.mx/admin/"
+additional_redirect_urls = ["http://localhost:5177/admin/", "http://localhost:5177/"]
+# Solo entran al panel los correos que se invitan desde el panel.
+enable_signup = false
+
+[auth.email]
+enable_signup = false
+double_confirm_changes = true
+enable_confirmations = false
+
+# La API valida sus propios accesos (enlaces de clientes, sesión del panel,
+# firma de Stripe y secreto de tareas), así que no exige el JWT de Supabase.
+[functions.api]
+verify_jwt = false
+import_map = "./functions/deno.json"

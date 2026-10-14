@@ -1,11 +1,14 @@
 import { defineConfig } from 'vite';
 import { fileURLToPath } from 'node:url';
+import { cssEnDesarrollo } from '../shared/vite/css-dev.js';
 import { jsonLd, faqPage, breadcrumb, phone, SITE, ADDRESS, GEO } from '../shared/vite/seo.js';
+import { catalogoDelPanel, envDir } from '../shared/vite/reservas.js';
+import { preciosEstudio } from '../shared/reservas/precios-landing.ts';
 import { LINKS, PRICING, FAQS, REVIEWS } from './src/data.js';
 
 const here = (p) => fileURLToPath(new URL(p, import.meta.url));
 const URL_ESTUDIO = `${SITE}/estudio/`;
-const prices = PRICING.blocks.flatMap((b) => [b.price.ing, b.price.dry]);
+const prices = () => PRICING.blocks.flatMap((b) => [b.price.ing, b.price.dry]);
 
 // Datos estructurados del estudio, generados desde src/data.js
 const schema = () => [
@@ -23,7 +26,7 @@ const schema = () => [
     email: LINKS.email,
     address: ADDRESS,
     geo: GEO,
-    priceRange: `$${Math.min(...prices).toLocaleString('es-MX')} - $${Math.max(...prices).toLocaleString('es-MX')} MXN`,
+    priceRange: `$${Math.min(...prices()).toLocaleString('es-MX')} - $${Math.max(...prices()).toLocaleString('es-MX')} MXN`,
     currenciesAccepted: 'MXN',
     aggregateRating: { '@type': 'AggregateRating', ratingValue: REVIEWS.score, reviewCount: REVIEWS.count, bestRating: '5' },
     sameAs: Object.values(LINKS.social),
@@ -48,15 +51,24 @@ const schema = () => [
 
 // Landing del estudio de grabación → undyingstudios.mx/estudio/
 // base './' deja rutas relativas: el build funciona en cualquier carpeta.
-export default defineConfig({
-  root: here('.'),
-  base: './',
-  plugins: [jsonLd(schema)],
-  build: {
-    outDir: here('../dist/estudio'),
-    emptyOutDir: true,
-    assetsInlineLimit: 4096,
-    rollupOptions: { input: { main: here('index.html'), terminos: here('terminos/index.html') } },
-  },
-  server: { host: true, port: Number(process.env.PORT) || 5173, strictPort: false },
+// Con VITE_RESERVAS_API, el JSON-LD sale con los precios del panel.
+export default defineConfig(async ({ mode }) => {
+  const cat = await catalogoDelPanel('estudio', mode);
+  if (cat) preciosEstudio(PRICING, cat);
+  return {
+    envDir,
+    root: here('.'),
+    base: './',
+    plugins: [jsonLd(schema), cssEnDesarrollo({
+      '/index.html': ['shared/styles/base.css', 'shared/styles/components.css', 'estudio/src/estudio.css'],
+      '*': ['shared/styles/base.css', 'shared/styles/legal.css'],
+    })],
+    build: {
+      outDir: here('../dist/estudio'),
+      emptyOutDir: true,
+      assetsInlineLimit: 4096,
+      rollupOptions: { input: { main: here('index.html'), terminos: here('terminos/index.html') } },
+    },
+    server: { host: true, port: Number(process.env.PORT) || 5173, strictPort: false },
+  };
 });
