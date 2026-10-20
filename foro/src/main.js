@@ -204,8 +204,10 @@ renderTarifas(true);
 /* =====================================================================
    Reserva en línea (sistema propio de calendarios y pagos). Sin
    VITE_RESERVAS_API no hace nada y todo sigue con los calendarios de Prospex.
+   Apagada en el foro mientras el cliente decide: cambia a true para usarla.
    ===================================================================== */
-const reservas = iniciarReservas('foro', {
+const RESERVA_PROPIA = false;
+const reservas = !RESERVA_PROPIA ? null : iniciarReservas('foro', {
   boton: (k) => {
     if (k === 'scouting') return { tipo: 'visita' };
     const horas = k.split('-')[0];

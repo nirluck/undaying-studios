@@ -1,5 +1,6 @@
 // Sesión del panel y llamadas a la API.
-// En producción la sesión es de Supabase Auth (enlace mágico por correo).
+// En producción la sesión es de Supabase Auth: correo y contraseña, o enlace
+// por correo (para quien la olvidó o recién fue invitado).
 // En local, sin VITE_SUPABASE_URL, se entra con cualquier correo de
 // ADMIN_CORREOS (token "dev:correo", que la API acepta solo con MODO_DEV=1).
 
@@ -31,6 +32,19 @@ export async function entrar(correo: string): Promise<'enlace' | 'listo'> {
   tokenLocal = `dev:${correo.trim().toLowerCase()}`;
   try { sessionStorage.setItem('panel-dev', tokenLocal); } catch { /* */ }
   return 'listo';
+}
+
+export async function entrarConContrasena(correo: string, contrasena: string) {
+  if (!supabase) return entrar(correo);
+  const { error } = await supabase.auth.signInWithPassword({ email: correo.trim(), password: contrasena });
+  if (error) throw new Error(/invalid login credentials/i.test(error.message) ? 'Correo o contraseña incorrectos.' : error.message);
+  return 'listo' as const;
+}
+
+export async function cambiarContrasena(nueva: string) {
+  if (!supabase) return;
+  const { error } = await supabase.auth.updateUser({ password: nueva });
+  if (error) throw new Error(/should be different/i.test(error.message) ? 'La contraseña nueva debe ser distinta de la actual.' : error.message);
 }
 
 export async function salir() {

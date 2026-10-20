@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { API, entrar, get, modoLocal, salir, supabase } from './lib/api';
-  import { aviso, puede, sesion, ROL } from './lib/util.svelte';
+  import { API, cambiarContrasena, entrar, entrarConContrasena, get, modoLocal, salir, supabase } from './lib/api';
+  import { aviso, avisar, puede, sesion, ROL } from './lib/util.svelte';
   import Hoy from './vistas/Hoy.svelte';
   import Agenda from './vistas/Agenda.svelte';
   import Pedidos from './vistas/Pedidos.svelte';
@@ -22,7 +22,11 @@
   let estado = $state<'cargando' | 'fuera' | 'dentro'>('cargando');
   let mensaje = $state('');
   let correo = $state('');
+  let contrasena = $state('');
+  let conEnlace = $state(false);
   let enviado = $state(false);
+  let cambiando = $state(false);
+  let nueva = $state('');
   let ruta = $state(location.hash.slice(1) || '/');
   let menu = $state(false);
   let pendientes = $state({ tareas: 0, solicitudes: 0 });
@@ -64,10 +68,21 @@
     e.preventDefault();
     mensaje = '';
     try {
-      const r = await entrar(correo);
+      const r = conEnlace ? await entrar(correo) : await entrarConContrasena(correo, contrasena);
       if (r === 'listo') cargarSesion();
       else enviado = true;
     } catch (err) { mensaje = (err as Error).message; }
+  }
+
+  async function guardarContrasena(e: Event) {
+    e.preventDefault();
+    if (nueva.length < 8) return avisar('La contraseña debe tener al menos 8 caracteres.', true);
+    try {
+      await cambiarContrasena(nueva);
+      nueva = '';
+      cambiando = false;
+      avisar('Contraseña guardada. La próxima vez entra con tu correo y esta contraseña.');
+    } catch (err) { avisar((err as Error).message, true); }
   }
 
   const enlaces = $derived([
@@ -101,11 +116,23 @@
     {#if enviado}
       <p>Te mandamos un enlace a <b>{correo}</b>. Ábrelo en este mismo navegador para entrar.</p>
     {:else}
-      <p class="mute">{modoLocal ? 'Modo local: entra con un correo de ADMIN_CORREOS (admin@undying.test).' : 'Escribe tu correo y te mandamos un enlace para entrar.'}</p>
+      {#if modoLocal}
+        <p class="mute">Modo local: entra con un correo de ADMIN_CORREOS (admin@undying.test).</p>
+      {:else if conEnlace}
+        <p class="mute">Te mandamos un enlace para entrar. Úsalo si olvidaste tu contraseña o aún no tienes una.</p>
+      {/if}
       <form class="pila" onsubmit={enviarCorreo}>
         <label class="campo">Correo<input type="email" bind:value={correo} required autocomplete="email" /></label>
-        <button class="btn pri" type="submit">{modoLocal ? 'Entrar' : 'Mandarme el enlace'}</button>
+        {#if !modoLocal && !conEnlace}
+          <label class="campo">Contraseña<input type="password" bind:value={contrasena} required autocomplete="current-password" /></label>
+        {/if}
+        <button class="btn pri" type="submit">{conEnlace ? 'Mandarme el enlace' : 'Entrar'}</button>
       </form>
+      {#if !modoLocal}
+        <button class="btn chico" type="button" onclick={() => { conEnlace = !conEnlace; mensaje = ''; }}>
+          {conEnlace ? 'Entrar con contraseña' : 'Olvidé mi contraseña o no tengo una'}
+        </button>
+      {/if}
     {/if}
     {#if mensaje}<p class="err">{mensaje}</p>{/if}
   </main>
@@ -124,6 +151,16 @@
       <div class="pie">
         <span>{sesion.correo}</span>
         <span>{ROL[sesion.rol] ?? sesion.rol}</span>
+        {#if !modoLocal}
+          {#if cambiando}
+            <form class="pila" onsubmit={guardarContrasena}>
+              <label class="campo">Contraseña nueva<input type="password" bind:value={nueva} minlength="8" required autocomplete="new-password" /></label>
+              <button class="btn chico pri" type="submit">Guardar</button>
+            </form>
+          {:else}
+            <button class="btn chico" onclick={() => (cambiando = true)}>Cambiar contraseña</button>
+          {/if}
+        {/if}
         <button class="btn chico" onclick={salir}>Salir</button>
       </div>
     </nav>

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prueba de reserva | Undying Studios</title>
+  <!-- Página de prueba del flujo unificado de tarifas, cotizador y calendario -->
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#1b1f21" />
+  <link rel="icon" href="/brand/monograma-blanco.svg" type="image/svg+xml" />
+  <script type="module" src="./main.ts"></script>
+</head>
+<body>
+  <header class="legal-top">
+    <div class="legal-top__inner">
+      <a class="nav__brand" href="../" aria-label="Undying Studios, estudio de grabación">
+        <img class="nav__logo" src="/brand/logo-undying-h.svg" alt="Undying Studios" width="109" height="40" />
+      </a>
+      <a class="link-arrow" href="../" id="volver">Volver al estudio</a>
+    </div>
+  </header>
+
+  <main class="pr" id="pr">
+    <div class="container">
+      <header class="pr-head">
+        <p class="eyebrow">Reserva en línea</p>
+        <h1>Arma tu sesión</h1>
+        <p class="lead">Elige tus horas, el día y lo que necesitas antes y después de grabar. El total se actualiza con cada cambio.</p>
+        <p class="pr-demo" id="prDemo" hidden></p>
+        <div class="pr-presets" role="group" aria-label="Empieza con un paquete">
+          <span class="pr-presets__etq">Empieza con:</span>
+          <div id="prPresets"></div>
+        </div>
+      </header>
+
+      <div class="pr-layout">
+        <div class="pr-pasos">
+          <!-- 1. Horas -->
+          <section class="pr-paso" id="pr-horas" aria-labelledby="t-horas">
+            <div class="pr-paso__cab">
+              <span class="pr-paso__num">1</span>
+              <div><h2 id="t-horas">Horas de estudio</h2><p>Con nuestro ingeniero o con el tuyo. Entre más horas, menor el precio por hora.</p></div>
+            </div>
+            <div class="mode" role="radiogroup" aria-label="Modalidad de la sesión" id="prModo"></div>
+            <div class="pricing__grid pr-planes" role="radiogroup" aria-label="Bloque de horas" id="prPlanes"></div>
+            <button type="button" class="pr-sinhoras" id="prSinHoras" aria-pressed="false">No necesito horas de estudio, solo postproducción</button>
+          </section>
+
+          <!-- 2. Fecha -->
+          <section class="pr-paso" id="pr-fecha" aria-labelledby="t-fecha">
+            <div class="pr-paso__cab">
+              <span class="pr-paso__num">2</span>
+              <div><h2 id="t-fecha">Día y hora</h2><p id="prFechaAyuda">Los días con punto tienen horarios libres.</p></div>
+            </div>
+            <div class="pr-fecha" id="prFecha"></div>
+          </section>
+
+          <!-- 3. Para tu sesión -->
+          <section class="pr-paso" id="pr-sesion" aria-labelledby="t-sesion">
+            <div class="pr-paso__cab">
+              <span class="pr-paso__num">3</span>
+              <div><h2 id="t-sesion">Durante tu sesión</h2><p>Músicos, producción y equipo extra para el día de la grabación.</p></div>
+            </div>
+            <div class="pr-items" id="prSesion"></div>
+          </section>
+
+          <!-- 4. Postproducción -->
+          <section class="pr-paso" id="pr-post" aria-labelledby="t-post">
+            <div class="pr-paso__cab">
+              <span class="pr-paso__num">4</span>
+              <div><h2 id="t-post">Después de grabar</h2><p>Edición, mezcla y máster por canción. Te los entregamos en línea.</p></div>
+            </div>
+            <div class="pr-items" id="prPost"></div>
+          </section>
+
+          <!-- 5. Servicios legales -->
+          <section class="pr-paso" id="pr-legal" aria-labelledby="t-legal">
+            <div class="pr-paso__cab">
+              <span class="pr-paso__num">5</span>
+              <div><h2 id="t-legal">Protege tu música</h2><p id="prLegalAyuda"></p></div>
+            </div>
+            <div class="pr-legal" id="prLegal"></div>
+          </section>
+
+          <!-- 6. Datos y pago -->
+          <section class="pr-paso pr-paso--datos" id="pr-datos" aria-labelledby="t-datos" hidden>
+            <div class="pr-paso__cab">
+              <span class="pr-paso__num">6</span>
+              <div><h2 id="t-datos">Tus datos</h2><p>Te mandamos la confirmación y los detalles de tu sesión a tu correo.</p></div>
+            </div>
+            <form class="pr-form" id="prForm" novalidate></form>
+          </section>
+        </div>
+
+        <aside class="pr-resumen" id="prResumen" aria-live="polite" aria-label="Tu pedido"></aside>
+      </div>
+    </div>
+  </main>
+
+  <div class="pr-barra" id="prBarra">
+    <div><span>Total</span><b id="prBarraTotal">$0</b></div>
+    <button type="button" class="btn btn--primary btn--sm" id="prBarraBtn">Ver mi pedido</button>
+  </div>
+</body>
+</html>

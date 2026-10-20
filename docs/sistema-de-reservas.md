@@ -45,10 +45,10 @@ foro.
 | Precio Dry Hire | $2,100 · $3,500 · $4,300 | |
 | Descuento mostrado | 6 h: 17% · 9 h: 32% (contra la tarifa por hora del bloque de 3 h) | |
 | Podcast y locución | Paquete sobre el bloque de 3 h; "equipo de video opcional" sin precio | Sí |
-| Mezcla multitrack | $5,500 por canción, 2 revisiones | No |
-| Máster | $2,000 por canción, 2 revisiones | No |
-| Edición multitrack | $3,500 por canción (hasta 24 tracks) | No |
-| Edición y afinación vocal | $2,500 por canción (hasta 6 pistas de voz) | No |
+| Mezcla multitrack | $6,900 por canción, 2 revisiones | No |
+| Máster | $3,000 por canción, 2 revisiones | No |
+| Edición multitrack | $4,400 por canción (hasta 24 tracks) | No |
+| Edición y afinación vocal | $3,800 por canción (hasta 6 pistas de voz) | No |
 | Productor musical | $7,000 por sesión | No, pero va ligado a una sesión |
 | Músico de sesión | $2,500 por sesión | No, pero va ligado a una sesión |
 | Paquetes sugeridos | Banda (6 h + edición + mezcla + máster) · Solista (3 h + afinación + mezcla + máster) · Producción (9 h + productor + afinación + mezcla + máster) · Podcast (3 h) | |

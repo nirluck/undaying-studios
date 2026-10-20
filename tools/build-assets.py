@@ -126,7 +126,7 @@ for name, fn in CLIENTS.items():
 print('clients', len(CLIENTS))
 
 # ---------- Miniaturas de YouTube ----------
-YT = ['5VoHfpRIwtM', 'Fi3fnLuwUw4', 'GelEJmHYRhs', 'TLj5tRVr9ZY', 'sMu77iWg7CM', 'JTQTn4a-ajE', 'FaZrvZ7yIpM',
+YT = ['eOiGNi7aGBE', 'krgj3mJe1f4', 'Fi3fnLuwUw4', 'GelEJmHYRhs', 'TLj5tRVr9ZY', 'sMu77iWg7CM', 'JTQTn4a-ajE', 'FaZrvZ7yIpM',
       'VPnYTc6e4no', 'f19f0gvge0Y', 'y3iv4sxZxPQ', 'VAXCMwjb568', 'uuRFOkEHePY', 'ShNGvolpIJE']
 for vid in YT:
     data = None

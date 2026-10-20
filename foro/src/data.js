@@ -34,10 +34,11 @@ export const LINKS = {
     tiktok: 'https://www.tiktok.com/@undyingstudios',
     youtube: 'https://www.youtube.com/@undyingstudios',
   },
-  // Copias locales de los PDF del sitio actual (tools/build-foro-assets.py)
+  // PDF del cliente (tools/build-feedback2.py). Al reemplazar uno, sube su ?v=
+  // para que el navegador no muestre la copia anterior.
   docs: {
-    manual: 'documentos/manual-tecnico-foro.pdf',
-    reglamento: 'documentos/reglamento-foro.pdf',
+    manual: 'documentos/manual-tecnico-foro.pdf?v=2',
+    reglamento: 'documentos/reglamento-foro.pdf?v=2',
     terminos: 'documentos/terminos-y-condiciones-foro.pdf',
     privacidad: '../aviso-de-privacidad/',
   },

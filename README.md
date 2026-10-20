@@ -236,10 +236,6 @@ node tools/sync-clips.mjs PL8bIl-NaTJFi3g4-jjmeeWq3_YIqViB25 foro/src/clips.json
 
 ## Pendientes del cliente
 
-**Material que menciona la guía de actualización y no llegó**
-
-- Video nuevo del hero del estudio.
-
 **Configuración**
 
 - Calendarios de Prospex del estudio para 3, 6 y 9 horas, con y sin ingeniero.
@@ -254,10 +250,9 @@ node tools/sync-clips.mjs PL8bIl-NaTJFi3g4-jjmeeWq3_YIqViB25 foro/src/clips.json
 
 **Por confirmar**
 
-- Precios de postproducción: se aplicó la columna "Precio Público Base" del
-  catálogo (Máster $2,500, Edición vocal $3,000). Falta decidir si se usa el
-  "Precio Público Ajustado" (Edición $4,400, Mezcla $6,900, Máster $3,000,
-  Edición vocal $3,800) y si se agrega "Master Stems" ($3,500).
+- Precios de postproducción: se aplicó la columna "Precio Público Ajustado
+  (Gross-Up Recomendado)" (Edición $4,400, Mezcla $6,900, Máster $3,000,
+  Edición vocal $3,800). Falta decidir si se agrega "Master Stems" ($3,500).
 - Home: fondo con video o con foto. La prueba con fotos se ve en
   `/?fondo=foto1` (foro opción 1) y `/?fondo=foto2` (foro opción 2).
 - Portada de "Oveja Negra": dice "Gael Morantes"; el sitio dice "Gael Morante".

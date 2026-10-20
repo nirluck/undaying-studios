@@ -59,3 +59,6 @@ for nombre, fn in FONDOS_HOME.items():
 
 shutil.copy(ruta('TÉRMINOS Y CONDICIONES FORO US.pdf'), 'foro/public/documentos/terminos-y-condiciones-foro.pdf')
 print('pdf terminos del foro')
+shutil.copy(ruta('Reglamento para Uso del Foro Undying Studios.pdf'), 'foro/public/documentos/reglamento-foro.pdf')
+shutil.copy(ruta('Manual Técnico ForoUS.pdf'), 'foro/public/documentos/manual-tecnico-foro.pdf')
+print('pdf reglamento y manual técnico del foro')

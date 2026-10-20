@@ -53,7 +53,7 @@ test('catálogo público del estudio', async () => {
 });
 
 test('pedido web: apartado, checkout, pago y confirmación', async () => {
-  const carrito = { espacioId: 'estudio', sesiones: [{ bloqueId: 'estudio-6h', modalidadId: 'estudio-ing', inicio: local('2026-10-20', 10) }], productos: [{ id: 'mezcla', cantidad: 1 }] };
+  const carrito = { espacioId: 'estudio', sesiones: [{ bloqueId: 'estudio-6h', modalidadId: 'estudio-ing', inicio: local('2026-10-20', 10) }], productos: [{ id: 'master', cantidad: 1 }] };
   const sinAceptar = await api('POST', '/pedidos', { carrito, cliente: cliente() });
   assert.equal(sinAceptar.estado, 422);
   assert.equal(sinAceptar.datos.codigo, 'CONSENTIMIENTO');
@@ -65,9 +65,9 @@ test('pedido web: apartado, checkout, pago y confirmación', async () => {
   tokenAna = r.datos.token;
   const [p] = await e.ctx.sql`select estado, total from pedidos where id = ${pedidoEstudio}`;
   assert.equal(p.estado, 'apartado');
-  assert.equal(p.total, 10000);
+  assert.equal(p.total, 7500);
   const s = e.pasarela.sesiones.get([...e.pasarela.sesiones.keys()].at(-1)!)!;
-  assert.equal(s.oxxo, true); // $10,000 y la sesión está a 14 días
+  assert.equal(s.oxxo, true); // $7,500 y la sesión está a 14 días
 
   // Otro cliente no puede tomar el mismo horario (ni empalmarse con el margen)
   const otro = await api('POST', '/pedidos', { carrito: { ...carrito, sesiones: [{ bloqueId: 'estudio-3h', modalidadId: 'estudio-dry', inicio: local('2026-10-20', 16) }], productos: [] }, cliente: cliente('beto@correo.com'), consentimiento });

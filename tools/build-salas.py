@@ -8,9 +8,11 @@
   PSS-780) y las que faltaban (Jay Turser, congas), en cuadro blanco de 520 px
   igual que el resto del equipo.
 
-    python tools/build-salas.py
+    python tools/build-salas.py          # todo
+    python tools/build-salas.py lr       # solo una galería (lr, cr, am o eb)
 """
 import os
+import sys
 import unicodedata
 from PIL import Image, ImageChops, ImageOps
 
@@ -27,27 +29,33 @@ def abrir(carpeta, nombre):
 
 
 GALERIAS = {
+    # 2a revisión: portada LiveRoomVidaInVacía y sin la última (Panorámica Estudio)
     'lr': ('seleccion fotos Live Room', [
-        'LiveRoomFront.png', 'LiveSessionVidaIn.jpeg', 'EnsayoVidaInLR.png', 'LiveRoomVidaInVacía.png',
+        'LiveRoomVidaInVacía.png', 'LiveRoomFront.png', 'LiveSessionVidaIn.jpeg', 'EnsayoVidaInLR.png',
         'EnsayoMarAbreuLR.png', 'LiveRoom Hiwatt.jpg', 'Tracking Drums.jpg', 'Tuning Drums.jpg',
-        'Tracking Vocals.jpg', 'Reamp Guitars.jpg', 'Caja de Conectores.jpg', 'Panorámica Estudio.png',
+        'Tracking Vocals.jpg', 'Reamp Guitars.jpg', 'Caja de Conectores.jpg',
     ]),
     'cr': ('Selección Fotos Control Room', [
         'ControlRoomC.jpg', 'Control Room Full.jpg', 'Control Room Derecha.jpg', 'Control Room Molduras H.jpeg',
         'Control Room Back.jpg', 'ControlRoomTracking.jpg', 'Tracking Guitars.jpg', 'Control Room Molduras V.jpeg',
     ]),
+    # 2a revisión: portada "Foto principal amenidades" (es CamerinoF) y sin MujerMaquillaje
     'am': ('Selección fotos Amenidades/Amenidades', [
-        'CamerinoArcade.png', 'CamerinoB.png', 'CamerinoF.png', 'MujerMaquillaje.png',
+        'CamerinoF.png', 'CamerinoArcade.png', 'CamerinoB.png',
         'Cocina.png', 'TerrazaAsador.jpg', 'TerrazaAzador2.jpg', 'TrrazaFuente.jpg',
     ]),
+    # 2a revisión: portada "Foto principal Estudio Post" (es la 11.08.47 (3))
     'eb': ('Fotos Estudio B/Control Room B', [
-        'WhatsApp Image 2026-09-29 at 11.08.46.jpeg', 'WhatsApp Image 2026-09-29 at 11.08.47 (1).jpeg',
-        'WhatsApp Image 2026-09-29 at 11.08.47.jpeg', 'WhatsApp Image 2026-09-29 at 11.08.46 (1).jpeg',
-        'WhatsApp Image 2026-09-29 at 11.08.47 (3).jpeg', 'WhatsApp Image 2026-09-29 at 11.08.47 (2).jpeg',
+        'WhatsApp Image 2026-09-29 at 11.08.47 (3).jpeg', 'WhatsApp Image 2026-09-29 at 11.08.46.jpeg',
+        'WhatsApp Image 2026-09-29 at 11.08.47 (1).jpeg', 'WhatsApp Image 2026-09-29 at 11.08.47.jpeg',
+        'WhatsApp Image 2026-09-29 at 11.08.46 (1).jpeg', 'WhatsApp Image 2026-09-29 at 11.08.47 (2).jpeg',
         'WhatsApp Image 2026-09-29 at 11.08.46 (2).jpeg',
     ]),
 }
+SOLO = sys.argv[1:]
 for prefijo, (carpeta, fotos) in GALERIAS.items():
+    if SOLO and prefijo not in SOLO:
+        continue
     for i, fn in enumerate(fotos, 1):
         im = ImageOps.exif_transpose(abrir(os.path.join(SRC, carpeta), fn)).convert('RGB')
         nombre = f'{prefijo}-{i:02d}'
@@ -59,6 +67,8 @@ for prefijo, (carpeta, fotos) in GALERIAS.items():
         print('img', nombre, im.size, fn)
 
 # ---------- Equipo: reemplazos y faltantes ----------
+if SOLO:
+    sys.exit()
 G = os.path.join(SRC, 'Reemplazar imagenes con fondo mal recortado y faltantes')
 EQUIPO = {
     'apogee-rosetta-800': 'Apogee Roseta 800 F.png',

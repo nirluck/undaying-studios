@@ -13,6 +13,9 @@
   .nav__burger { display: none; }
 }
 
+/* ---------- Visita: mismo fondo que el cotizador (y las opiniones que siguen) ---------- */
+.scout { background: var(--bg-deep); }
+
 /* ---------- Prodúcelo en Undying: título repartido parejo, sin palabra suelta ---------- */
 .audiences .sec-head h2 { text-wrap: balance; }
 

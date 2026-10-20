@@ -59,7 +59,8 @@ export function entornoDesde(leer: (k: string) => string | undefined): Entorno {
   return {
     sitioUrl: (leer('SITIO_URL') ?? 'https://undyingstudios.mx').replace(/\/$/, ''),
     apiUrl: (leer('API_URL') ?? `${leer('SUPABASE_URL') ?? ''}/functions/v1/api`).replace(/\/$/, ''),
-    origenes: lista(leer('ORIGENES') ?? 'https://undyingstudios.mx'),
+    // El navegador manda el origen sin diagonal final; se quita por si viene así.
+    origenes: lista(leer('ORIGENES') ?? 'https://undyingstudios.mx').map((o) => o.replace(/\/+$/, '')),
     modoDev: leer('MODO_DEV') === '1',
     stripeWebhookSecret: leer('STRIPE_WEBHOOK_SECRET') ?? '',
     tareasSecreto: leer('TAREAS_SECRETO') ?? '',

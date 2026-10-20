@@ -61,13 +61,14 @@ export default defineConfig(async ({ mode }) => {
     base: './',
     plugins: [jsonLd(schema), cssEnDesarrollo({
       '/index.html': ['shared/styles/base.css', 'shared/styles/components.css', 'estudio/src/estudio.css'],
+      '/prueba-reserva/index.html': ['shared/styles/base.css', 'shared/styles/components.css', 'shared/styles/legal.css', 'shared/reservas/reservas.css', 'estudio/src/estudio.css', 'estudio/prueba-reserva/prueba.css'],
       '*': ['shared/styles/base.css', 'shared/styles/legal.css'],
     })],
     build: {
       outDir: here('../dist/estudio'),
       emptyOutDir: true,
       assetsInlineLimit: 4096,
-      rollupOptions: { input: { main: here('index.html'), terminos: here('terminos/index.html') } },
+      rollupOptions: { input: { main: here('index.html'), terminos: here('terminos/index.html'), prueba: here('prueba-reserva/index.html') } },
     },
     server: { host: true, port: Number(process.env.PORT) || 5173, strictPort: false },
   };

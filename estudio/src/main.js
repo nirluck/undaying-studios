@@ -81,7 +81,7 @@ $('#mailLink').href = 'mailto:' + LINKS.email; $('#mailLink').textContent = LINK
 // Con `npm run dev` el foro corre en su propio servidor (`npm run dev:foro`).
 $('#foroLink').href = import.meta.env.DEV ? 'http://localhost:5176/' : LINKS.foro;
 // El home corre en su propio servidor en local (`npm run dev:home`)
-if (import.meta.env.DEV) $('#homeLink').href = 'http://localhost:5175/';
+if (import.meta.env.DEV) $$('#homeLink, [data-space="home"]').forEach((a) => (a.href = 'http://localhost:5175/'));
 $$('[data-space="foro"]').forEach((a) => (a.href = import.meta.env.DEV ? 'http://localhost:5176/' : LINKS.foro));
 $$('.js-terms').forEach((a) => (a.href = LINKS.legal.terminos));
 $$('.js-privacy').forEach((a) => (a.href = LINKS.legal.privacidad));
@@ -350,7 +350,7 @@ $('#featured').innerHTML = FEATURED.map((w, i) => `
       <span class="wcard__cat">${w.category}</span>
       <span class="wcard__title">${w.title}</span>
       <span class="wcard__client">${w.client}</span>
-      <span class="wcard__desc">${w.desc}</span>
+      ${w.desc ? `<span class="wcard__desc">${w.desc}</span>` : ''}
       ${w.headphones ? `<span class="wcard__hp">${phonesIco}Usa audífonos para una mejor experiencia</span>` : ''}
     </span>
   </button>`).join('');
@@ -529,7 +529,7 @@ function renderPricing() {
     return `
     <article class="plan ${b.hot ? 'plan--hot' : ''}">
       <span class="plan__badge ${b.hot ? '' : 'plan__badge--alt'} ${i === 0 ? 'plan__badge--base' : ''}">${b.badge}</span>
-      <div class="plan__head"><b>${b.hours}<small>horas</small></b><span>${b.tagline}</span></div>
+      <div class="plan__head"><b>${b.hours}<small>horas</small></b></div>
       <p class="plan__price"><span>${money(price)}</span><small>MXN</small></p>
       <p class="plan__per">${price < regular ? `<s>${money(regular)}</s> · ` : ''}${money(price / b.hours)} por hora</p>
       <ul class="plan__perks">${PRICING.perks[mode].map((p) => `<li>${check}${p}</li>`).join('')}</ul>

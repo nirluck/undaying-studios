@@ -42,7 +42,7 @@ insert into espacios (id, nombre, nombre_corto, reservable, margen_min, paso_min
   '{"terminos": "/estudio/terminos/", "privacidad": "/aviso-de-privacidad/", "version": "2026-10-13"}', 1),
 ('foro', 'Foro audiovisual', 'Foro', true, 60, 60, 24, 180, 25,
   '{"cambio_h": 48, "cancelacion_h": 24, "antes": "nada", "despues": "nada", "credito_dias": 90}',
-  '{"terminos": "/foro/documentos/terminos-y-condiciones-foro.pdf", "reglamento": "/foro/documentos/reglamento-foro.pdf", "privacidad": "/aviso-de-privacidad/", "version": "2026-10-13"}', 2),
+  '{"terminos": "/foro/documentos/terminos-y-condiciones-foro.pdf", "reglamento": "/foro/documentos/reglamento-foro.pdf", "privacidad": "/aviso-de-privacidad/", "version": "2026-10-20"}', 2),
 ('estudio-b', 'Estudio Post (mezcla y máster)', 'Estudio Post', false, 0, 60, 0, 365, 4,
   '{"cambio_h": 48, "cancelacion_h": 24, "antes": "nada", "despues": "nada", "credito_dias": 90}', '{}', 3);
 
@@ -99,10 +99,10 @@ insert into extras (id, espacio_id, nombre, descripcion, precio, anticipacion_di
 
 -- ---------- Productos ----------
 insert into productos (id, espacio_id, nombre, descripcion, precio, unidad, requiere_sesion, max_por_sesion, max_cantidad, revisiones, entrega_dias, genera_trabajo, tarea, campos, orden) values
-('mezcla', 'estudio', 'Mezcla multitrack', 'Balance de niveles, limpieza de frecuencias, procesamiento y diseño espacial de pistas en formato estéreo. Incluye 2 revisiones.', 5500, 'cancion', false, null, 20, 2, 7, true, null, '[{"id": "titulo", "etiqueta": "Título de la canción"}]', 2),
-('master', 'estudio', 'Máster por track', 'Optimización y nivelación comercial de tu mezcla estéreo para plataformas de streaming y medios físicos. Incluye 2 revisiones.', 2500, 'cancion', false, null, 20, 2, 3, true, null, '[{"id": "titulo", "etiqueta": "Título de la canción"}]', 3),
-('edicion', 'estudio', 'Edición multitrack', 'Limpieza, alineación y cuantización rítmica para sesiones de hasta 24 tracks.', 3500, 'cancion', false, null, 20, 0, 5, true, null, '[{"id": "titulo", "etiqueta": "Título de la canción"}]', 1),
-('vocal', 'estudio', 'Edición y afinación vocal', 'Comping, limpieza, alineación rítmica y afinación detallada de hasta 6 pistas de voz por canción.', 3000, 'cancion', false, null, 20, 0, 5, true, null, '[{"id": "titulo", "etiqueta": "Título de la canción"}]', 4),
+('mezcla', 'estudio', 'Mezcla multitrack', 'Balance de niveles, limpieza de frecuencias, procesamiento y diseño espacial de pistas en formato estéreo. Incluye 2 revisiones.', 6900, 'cancion', false, null, 20, 2, 7, true, null, '[{"id": "titulo", "etiqueta": "Título de la canción"}]', 2),
+('master', 'estudio', 'Máster por track', 'Optimización y nivelación comercial de tu mezcla estéreo para plataformas de streaming y medios físicos. Incluye 2 revisiones.', 3000, 'cancion', false, null, 20, 2, 3, true, null, '[{"id": "titulo", "etiqueta": "Título de la canción"}]', 3),
+('edicion', 'estudio', 'Edición multitrack', 'Limpieza, alineación y cuantización rítmica para sesiones de hasta 24 tracks.', 4400, 'cancion', false, null, 20, 0, 5, true, null, '[{"id": "titulo", "etiqueta": "Título de la canción"}]', 1),
+('vocal', 'estudio', 'Edición y afinación vocal', 'Comping, limpieza, alineación rítmica y afinación detallada de hasta 6 pistas de voz por canción.', 3800, 'cancion', false, null, 20, 0, 5, true, null, '[{"id": "titulo", "etiqueta": "Título de la canción"}]', 4),
 ('productor', 'estudio', 'Productor musical', 'Dirección artística, arreglos y producción musical durante la sesión de grabación.', 7000, 'sesion', true, 1, 20, 0, null, false, 'confirmar_productor', '[]', 5),
 ('musico', 'estudio', 'Músico de sesión', 'Músico profesional de nuestra red.', 2500, 'sesion', true, 6, 20, 0, null, false, 'confirmar_musico', '[{"id": "instrumento", "etiqueta": "Instrumento", "al_reservar": true}]', 6);
 

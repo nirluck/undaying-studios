@@ -49,9 +49,10 @@ export const LINKS = {
 };
 
 /* ---------- Hero ----------
-   PENDIENTE: la guía pide un video nuevo para el hero que no llegó con el
-   material. Para cambiarlo: guárdalo en estudio/public/video/hero.mp4 (y la
-   versión ligera hero-mobile.mp4) con su portada hero-poster.jpg. */
+   Video v5 (material-de-origen/videos para hero/hero-edit/export-v5). Para
+   cambiarlo: reemplaza estudio/public/video/hero.mp4 (720p), hero-mobile.mp4
+   (540p) y su portada hero-poster.webp/.jpg, y sube el ?v= de las rutas en
+   index.html para que el navegador no muestre el video anterior. */
 export const HERO = {
   // El <video> está en index.html (con hero-mobile.mp4 para celular). Vacío:
   // se usa el slideshow de fotos.
@@ -66,10 +67,10 @@ export const HERO = {
    Fotos sugeridas por el cliente (tools/build-estudio-b.py); "Voces y
    solistas" conserva la del Live Room. `preset` arma la cotización. */
 export const AUDIENCES = [
-  { id: 'banda', name: 'Bandas', desc: 'Grabación en simultáneo para bandas y la energía de Live Sessions.', img: 'aud-banda', preset: 'banda' },
+  { id: 'banda', name: 'Bandas', desc: 'Grabación en simultáneo para bandas y Live Sessions.', img: 'aud-banda', preset: 'banda' },
   { id: 'voz', name: 'Voces y solistas', desc: 'Grabación de voz profesional para todo género.', img: 'live-13', preset: 'voz' },
   { id: 'productores', name: 'Productores e ingenieros', desc: 'Modalidad Dry Hire: trae a tu ingeniero y opera con autonomía.', img: 'aud-productores', preset: 'dry' },
-  { id: 'podcast', name: 'Podcast y locución', desc: 'Ideal para locución y podcast. Equipamiento de video e iluminación opcional.', img: 'aud-podcast', preset: 'podcast' },
+  { id: 'podcast', name: 'Podcast y locución', desc: 'Ideal para locución y podcast con video opcional.', img: 'aud-podcast', preset: 'podcast' },
 ];
 
 /* ---------- Artistas (PNG blancos en public/artists, generados con tools/build-artists.mjs) ----------
@@ -106,7 +107,7 @@ export const ROOMS = [
     ],
     bullets: ['18 canales de grabación simultáneos y 10 retornos', 'Equipada con monitores de campo cercano', 'Equipada con PA para ensayos', 'Iluminación regulable y clima independiente'],
     // Selección del cliente (tools/build-salas.py)
-    gallery: ['lr-01', 'lr-02', 'lr-03', 'lr-04', 'lr-05', 'lr-06', 'lr-07', 'lr-08', 'lr-09', 'lr-10', 'lr-11', 'lr-12'],
+    gallery: ['lr-01', 'lr-02', 'lr-03', 'lr-04', 'lr-05', 'lr-06', 'lr-07', 'lr-08', 'lr-09', 'lr-10', 'lr-11'],
   },
   {
     id: 'control',
@@ -150,7 +151,7 @@ export const ROOMS = [
       ['Capacidad', 'Hasta 15 personas'],
     ],
     amenities: ['Sala de espera', 'Camerino', 'Maquinita arcade', 'Cocina', 'Asador', 'Terraza con vista', '2 baños', 'Regadera'],
-    gallery: ['am-01', 'am-02', 'am-03', 'am-04', 'am-05', 'am-06', 'am-07', 'am-08'],
+    gallery: ['am-01', 'am-02', 'am-03', 'am-04', 'am-05', 'am-06', 'am-07'],
   },
 ];
 
@@ -201,7 +202,6 @@ export const GEAR = [
           { name: 'RMV Special Edition X5', kind: 'Batería', img: 'rmv-x5' },
           { name: 'Peavey TNT 115', kind: 'Amplificador de bajo', img: 'peavey-tnt115' },
           { name: 'Piano Wurlitzer', kind: 'Piano vertical · DeKalb, Illinois', img: 'wurlitzer' },
-          { name: 'Yamaha P-105', kind: 'Piano digital', img: 'yamaha-p105' },
           { name: 'Yamaha DX21', kind: 'Sintetizador FM', img: 'yamaha-dx21' },
           { name: 'Yamaha PortaSound PSS-780', kind: 'Teclado', img: 'yamaha-pss780' },
           { name: 'Yamaha PortaSound PSS-470', kind: 'Teclado', img: 'yamaha-pss470' },
@@ -293,14 +293,17 @@ export const GEAR = [
   },
 ];
 
-/* ---------- Escucha: producciones destacadas ---------- */
+/* ---------- Escucha: producciones destacadas ----------
+   La primera es la tarjeta grande. La cuadrícula se arma con 5 (1 grande y
+   4 chicas). `desc` es opcional. */
 export const FEATURED = [
   {
-    yt: '5VoHfpRIwtM',
-    category: 'Producción musical',
-    title: 'Camino a un Sueño',
-    client: 'Captain Tsubasa: La Leyenda Regresa',
-    desc: 'Composición y producción del opening en español latino de la serie.',
+    // POR CONFIRMAR: qué hizo Undying en este tema (grabación, mezcla…) para
+    // poner la categoría y la descripción. Elegido por el cliente.
+    yt: 'eOiGNi7aGBE',
+    category: 'Videoclip oficial',
+    title: 'La Recaída',
+    client: 'Gloria Trevi ft. Timo Núñez',
   },
   {
     yt: 'GelEJmHYRhs',
@@ -325,13 +328,11 @@ export const FEATURED = [
     desc: 'Locución de la serie con Vadhir Derbez.',
   },
   {
-    // POR CONFIRMAR: video encontrado en YouTube con el título de la guía.
-    yt: 'q585D-E6Ekg',
-    category: 'Sound Design, Mix, Master',
-    title: 'Aspirina Sound Off',
-    client: 'Kinky',
-    desc: 'Diseño de audio, mezcla 8D y máster.',
-    headphones: true,
+    // POR CONFIRMAR: qué hizo Undying en este tema. Elegido por el cliente.
+    yt: 'krgj3mJe1f4',
+    category: 'Videoclip oficial',
+    title: 'Brujería',
+    client: 'Cazzu',
   },
 ];
 
@@ -414,16 +415,16 @@ export const PRICING = {
   },
   // Postproducción: se cotiza por pieza, con o sin horas de estudio.
   products: [
-    { id: 'edicion', name: 'Edición multitrack', desc: 'Limpieza, alineación y cuantización rítmica para sesiones de hasta 24 tracks.', price: 3500, unit: 'por canción' },
-    { id: 'mezcla', name: 'Mezcla multitrack', desc: 'Balance de niveles, limpieza de frecuencias, procesamiento y diseño espacial de pistas en formato estéreo. Incluye 2 revisiones.', price: 5500, unit: 'por canción' },
-    { id: 'master', name: 'Máster por track', desc: 'Optimización y nivelación comercial de tu mezcla estéreo para plataformas de streaming y medios físicos. Incluye 2 revisiones.', price: 2500, unit: 'por canción' },
-    { id: 'vocal', name: 'Edición y afinación vocal', desc: 'Comping, limpieza, alineación rítmica y afinación detallada de hasta 6 pistas de voz por canción.', price: 3000, unit: 'por canción' },
+    { id: 'edicion', name: 'Edición multitrack', desc: 'Limpieza, alineación y cuantización rítmica para sesiones de hasta 24 tracks.', price: 4400, unit: 'por canción' },
+    { id: 'mezcla', name: 'Mezcla multitrack', desc: 'Balance de niveles, limpieza de frecuencias, procesamiento y diseño espacial de pistas en formato estéreo. Incluye 2 revisiones.', price: 6900, unit: 'por canción' },
+    { id: 'master', name: 'Máster por track', desc: 'Optimización y nivelación comercial de tu mezcla estéreo para plataformas de streaming y medios físicos. Incluye 2 revisiones.', price: 3000, unit: 'por canción' },
+    { id: 'vocal', name: 'Edición y afinación vocal', desc: 'Comping, limpieza, alineación rítmica y afinación detallada de hasta 6 pistas de voz por canción.', price: 3800, unit: 'por canción' },
     { id: 'productor', name: 'Productor musical', desc: 'Dirección artística, arreglos y producción musical durante la sesión de grabación.', price: 7000, unit: 'por sesión' },
     { id: 'musico', name: 'Músico de sesión', desc: 'Músico profesional de nuestra red.', price: 2500, unit: 'por sesión' },
   ],
-  // Orden de los productos en el cotizador (Mezcla primero); en Tarifas se
-  // usa el orden de `products`, que sigue el catálogo del cliente.
-  quoterOrder: ['mezcla', 'edicion', 'master', 'vocal', 'productor', 'musico'],
+  // Orden de los productos en el cotizador (2a revisión: Edición, Mezcla, Máster);
+  // en Tarifas se usa el orden de `products`, que sigue el catálogo del cliente.
+  quoterOrder: ['edicion', 'mezcla', 'master', 'vocal', 'productor', 'musico'],
   // Combinaciones sugeridas de la guía
   presets: [
     { id: 'banda', name: 'Banda', desc: 'Grabación en vivo, edición, mezcla y máster.', block: '6h', products: { edicion: 1, mezcla: 1, master: 1 } },

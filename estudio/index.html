@@ -24,7 +24,7 @@
   <link rel="preload" href="../shared/fonts/wix-madefor-display.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="../shared/fonts/norwester.woff2" as="font" type="font/woff2" crossorigin />
   <!-- La portada del video es lo primero que se ve: se pide de inmediato -->
-  <link rel="preload" href="/video/hero-poster.webp" as="image" type="image/webp" fetchpriority="high" />
+  <link rel="preload" href="/video/hero-poster.webp?v=5" as="image" type="image/webp" fetchpriority="high" />
   <link rel="preconnect" href="https://i.ytimg.com" />
   <!-- RecordingStudio, BreadcrumbList y FAQPage se generan al compilar (vite.config.js) -->
 </head>
@@ -39,9 +39,10 @@
         <img class="nav__logo" src="/brand/logo-undying-h.svg" alt="Undying Studios" width="109" height="40" />
       </a>
       <nav class="nav__links" aria-label="Secciones">
+        <a href="../" data-space="home">Inicio</a>
         <a href="#salas">Salas</a>
         <a href="#equipo">Equipo</a>
-        <a href="#escucha">Portafolio</a>
+        <a href="#escucha">Escucha</a>
         <a href="#tarifas">Tarifas</a>
         <a href="../foro/" data-space="foro">Foro audiovisual</a>
       </nav>
@@ -56,9 +57,10 @@
 
   <div class="drawer" id="drawer" aria-hidden="true">
     <nav class="drawer__links" aria-label="Menú móvil">
+      <a href="../" data-space="home">Inicio</a>
       <a href="#salas">Salas</a>
       <a href="#equipo">Equipo</a>
-      <a href="#escucha">Portafolio</a>
+      <a href="#escucha">Escucha</a>
       <a href="#tarifas">Tarifas</a>
       <a href="../foro/" data-space="foro">Foro audiovisual</a>
     </nav>
@@ -74,9 +76,9 @@
       <div class="hero__frame" id="heroFrame">
         <div class="hero__media" id="heroMedia">
           <!-- En celular se usa la versión ligera; la portada es lo primero que se pinta -->
-          <video class="hero__video" id="heroVideo" autoplay muted loop playsinline poster="/video/hero-poster.webp" preload="metadata" aria-hidden="true">
-            <source src="/video/hero-mobile.mp4" type="video/mp4" media="(max-width: 720px)" />
-            <source src="/video/hero.mp4" type="video/mp4" />
+          <video class="hero__video" id="heroVideo" autoplay muted loop playsinline poster="/video/hero-poster.webp?v=5" preload="metadata" aria-hidden="true">
+            <source src="/video/hero-mobile.mp4?v=5" type="video/mp4" media="(max-width: 720px)" />
+            <source src="/video/hero.mp4?v=5" type="video/mp4" />
           </video>
         </div>
         <div class="hero__shade" aria-hidden="true"></div>
@@ -199,8 +201,7 @@
       <div class="container">
         <header class="sec-head sec-head--center">
           <p class="eyebrow">Tarifas</p>
-          <h2>Tarifas por bloque de horas</h2>
-          <p class="lead">Elige si trabajas con nuestro ingeniero o traes al tuyo.</p>
+          <h2>Reserva a tu ritmo</h2>
         </header>
         <div class="mode" role="radiogroup" aria-label="Modalidad de la sesión" id="modeSwitch"></div>
         <div class="pricing__grid" id="pricingGrid"></div>
@@ -210,8 +211,8 @@
         <div class="post">
           <header class="post__head">
             <div>
-              <p class="eyebrow">Postproducción</p>
-              <h3>Mezcla, máster y edición por pieza</h3>
+              <p class="eyebrow">Servicios de postproducción</p>
+              <h3>Dale a tu música un acabado profesional</h3>
             </div>
             <p>Contrátalos solos o junto con tus horas de estudio. Agrégalos a tu cotización y elige cuántos necesitas.</p>
           </header>

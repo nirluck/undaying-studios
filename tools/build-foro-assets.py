@@ -81,7 +81,11 @@ for nombre, ruta in FOTOS.items():
         guardar(nombre, Image.open(io.BytesIO(bajar(WP + ruta))))
 if SOLO:
     sys.exit()
+# Las versiones vigentes de los PDF las copia tools/build-feedback2.py desde el
+# material del cliente; aquí solo se bajan si todavía no existen.
 for nombre, url in PDFS.items():
+    if (DOCS / nombre).exists():
+        continue
     (DOCS / nombre).write_bytes(bajar(url))
     print(f"{nombre:32} {(DOCS / nombre).stat().st_size // 1024} KB")
 

@@ -179,8 +179,13 @@ momento:
 
 ### 7. Panel
 
-1. Entra a `https://undyingstudios.mx/admin/` con un correo de
-   `ADMIN_CORREOS`.
+1. El primer administrador no existe todavía en Supabase Auth (el registro
+   está cerrado): en Supabase → Authentication → Users → Add user → Create
+   new user, con el correo de `ADMIN_CORREOS`, una contraseña y "Auto Confirm
+   User". Después entra a `https://undyingstudios.mx/admin/` con ese correo y
+   contraseña. A los demás se les invita desde la sección Usuarios del panel:
+   entran la primera vez con el enlace del correo y ponen su contraseña en
+   "Cambiar contraseña".
 2. En **Usuarios**, invita al equipo con su rol.
 3. Revisa **Reglas y políticas**, **Horarios** y **Precios y catálogo**. Los
    valores iniciales están en la sección "Decisiones tomadas" de la propuesta.
