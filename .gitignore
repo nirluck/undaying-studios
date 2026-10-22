@@ -27,3 +27,6 @@ desktop.ini
 tools/reservas/.datos/
 supabase/.temp/
 supabase/.branches/
+
+# Paquetes para subir a mano a Hostinger
+/*.zip

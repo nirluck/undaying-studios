@@ -44,7 +44,8 @@ export function montarCalendario(raiz: HTMLElement, op: OpcionesCalendario) {
       const f = `${mes.slice(0, 8)}${String(d).padStart(2, '0')}`;
       const info = porFecha.get(f);
       const disponible = !!info?.horarios.length;
-      const cls = ['cal__dia', disponible ? 'is-libre' : 'is-lleno', f === fecha ? 'is-sel' : '', f === op.hoy ? 'is-hoy' : ''].join(' ');
+      // Días pasados apagados; "lleno" (tachado) solo para días futuros sin horarios
+      const cls = ['cal__dia', disponible ? 'is-libre' : f <= op.hoy ? 'is-pasado' : 'is-lleno', f === fecha ? 'is-sel' : '', f === op.hoy ? 'is-hoy' : ''].join(' ');
       celdas += `<button type="button" class="${cls}" data-fecha="${f}" ${cargando || !info ? 'disabled' : ''} aria-pressed="${f === fecha}" aria-label="${fechaLarga(f)}${disponible ? '' : ', sin horarios'}">${d}</button>`;
     }
     let horas = '';
@@ -53,18 +54,23 @@ export function montarCalendario(raiz: HTMLElement, op: OpcionesCalendario) {
         ? `<p class="cal__titulo">${esc(fechaLarga(elegido.fecha))}</p><div class="cal__horas" role="group" aria-label="Horarios disponibles">${elegido.horarios.map((h) => `<button type="button" class="cal__hora" data-inicio="${h.inicio}" aria-pressed="${h.inicio === op.inicio}">${etiqueta(h)}</button>`).join('')}</div>`
         : `<p class="cal__motivo">${esc(elegido.motivo ?? 'Sin horarios disponibles.')}</p>`;
     } else if (!cargando) {
-      horas = '<p class="cal__ayuda">Elige un día disponible.</p>';
+      horas = '<p class="cal__ayuda">Elige un día del calendario para ver sus horarios.</p>';
     }
     raiz.innerHTML = `
       <div class="cal">
-        <div class="cal__cab">
-          <button type="button" class="cal__nav" data-mes="-1" ${puedeAtras ? '' : 'disabled'} aria-label="Mes anterior">‹</button>
-          <b>${nombreMes(m)} ${a}</b>
-          <button type="button" class="cal__nav" data-mes="1" aria-label="Mes siguiente">›</button>
+        <div class="cal__marco">
+          <div class="cal__mes">
+            <div class="cal__cab">
+              <button type="button" class="cal__nav" data-mes="-1" ${puedeAtras ? '' : 'disabled'} aria-label="Mes anterior">‹</button>
+              <b>${nombreMes(m)} ${a}</b>
+              <button type="button" class="cal__nav" data-mes="1" aria-label="Mes siguiente">›</button>
+            </div>
+            <div class="cal__semana" aria-hidden="true"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+            <div class="cal__dias${cargando ? ' is-cargando' : ''}">${celdas}</div>
+            <p class="cal__leyenda"><i></i>Con horarios libres</p>
+          </div>
+          <div class="cal__lado">${horas}</div>
         </div>
-        <div class="cal__semana" aria-hidden="true"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
-        <div class="cal__dias${cargando ? ' is-cargando' : ''}">${celdas}</div>
-        ${horas}
       </div>`;
   };
 
