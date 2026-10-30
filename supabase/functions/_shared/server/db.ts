@@ -110,7 +110,7 @@ export async function ajuste<T = Record<string, unknown>>(sql: Sql, clave: strin
 
 export interface Negocio { nombre: string; razonSocial: string; correo: string; whatsapp: string; whatsappTexto: string; direccion: string; mapa: string; sitio: string; llegada: string }
 export interface Avisos {
-  correosEquipo: string[]; horaResumen: number; diaResumenSemanal: number; recordatoriosH: number[]; horaGracias: number;
+  correosEquipo: string[]; correosEspacio?: Record<string, string[]>; horaResumen: number; diaResumenSemanal: number; recordatoriosH: number[]; horaGracias: number;
   materialRecordatoriosDias: number[]; autoAprobarDias: number; creditoAvisoDias: number; pinturaAvisoDias: number; resenaUrl: string;
 }
 

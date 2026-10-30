@@ -356,3 +356,44 @@ test('panel: pedido solo con conceptos libres', async () => {
   assert.equal(r.datos.estado, 'apartado');
   assert.ok(bandeja().some((a) => a.startsWith('Tu cotización UND-')));
 });
+
+test('productor: demos del cliente, asignación, avisos por espacio y calendario del equipo', async () => {
+  await e.ctx.sql`update ajustes set valor = valor || '{"correos_espacio": {"estudio": ["Music@Estudio.test", "music@estudio.test"]}}'::jsonb where clave = 'avisos'`;
+  try {
+    const carrito = { espacioId: 'estudio', sesiones: [{ bloqueId: 'estudio-3h', modalidadId: 'estudio-ing', inicio: local('2026-11-12', 10) }], productos: [{ id: 'productor', cantidad: 1, sesion: 0 }] };
+    const r = await api('POST', '/pedidos', { carrito, cliente: cliente('prod@correo.com'), consentimiento });
+    assert.equal(r.estado, 200, JSON.stringify(r.datos));
+    assert.equal(await pagarConTarjeta(r.datos.pedido), 'ok');
+
+    // Aviso al equipo: solo a la lista del estudio (sin repetir), con calendario
+    const equipo = e.correo.bandeja.find((m) => m.asunto.startsWith('Nueva reserva') && m.asunto.includes(r.datos.numero))!;
+    assert.deepEqual(equipo.para, ['music@estudio.test']);
+    assert.equal(equipo.adjuntos?.[0].tipo, 'text/calendar');
+    assert.match(equipo.html, /calendar\.google\.com\/calendar\/render\?action=TEMPLATE/);
+    const conf = e.correo.bandeja.find((m) => m.asunto.includes(r.datos.numero) && m.para.includes('prod@correo.com'))!;
+    assert.match(conf.texto, /demos, tracks y referencias para productor musical/);
+
+    const v = await api('GET', `/pedidos/${r.datos.pedido}?t=${r.datos.token}`);
+    assert.equal(v.datos.enSesion.length, 1);
+    const linea = v.datos.enSesion[0].id;
+    const vacio = await api('POST', '/cliente/material-sesion', { t: r.datos.token, linea });
+    assert.equal(vacio.estado, 422);
+    const ok = await api('POST', '/cliente/material-sesion', { t: r.datos.token, linea, enlace: 'https://drive.test/demos', referencias: 'Bad Bunny, Natalia Lafourcade' });
+    assert.equal(ok.estado, 200, JSON.stringify(ok.datos));
+    assert.equal(ok.datos.enSesion[0].material.referencias, 'Bad Bunny, Natalia Lafourcade');
+    assert.ok(bandeja().some((a) => a.startsWith('Material para productor musical')));
+    const ajeno = await api('POST', '/cliente/material-sesion', { t: tokenAna, linea, referencias: 'x' });
+    assert.equal(ajeno.estado, 404);
+
+    const a = await api('POST', `/admin/pedidos/${r.datos.pedido}/linea`, { linea, asignado: 'Toño', avisarCliente: true }, ADMIN);
+    assert.equal(a.estado, 200, JSON.stringify(a.datos));
+    const [t] = await e.ctx.sql`select hecha_en, nota from tareas where pedido_id = ${r.datos.pedido} and tipo = 'confirmar_productor'`;
+    assert.ok(t.hechaEn);
+    assert.equal(t.nota, 'Toño');
+    assert.ok(bandeja().some((x) => x.startsWith('Tu productor musical para la sesión')));
+    const despues = await api('GET', `/pedidos/${r.datos.pedido}?t=${r.datos.token}`);
+    assert.equal(despues.datos.enSesion[0].asignado, 'Toño');
+  } finally {
+    await e.ctx.sql`update ajustes set valor = valor - 'correos_espacio' where clave = 'avisos'`;
+  }
+});

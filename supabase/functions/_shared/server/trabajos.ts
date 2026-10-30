@@ -93,3 +93,59 @@ export async function actualizarTrabajo(ctx: Ctx, trabajoId: string, d: Fila, us
     });
   }
 }
+
+// ---------- Servicios durante la sesión (productor, músico) ----------
+// No generan trabajo de postproducción: guardan en lineas.datos el material
+// del cliente (demos, tracks, referencias) y la persona que asigna el equipo.
+
+async function lineaEnSesion(ctx: Ctx, pedidoId: string, lineaId: string) {
+  const i = await infoPedido(ctx.sql, pedidoId);
+  const l = i.lineas.find((x) => x.id === lineaId && x.enSesion);
+  if (!l) throw falla(404, 'NO_ENCONTRADO', 'Servicio no encontrado.');
+  const s = i.sesiones.find((x) => x.id === l.sesionId) ?? i.sesiones[0];
+  return { i, l, s };
+}
+
+/** El cliente manda demos, tracks y referencias para su productor o músico. */
+export async function materialSesion(ctx: Ctx, clienteId: string, lineaId: string, d: Fila) {
+  const [ref] = await ctx.sql`select pedido_id from lineas where id = ${lineaId}`;
+  if (!ref) throw falla(404, 'NO_ENCONTRADO', 'Servicio no encontrado.');
+  const { i, l, s } = await lineaEnSesion(ctx, ref.pedidoId, lineaId);
+  if (i.cliente.id !== clienteId) throw falla(404, 'NO_ENCONTRADO', 'Servicio no encontrado.');
+  if (!['pagado', 'completado'].includes(i.pedido.estado)) throw falla(409, 'NO_MODIFICABLE', 'Este pedido no está activo.');
+  const enlace = String(d.enlace ?? '').trim() ? url(d.enlace, 'el enlace de tus demos o tracks') : null;
+  const referencias = texto(d.referencias, 'las referencias', { requerido: false, max: 1000 }) || null;
+  const notas = texto(d.notas, 'las notas', { requerido: false, max: 2000 }) || null;
+  if (!enlace && !referencias) throw falla(422, 'CAMPO_REQUERIDO', 'Pega el enlace de tus demos o escribe tus referencias.');
+  const material = { enlace, referencias, notas, en: ctx.ahora().toISOString() };
+  await ctx.sql`update lineas set datos = coalesce(datos, '{}'::jsonb) || ${ctx.sql.json({ material } as never)} where id = ${lineaId}`;
+  const servicio = String(l.productoNombre ?? l.concepto).toLowerCase();
+  await avisar(ctx, 'material_sesion', {
+    para: 'equipo', pedidoId: i.pedido.id,
+    vars: { ...varsPedido(i, urlPanelPedido(ctx, i.pedido.id)), nombre: i.cliente.nombre, servicio, fecha: s?.texto ?? '' },
+    bloques: {
+      datos: [...(enlace ? [['Demos o tracks', enlace] as [string, string]] : []), ...(referencias ? [['Referencias', referencias] as [string, string]] : []), ...(notas ? [['Notas', notas] as [string, string]] : [])],
+      botones: [{ texto: 'Abrir en el panel', url: urlPanelPedido(ctx, i.pedido.id) }],
+    },
+  });
+}
+
+/** El equipo asigna al productor o músico; opcionalmente se le avisa al cliente. */
+export async function asignarPersonal(ctx: Ctx, usuario: string, pedidoId: string, lineaId: string, asignado: string, avisarCliente: boolean) {
+  const { i, l, s } = await lineaEnSesion(ctx, pedidoId, lineaId);
+  const nombre = asignado.trim().slice(0, 200) || null;
+  await ctx.sql`update lineas set datos = coalesce(datos, '{}'::jsonb) || ${ctx.sql.json({ asignado: nombre } as never)} where id = ${lineaId}`;
+  if (nombre && l.productoTarea) {
+    await ctx.sql`update tareas set hecha_en = now(), hecha_por = ${usuario}, nota = ${nombre}
+      where pedido_id = ${pedidoId} and tipo = ${l.productoTarea} and hecha_en is null and sesion_id is not distinct from ${l.sesionId ?? null}`;
+  }
+  await bitacora(ctx.sql, usuario, 'asignar', 'pedido', pedidoId, { linea: lineaId, asignado: nombre });
+  if (avisarCliente && nombre) {
+    const token = await tokenCliente(ctx, i.cliente.id);
+    await avisar(ctx, 'personal_asignado', {
+      para: i.cliente.correo, pedidoId,
+      vars: { ...varsPedido(i, urlMisReservas(ctx, token)), fecha: s?.texto ?? '', servicio: String(l.productoNombre ?? l.concepto).toLowerCase(), asignado: nombre },
+      bloques: { botones: [{ texto: 'Ver mis reservas', url: urlMisReservas(ctx, token) }] },
+    });
+  }
+}

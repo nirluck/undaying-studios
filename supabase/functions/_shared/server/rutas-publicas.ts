@@ -12,7 +12,7 @@ import { acceso, clienteDeToken, codigoCorto, crearAcceso } from './seguridad.ts
 import { avisar } from './correo.ts';
 import { calendarioIcs, type EventoIcs } from './ics.ts';
 import { cambiarFecha, cancelarPedido, cotizarEnServidor, crearPedido, iniciarPago, limpiarCarrito, vencerPedido, vistaPreviaCancelacion } from './pedidos.ts';
-import { accionCliente } from './trabajos.ts';
+import { accionCliente, materialSesion } from './trabajos.ts';
 import { eventosIcs, infoPedido, sesionesActivas, urlMisReservas } from './info.ts';
 import { puedeCambiarFecha } from '../core/politicas.ts';
 
@@ -66,6 +66,12 @@ function vistaPedido(ctx: Ctx, i: Awaited<ReturnType<typeof infoPedido>>) {
       id: t.id, producto: t.productoNombre, unidad: t.unidad, titulo: t.titulo, estado: t.estado, materialUrl: t.materialUrl, referencias: t.referencias,
       entregaUrl: ['entregado', 'en_revision', 'aprobado'].includes(t.estado) ? t.entregaUrl : null, fechaEntrega: t.fechaEntrega,
       revisionesIncluidas: t.revisionesIncluidas, revisionesUsadas: t.revisionesUsadas,
+    })),
+    // Productor, músico: el cliente manda demos y referencias; ve quién le tocó.
+    enSesion: i.lineas.filter((l) => l.enSesion).map((l) => ({
+      id: l.id, servicio: l.productoNombre ?? l.concepto, concepto: l.concepto,
+      sesion: i.sesiones.find((s) => s.id === l.sesionId)?.texto ?? null,
+      asignado: l.datos?.asignado ?? null, material: l.datos?.material ?? null,
     })),
     pagos: i.pagos.filter((p) => p.estado !== 'fallido').map((p) => ({ fecha: p.confirmado ?? p.creado, tipo: p.tipo, metodo: p.metodo, monto: p.monto, estado: p.estado })),
     oxxo: oxxo?.oxxo ?? null,
@@ -217,7 +223,7 @@ export function rutasPublicas(r: Enrutador) {
       bloques: { botones: [{ texto: 'Cambiar o cancelar', url: enlace, secundario: true }, ...(negocio.mapa ? [{ texto: 'Cómo llegar', url: negocio.mapa }] : [])], nota: negocio.llegada },
       adjuntos: [{ nombre: 'visita-undying.ics', tipo: 'text/calendar', contenido: calendarioIcs('Undying Studios', [{ uid: `visita-${visitaId}`, inicio, fin, titulo: `Visita a Undying Studios · ${esp.nombreCorto}`, lugar: negocio.direccion }], ahora) }],
     });
-    await avisar(ctx, 'nueva_visita', { para: 'equipo', vars: { nombre, correo, telefono, espacio: esp.nombreCorto, fecha: texto_ }, bloques: notas ? { nota: notas } : {} });
+    await avisar(ctx, 'nueva_visita', { para: 'equipo', espacioId: esp.id, vars: { nombre, correo, telefono, espacio: esp.nombreCorto, fecha: texto_ }, bloques: notas ? { nota: notas } : {} });
     return { visita: visitaId, token, texto: texto_ };
   });
 
@@ -304,6 +310,14 @@ export function rutasPublicas(r: Enrutador) {
     await accionCliente(ctx, clienteId, String(b.trabajo ?? ''), String(b.accion ?? ''), b);
     const [t] = await ctx.sql`select pedido_id from trabajos where id = ${String(b.trabajo)}`;
     return vistaPedido(ctx, await infoPedido(ctx.sql, t.pedidoId));
+  });
+
+  r.post('/cliente/material-sesion', async ({ ctx, cuerpo }) => {
+    const b = await cuerpo();
+    const clienteId = await clienteDeToken(ctx, String(b.t ?? ''));
+    await materialSesion(ctx, clienteId, String(b.linea ?? ''), b);
+    const [l] = await ctx.sql`select pedido_id from lineas where id = ${String(b.linea)}`;
+    return vistaPedido(ctx, await infoPedido(ctx.sql, l.pedidoId));
   });
 
   // ---------- Calendarios ----------

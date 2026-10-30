@@ -42,7 +42,11 @@ export async function infoPedido(sql: Sql, pedidoId: string): Promise<InfoPedido
     sql`select s.*, b.horas as bloque_horas, m.nombre as modalidad_nombre, m.descripcion_corta as modalidad_corta
         from sesiones s left join bloques b on b.id = s.bloque_id left join modalidades m on m.id = s.modalidad_id
         where s.pedido_id = ${pedidoId} order by s.inicio`,
-    sql`select * from lineas where pedido_id = ${pedidoId} order by orden, creado`,
+    // en_sesion: servicios que se dan durante la sesión (productor, músico).
+    // Llevan material del cliente y una persona asignada en datos.material / datos.asignado.
+    sql`select l.*, coalesce(p.requiere_sesion and not p.genera_trabajo, false) as en_sesion, p.tarea as producto_tarea, p.nombre as producto_nombre
+        from lineas l left join productos p on l.tipo = 'producto' and p.id = l.ref
+        where l.pedido_id = ${pedidoId} order by l.orden, l.creado`,
     sql`select * from pagos where pedido_id = ${pedidoId} order by creado`,
     sql`select t.*, p.nombre as producto_nombre from trabajos t left join productos p on p.id = t.producto_id where t.pedido_id = ${pedidoId} order by t.creado, t.unidad`,
     sql`select * from tareas where pedido_id = ${pedidoId} order by creado`,
@@ -130,6 +134,39 @@ export async function icsDePedido(ctx: Ctx, i: InfoPedido) {
   const negocio = await ajuste<Negocio>(ctx.sql, 'negocio');
   const ev = eventosIcs(i, negocio);
   return ev.length ? [{ nombre: `undying-${i.pedido.numero}.ics`, contenido: calendarioIcs('Undying Studios', ev, ctx.ahora()), tipo: 'text/calendar' }] : [];
+}
+
+// ---------- Calendario del equipo ----------
+// Mismo UID que el feed del espacio (sesion-<id>): si la sesión se importa
+// desde el correo y luego cambia de fecha, el nuevo archivo la actualiza.
+
+export function eventosEquipo(ctx: Ctx, i: InfoPedido, negocio: Negocio): EventoIcs[] {
+  const servicios = i.lineas.filter((l) => l.enSesion).map((l) => `${l.concepto}${l.datos?.asignado ? `: ${l.datos.asignado}` : ''}`);
+  return sesionesActivas(i).map((s) => ({
+    uid: `sesion-${s.id}`,
+    inicio: new Date(s.inicio),
+    fin: new Date(s.fin),
+    titulo: `${i.cliente.nombre} · ${i.espacio.nombreCorto} ${s.bloqueHoras ?? ''} h · ${i.pedido.numero}`,
+    descripcion: [
+      `${s.modalidadNombre ?? ''}`, `Tel. ${i.cliente.telefono ?? ''} · ${i.cliente.correo}`,
+      s.ingenieroAsignado ? `Ingeniero: ${s.ingenieroAsignado}` : '', ...servicios,
+      `Pedido: ${urlPanelPedido(ctx, i.pedido.id)}`,
+    ].filter(Boolean).join('\n'),
+    lugar: negocio.direccion,
+  }));
+}
+
+export async function icsEquipo(ctx: Ctx, i: InfoPedido) {
+  const negocio = await ajuste<Negocio>(ctx.sql, 'negocio');
+  const ev = eventosEquipo(ctx, i, negocio);
+  return ev.length ? [{ nombre: `${i.pedido.numero}.ics`, contenido: calendarioIcs('Undying Studios', ev, ctx.ahora()), tipo: 'text/calendar' }] : [];
+}
+
+/** Enlace "Agregar a Google Calendar" con los datos del evento ya llenos. */
+export function urlGoogleCalendar(e: EventoIcs) {
+  const f = (d: Date) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  const q = new URLSearchParams({ action: 'TEMPLATE', text: e.titulo, dates: `${f(e.inicio)}/${f(e.fin)}`, details: e.descripcion ?? '', location: e.lugar ?? '', ctz: 'America/Mexico_City' });
+  return `https://calendar.google.com/calendar/render?${q}`;
 }
 
 export const etiquetaTarea: Record<string, string> = {

@@ -12,8 +12,8 @@ import { ajuste, bitacora, cargarCatalogo, esEmpalme, ocupacionDe, type Negocio 
 import { correoValido, falla, texto } from './http.ts';
 import { avisar, omitirAviso } from './correo.ts';
 import {
-  bloqueResumen, bloqueSesiones, carritoDeSesiones, etiquetaTarea, icsDePedido, infoPedido, sesionesActivas, textoSesionCorta,
-  tokenCliente, urlLanding, urlMisReservas, urlPagar, urlPanelPedido, urlPedido, varsPedido, type InfoPedido,
+  bloqueResumen, bloqueSesiones, carritoDeSesiones, etiquetaTarea, eventosEquipo, icsDePedido, icsEquipo, infoPedido, sesionesActivas, textoSesionCorta,
+  tokenCliente, urlGoogleCalendar, urlLanding, urlMisReservas, urlPagar, urlPanelPedido, urlPedido, varsPedido, type InfoPedido,
 } from './info.ts';
 
 // deno-lint-ignore no-explicit-any
@@ -485,6 +485,8 @@ async function avisosConfirmacion(ctx: Ctx, pedidoId: string, sinHorario: boolea
   const pendientesCliente: string[] = [];
   if (i.trabajos.length) pendientesCliente.push('Mándanos el material de tu postproducción desde "Mis reservas" (enlace de Drive, WeTransfer o Dropbox).');
   if (i.espacio.id === 'foro' && sesionesActivas(i).length) pendientesCliente.push(`Registra a tu equipo e invitados antes de la sesión (aforo de ${i.espacio.aforo ?? 25} personas).`);
+  const enSesion = i.lineas.filter((l) => l.enSesion && l.importe >= 0);
+  if (enSesion.length) pendientesCliente.push(`Mándanos tus demos, tracks y referencias para ${[...new Set(enSesion.map((l) => String(l.productoNombre).toLowerCase()))].join(' y ')} desde "Mis reservas", así preparamos tu sesión.`);
   if (sesionesActivas(i).length && negocio.llegada) pendientesCliente.push(negocio.llegada);
 
   await avisar(ctx, 'pedido_confirmado', {
@@ -514,8 +516,12 @@ async function avisosConfirmacion(ctx: Ctx, pedidoId: string, sinHorario: boolea
       ],
       lista: bloqueSesiones(i),
       resumen: bloqueResumen(i),
-      botones: [{ texto: 'Abrir en el panel', url: urlPanelPedido(ctx, pedidoId) }],
+      botones: [
+        { texto: 'Abrir en el panel', url: urlPanelPedido(ctx, pedidoId) },
+        ...eventosEquipo(ctx, i, negocio).map((e, k, xs) => ({ texto: `Agregar a Google Calendar${xs.length > 1 ? ` (sesión ${k + 1})` : ''}`, url: urlGoogleCalendar(e), secundario: true })),
+      ],
     },
+    adjuntos: await icsEquipo(ctx, i),
   });
 
   for (const tarea of i.tareas.filter((x) => x.tipo === 'programar_pintura')) {
@@ -769,7 +775,8 @@ export async function cambiarFecha(ctx: Ctx, pedidoId: string, sesionId: string,
     await avisar(ctx, 'cambio_fecha', { para: j.cliente.correo, pedidoId, vars, bloques: { datos: [['Antes', anterior], ['Ahora', nueva.texto]], botones: [{ texto: 'Ver mis reservas', url: vars.enlace }] }, adjuntos: await icsDePedido(ctx, j) });
     await avisar(ctx, 'cambio_equipo', {
       para: 'equipo', pedidoId, vars: { ...vars, nombre: j.cliente.nombre, accion: op.porCliente ? 'Cambio de fecha del cliente' : 'Cambio de fecha', detalle: `Antes: ${anterior}\nAhora: ${nueva.texto}` },
-      bloques: { botones: [{ texto: 'Abrir en el panel', url: urlPanelPedido(ctx, pedidoId) }] },
+      bloques: { botones: [{ texto: 'Abrir en el panel', url: urlPanelPedido(ctx, pedidoId) }, ...eventosEquipo(ctx, j, await ajuste<Negocio>(sql, 'negocio')).filter((e) => e.uid === `sesion-${sesionId}`).map((e) => ({ texto: 'Agregar a Google Calendar', url: urlGoogleCalendar(e), secundario: true }))] },
+      adjuntos: await icsEquipo(ctx, j),
     });
     const pintura = j.tareas.find((x) => x.sesionId === sesionId && x.tipo === 'programar_pintura' && !x.hechaEn);
     if (pintura) await avisar(ctx, 'pintura_ciclorama', { para: 'equipo', pedidoId, vars: { ...vars, color: pintura.detalle.split(' · ')[1] ?? '', desde: 'los 2 días anteriores' } });

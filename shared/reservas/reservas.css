@@ -213,5 +213,6 @@ select.rv-input { appearance: auto; }
 .mr-fila b { color: var(--ink); font-weight: 600; }
 .mr-acciones { display: flex; flex-wrap: wrap; gap: 8px; }
 .mr-panel { border: 1px solid var(--line-2); border-radius: 12px; padding: 16px; display: grid; gap: 12px; background: var(--bg-deep); }
+.mr-panel > .btn { justify-self: start; }
 .mr-ok { color: #8fe9b6; font-size: 14px; }
 .mr-entrar { max-width: 460px; display: grid; gap: 12px; }

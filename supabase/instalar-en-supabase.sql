@@ -594,7 +594,7 @@ insert into ajustes (clave, valor) values
   "llegada": "No hay estacionamiento privado. La descarga de equipo es directamente en la puerta y puedes estacionarte en la calle, dentro del circuito con acceso controlado."
 }'),
 ('avisos', '{
-  "correos_equipo": ["music@undyingstudios.mx", "foro@undyingstudios.mx", "admin@undyingstudios.mx"],
+  "correos_equipo": ["undyingstudios@gmail.com"],
   "hora_resumen": 20,
   "dia_resumen_semanal": 1,
   "recordatorios_h": [48, 24],

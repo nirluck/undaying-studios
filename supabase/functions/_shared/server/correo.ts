@@ -54,9 +54,25 @@ export interface OpcionesAviso {
   vars: Record<string, unknown>;
   bloques?: Bloques;
   pedidoId?: string | null;
+  /** Para los avisos al equipo sin pedido (visitas): a qué espacio van. */
+  espacioId?: string | null;
   /** Evita mandar dos veces el mismo aviso. */
   clave?: string;
   adjuntos?: Adjunto[];
+}
+
+const unicos = (xs: string[]) => [...new Set(xs.map((x) => x.trim().toLowerCase()).filter(Boolean))];
+
+/**
+ * Destinatarios de un aviso al equipo: los del espacio del pedido (Ajustes →
+ * "Avisos del estudio / del foro") y, si ese espacio no tiene, la lista general.
+ * Así una reserva del estudio no le llega también a foro@ y viceversa.
+ */
+async function correosDelEquipo(sql: Ctx['sql'], avisos: Avisos, op: OpcionesAviso): Promise<string[]> {
+  let espacio = op.espacioId ?? null;
+  if (!espacio && op.pedidoId) [{ espacioId: espacio } = { espacioId: null }] = await sql`select espacio_id from pedidos where id = ${op.pedidoId}`;
+  const propios = espacio ? avisos.correosEspacio?.[espacio] ?? [] : [];
+  return propios.length ? propios : avisos.correosEquipo ?? [];
 }
 
 /** Manda un correo con plantilla. Nunca lanza: un correo fallido no rompe el flujo. */
@@ -66,7 +82,7 @@ export async function avisar(ctx: Ctx, plantillaId: string, op: OpcionesAviso): 
   if (!def) throw new Error(`Plantilla desconocida: ${plantillaId}`);
   try {
     const [negocio, avisos] = await Promise.all([ajuste<Negocio>(sql, 'negocio'), ajuste<Avisos>(sql, 'avisos')]);
-    const para = op.para === 'equipo' ? avisos.correosEquipo ?? [] : (Array.isArray(op.para) ? op.para : [op.para]);
+    const para = unicos(op.para === 'equipo' ? await correosDelEquipo(sql, avisos, op) : (Array.isArray(op.para) ? op.para : [op.para]));
     if (!para.length) return false;
     const [ov] = await sql`select asunto, cuerpo, activo from plantillas_correo where id = ${plantillaId}`;
     const { asunto, html, texto } = renderizar(ov?.asunto ?? def.asunto, ov?.cuerpo ?? def.cuerpo, op.vars, op.bloques ?? {}, negocio);

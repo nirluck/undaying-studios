@@ -59,6 +59,14 @@
     await intentar(() => post(`/admin/pedidos/${id}/sesion`, { sesion: s.id, ingenieroAsignado: f.ingeniero.value, notas: f.notas.value, avisarCliente: f.avisar.checked }), 'Sesión guardada');
     cargar();
   }
+  // Productor, músico: servicios que se dan durante la sesión
+  const enSesion = $derived(p ? p.lineas.filter((l: any) => l.enSesion) : []);
+  const textoSesion = (l: any) => p.sesiones.find((s: any) => s.id === l.sesionId)?.texto ?? '';
+  async function asignar(l: any, f: HTMLFormElement) {
+    await intentar(() => post(`/admin/pedidos/${id}/linea`, { linea: l.id, asignado: f.asignado.value, avisarCliente: f.avisar.checked }), 'Guardado');
+    f.avisar.checked = false;
+    cargar();
+  }
   async function tarea(t: any) { await intentar(() => post(`/admin/tareas/${t.id}`, { hecha: !t.hechaEn })); cargar(); }
 </script>
 
@@ -102,7 +110,7 @@
                   <form class="fila" onsubmit={(e) => { e.preventDefault(); guardarSesion(s, e.currentTarget as HTMLFormElement); }}>
                     <input name="ingeniero" placeholder="Ingeniero asignado" value={s.ingenieroAsignado ?? ''} style="flex:1;min-width:140px" />
                     <input name="notas" placeholder="Notas de la sesión" value={s.notas ?? ''} style="flex:2;min-width:160px" />
-                    <label class="check"><input type="checkbox" name="avisar" /> Avisar ingeniero al cliente</label>
+                    <label class="check" title="Al guardar, le manda un correo al cliente con el nombre de su ingeniero"><input type="checkbox" name="avisar" /> Mandar correo al cliente con el nombre de su ingeniero</label>
                     <button class="btn chico">Guardar</button>
                   </form>
                   <div class="fila">
@@ -110,6 +118,43 @@
                     <button class="btn chico" onclick={() => abrir('extra', s)}>Hora extra</button>
                     {#if new Date(s.inicio) < new Date()}<button class="btn chico" onclick={() => intentar(() => post(`/admin/pedidos/${id}/sesion`, { sesion: s.id, estado: 'no_presentado' }), 'Marcado').then(cargar)}>No se presentó</button>{/if}
                   </div>
+                {/if}
+              </div>
+            {/each}
+          </div>
+        </section>
+      {/if}
+
+      {#if enSesion.length}
+        <section class="card">
+          <h2>Productor y músicos</h2>
+          <div class="lista">
+            {#each enSesion as l}
+              {@const m = l.datos?.material}
+              <div class="pila" style="gap:8px">
+                <div class="fila entre">
+                  <span><b style="color:var(--ink)">{l.concepto}</b>{#if textoSesion(l)}{' · '}<span class="mute">{textoSesion(l)}</span>{/if}</span>
+                  <span class="badge">{l.datos?.asignado ? l.datos.asignado : 'Sin asignar'}</span>
+                </div>
+                {#if (l.datos?.unidades ?? []).some((u: any) => Object.values(u ?? {}).some(Boolean))}
+                  <p class="mute">{l.datos.unidades.map((u: any) => Object.values(u ?? {}).filter(Boolean).join(' ')).filter(Boolean).join(' · ')}</p>
+                {/if}
+                {#if m}
+                  <p>
+                    {#if m.enlace}<a href={m.enlace} target="_blank" rel="noopener">Demos y tracks</a>{/if}
+                    {#if m.referencias}<br /><span class="mute">Referencias:</span> {m.referencias}{/if}
+                    {#if m.notas}<br /><span class="mute">Notas:</span> {m.notas}{/if}
+                    <br /><span class="mute">Recibido el {fechaHora(m.en)}</span>
+                  </p>
+                {:else}
+                  <p class="mute">El cliente todavía no manda demos ni referencias.</p>
+                {/if}
+                {#if editable}
+                  <form class="fila" onsubmit={(e) => { e.preventDefault(); asignar(l, e.currentTarget as HTMLFormElement); }}>
+                    <input name="asignado" placeholder="Nombre de quien lo atiende" value={l.datos?.asignado ?? ''} style="flex:1;min-width:160px" />
+                    <label class="check" title="Al guardar, le manda un correo al cliente con el nombre"><input type="checkbox" name="avisar" /> Mandar correo al cliente con el nombre</label>
+                    <button class="btn chico">Guardar</button>
+                  </form>
                 {/if}
               </div>
             {/each}

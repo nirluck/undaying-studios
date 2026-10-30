@@ -18,10 +18,11 @@ const esc = (s: unknown) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&
 
 interface Sesion { id: string; inicio: string; fin: string; texto: string; estado: string; bloqueId: string; modalidadId: string; horas: number; extras: { id: string; opcion?: string; texto?: string }[]; invitados: string[]; conflicto: boolean; cambio: { permitido: boolean; motivo?: string } }
 interface Trabajo { id: string; producto: string; unidad: number; titulo: string | null; estado: string; materialUrl: string | null; referencias: string | null; entregaUrl: string | null; fechaEntrega: string | null; revisionesIncluidas: number; revisionesUsadas: number }
+interface EnSesion { id: string; servicio: string; concepto: string; sesion: string | null; asignado: string | null; material: { enlace: string | null; referencias: string | null; notas: string | null; en: string } | null }
 interface Pedido {
   id: string; numero: string; estado: string; creado: string; total: number; iva: number; saldo: number;
   espacio: { id: string; nombre: string; nombreCorto: string; zonaHoraria: string; aforo: number | null; politica: { cambioH: number } };
-  lineas: { concepto: string; importe: number }[]; sesiones: Sesion[]; trabajos: Trabajo[];
+  lineas: { concepto: string; importe: number }[]; sesiones: Sesion[]; trabajos: Trabajo[]; enSesion?: EnSesion[];
   pagos: { fecha: string; tipo: string; metodo: string; monto: number; estado: string }[];
   oxxo: { vence: string; url: string } | null;
   cancelacion: { permitido: boolean; motivo?: string; tipo?: string; monto?: number; explicacion?: string } | null;
@@ -138,9 +139,26 @@ function cuerpoPedido(p: Pedido, acciones: boolean) {
       ${acciones && w.estado === 'entregado' ? `<button class="btn btn--primary btn--sm" data-aprobar="${w.id}">Aprobar</button>
         ${w.revisionesUsadas < w.revisionesIncluidas ? `<button class="btn btn--ghost btn--sm" data-revision="${w.id}">Pedir revisión (${w.revisionesIncluidas - w.revisionesUsadas} disponibles)</button>` : ''}` : ''}</div>
       <div data-panel-rev="${w.id}"></div>` : ''}`).join('');
+  // Productor y músicos: demos, tracks y referencias antes de la sesión
+  const enSesion = (p.enSesion ?? []).map((x) => {
+    const m = x.material;
+    const abierto = acciones && ['pagado', 'completado'].includes(p.estado);
+    return `
+    <div class="mr-fila"><span><b>${esc(x.concepto)}</b>${x.sesion ? ` · ${esc(x.sesion)}` : ''}</span><span class="mr-estado">${x.asignado ? esc(x.asignado) : m ? 'Material recibido' : 'Esperando tus demos'}</span></div>
+    ${x.asignado ? `<p class="rv-nota">Te atiende: <b>${esc(x.asignado)}</b></p>` : ''}
+    ${abierto ? `
+      <form class="mr-panel" data-material-sesion="${x.id}">
+        <p class="rv-nota">Comparte tus demos, tracks y referencias para que tu ${esc(x.servicio.toLowerCase())} llegue preparado a la sesión.</p>
+        <label class="rv-campo"><span>Enlace a tus demos o tracks (Drive, WeTransfer, Dropbox)</span><input class="rv-input" name="enlace" type="url" value="${esc(m?.enlace ?? '')}" placeholder="https://" /></label>
+        <label class="rv-campo"><span>Referencias: canciones, artistas o enlaces con el estilo que buscas</span><textarea class="rv-input" name="referencias" rows="2">${esc(m?.referencias ?? '')}</textarea></label>
+        <label class="rv-campo"><span>Notas (opcional)</span><textarea class="rv-input" name="notas" rows="2">${esc(m?.notas ?? '')}</textarea></label>
+        <button class="btn btn--primary btn--sm" type="submit">${m ? 'Actualizar' : 'Mandar demos y referencias'}</button>
+      </form>` : ''}`;
+  }).join('');
   return `
     <div class="mr-card__cab"><div><h2>${esc(p.espacio.nombreCorto)} · ${esc(p.numero)}</h2><p class="rv-nota">Pedido del ${fechaCorta(p.creado)}</p></div><span class="mr-estado mr-estado--${p.estado}">${ESTADOS[p.estado] ?? p.estado}</span></div>
     ${p.sesiones.length ? `<div class="mr-seccion"><h3>${activas.length > 1 ? 'Sesiones' : 'Sesión'}</h3>${sesiones}</div>` : ''}
+    ${enSesion ? `<div class="mr-seccion"><h3>Para tu sesión</h3>${enSesion}</div>` : ''}
     ${p.trabajos.length ? `<div class="mr-seccion"><h3>Postproducción</h3>${trabajos}</div>` : ''}
     <div class="mr-seccion"><h3>Resumen</h3>
       <ul class="rv-lineas">${p.lineas.map((l) => `<li><span>${esc(l.concepto)}</span><b>${dinero(l.importe)}</b></li>`).join('')}</ul>
@@ -242,6 +260,7 @@ async function vistaMisReservas() {
     if (boton) boton.disabled = true;
     try {
       if (f.dataset.material) actualizar(await llamar<Pedido>('POST', '/cliente/trabajo', { t, trabajo: f.dataset.material, accion: 'material', ...fd }));
+      else if (f.dataset.materialSesion) actualizar(await llamar<Pedido>('POST', '/cliente/material-sesion', { t, linea: f.dataset.materialSesion, ...fd }));
       else if (f.dataset.enviarRevision) actualizar(await llamar<Pedido>('POST', '/cliente/trabajo', { t, trabajo: f.dataset.enviarRevision, accion: 'revision', notas: fd.notas }));
       else if (f.dataset.guardarInvitados) actualizar(await llamar<Pedido>('POST', '/cliente/invitados', { t, pedido: card.dataset.pedido, sesion: f.dataset.guardarInvitados, nombres: fd.nombres.split('\n') }));
     } catch (err) {

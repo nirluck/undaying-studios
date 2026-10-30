@@ -13,7 +13,7 @@ import { PLANTILLAS, plantillaDef, renderizar } from './plantillas.ts';
 import {
   agregarCargo, cambiarFecha, cancelarPedido, crearPedido, horaExtra, pagoManual, reembolsar, type Cobro,
 } from './pedidos.ts';
-import { actualizarTrabajo } from './trabajos.ts';
+import { actualizarTrabajo, asignarPersonal } from './trabajos.ts';
 import { bloqueResumen, bloqueSesiones, etiquetaTarea, icsDePedido, infoPedido, tokenCliente, urlMisReservas, urlPagar, varsPedido } from './info.ts';
 import { cancelarVisita } from './rutas-publicas.ts';
 
@@ -380,6 +380,11 @@ export function rutasAdmin(r: Enrutador) {
     } else throw falla(409, 'SIN_SALDO', 'Este pedido no tiene nada por pagar.');
     await bitacora(ctx.sql, u.correo, 'enlace_pago', 'pedido', params.id);
     return { url: urlPagar(ctx, i.pedido.id, token) };
+  }));
+  r.post('/admin/pedidos/:id/linea', op(async ({ ctx, params, cuerpo }, u) => {
+    const b = await cuerpo();
+    await asignarPersonal(ctx, u.correo, params.id, String(b.linea ?? ''), String(b.asignado ?? ''), !!b.avisarCliente);
+    return { ok: true };
   }));
   r.post('/admin/pedidos/:id/sesion', op(async ({ ctx, params, cuerpo }, u) => {
     const b = await cuerpo();

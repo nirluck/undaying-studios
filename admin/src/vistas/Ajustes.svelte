@@ -4,15 +4,21 @@
 
   let a = $state<any>(null);
   let equipo = $state('');
+  let porEspacio = $state<Record<string, string>>({ estudio: '', foro: '' });
+  const lista = (t: string) => t.split(/[\n,]/).map((x) => x.trim()).filter(Boolean);
   const cargar = async () => {
     a = await intentar(() => get('/admin/ajustes'));
-    if (a) equipo = (a.avisos.correosEquipo ?? []).join('\n');
+    if (a) {
+      equipo = (a.avisos.correosEquipo ?? []).join('\n');
+      porEspacio = { estudio: (a.avisos.correosEspacio?.estudio ?? []).join('\n'), foro: (a.avisos.correosEspacio?.foro ?? []).join('\n') };
+    }
   };
   cargar();
 
   async function guardarNegocio() { await intentar(() => put('/admin/ajustes/negocio', a.negocio), 'Datos guardados'); }
   async function guardarAvisos() {
-    a.avisos.correosEquipo = equipo.split(/[\n,]/).map((x) => x.trim()).filter(Boolean);
+    a.avisos.correosEquipo = lista(equipo);
+    a.avisos.correosEspacio = { estudio: lista(porEspacio.estudio), foro: lista(porEspacio.foro) };
     await intentar(() => put('/admin/ajustes/avisos', a.avisos), 'Avisos guardados');
   }
   const copiar = (t: string) => navigator.clipboard?.writeText(t);
@@ -35,7 +41,10 @@
     </section>
     <section class="card pila">
       <h2>Avisos al equipo</h2>
-      <label class="campo">Correos del equipo (uno por línea)<textarea rows="3" bind:value={equipo}></textarea></label>
+      <p class="mute">Cada aviso sale una sola vez por dirección. Si varias direcciones llegan al mismo buzón (alias o reenvíos), deja una sola por lista para no recibirlo repetido.</p>
+      <label class="campo">Reservas y avisos del estudio<textarea rows="2" bind:value={porEspacio.estudio} placeholder="Vacío: se usa la lista general"></textarea></label>
+      <label class="campo">Reservas y avisos del foro<textarea rows="2" bind:value={porEspacio.foro} placeholder="Vacío: se usa la lista general"></textarea></label>
+      <label class="campo">General: resúmenes diarios, solicitudes y respaldo si una lista de arriba está vacía<textarea rows="2" bind:value={equipo}></textarea></label>
       <div class="form">
         <label class="campo">Hora del resumen de mañana<input type="number" min="0" max="23" bind:value={a.avisos.horaResumen} /></label>
         <label class="campo">Resumen semanal (0 = domingo)<input type="number" min="0" max="6" bind:value={a.avisos.diaResumenSemanal} /></label>
@@ -49,7 +58,7 @@
     </section>
     <section class="card pila">
       <h2>Calendarios para el equipo</h2>
-      <p class="mute">Suscríbete desde Google Calendar (Otros calendarios → Desde URL). Se actualiza solo. No compartas estos enlaces fuera del equipo.</p>
+      <p class="mute">Para ver todas las reservas en Google Calendar: copia el enlace y en Google Calendar ve a Otros calendarios → + → Desde URL. Se actualiza solo, aunque Google tarda unas horas en reflejar los cambios. Para tener una reserva al instante, usa el botón "Agregar a Google Calendar" del correo de esa reserva. No compartas estos enlaces fuera del equipo.</p>
       {#each sesion.feeds as f}
         <div class="fila"><b style="min-width:80px">{f.espacio}</b><input readonly value={f.url} style="flex:1" /><button class="btn chico" onclick={() => copiar(f.url)}>Copiar</button></div>
       {/each}
