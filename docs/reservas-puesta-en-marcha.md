@@ -191,6 +191,11 @@ momento:
    valores iniciales están en la sección "Decisiones tomadas" de la propuesta.
 4. En **Ajustes**, pon el enlace para dejar reseña en Google y copia los
    calendarios ICS a Google Calendar del equipo.
+5. Ingenieros y productores: dales el rol **Ingeniero** en Usuarios. Al
+   escribir su nombre en "Ingeniero asignado", "Encargado" (postproducción) o
+   "Quién lo atiende" (productor, músico), les llega el aviso con el archivo
+   de calendario y lo ven en **Mi agenda**, que también trae su calendario
+   personal para Google Calendar. El rol Ingeniero solo ve Mi agenda.
 
 ## Convivencia con Prospex
 

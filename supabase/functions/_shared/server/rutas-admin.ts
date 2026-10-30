@@ -8,12 +8,13 @@ import type { Ctx, Sql } from './ctx.ts';
 import { ajuste, bitacora, cargarCatalogo, camelProfundo, esEmpalme, ocupacionDe, snakeProfundo, type Avisos } from './db.ts';
 import { correoValido, Enrutador, esFecha, falla, json, noEncontrado, numero, texto, type Solicitud } from './http.ts';
 import { exigir, usuarioDe, type Usuario } from './seguridad.ts';
-import { avisar } from './correo.ts';
+import { avisar, logoCorreo } from './correo.ts';
 import { PLANTILLAS, plantillaDef, renderizar } from './plantillas.ts';
 import {
   agregarCargo, cambiarFecha, cancelarPedido, crearPedido, horaExtra, pagoManual, reembolsar, type Cobro,
 } from './pedidos.ts';
 import { actualizarTrabajo, asignarPersonal } from './trabajos.ts';
+import { agendaDe, avisarSesionAsignada, personaDe, personas, urlCalendarioPersona } from './equipo.ts';
 import { bloqueResumen, bloqueSesiones, etiquetaTarea, icsDePedido, infoPedido, tokenCliente, urlMisReservas, urlPagar, varsPedido } from './info.ts';
 import { cancelarVisita } from './rutas-publicas.ts';
 
@@ -34,6 +35,8 @@ function conUsuario(fn: ManejadorAdmin, ...roles: ('operacion' | 'postproduccion
 const op = (fn: ManejadorAdmin) => conUsuario(fn, 'operacion');
 const todos = (fn: ManejadorAdmin) => conUsuario(fn, 'operacion', 'postproduccion');
 const admin = (fn: ManejadorAdmin) => conUsuario(fn);
+/** Cualquier usuario activo del panel, incluido el rol ingeniero. */
+const cualquiera = (fn: ManejadorAdmin) => async (s: Solicitud) => fn(s, await usuarioDe(s.req, s.ctx));
 
 function cobroDe(b: Fila): Cobro {
   const c = (b.cobro ?? {}) as Fila;
@@ -241,10 +244,25 @@ async function reportes(ctx: Ctx, desde: string, hasta: string) {
 // ---------- Rutas ----------
 
 export function rutasAdmin(r: Enrutador) {
-  r.get('/admin/yo', todos(async ({ ctx }, u) => {
+  r.get('/admin/yo', cualquiera(async ({ ctx }, u) => {
     const ics = await ajuste<{ clave: string }>(ctx.sql, 'ics');
-    return { ...u, feeds: u.rol === 'postproduccion' ? [] : ['estudio', 'foro', 'estudio-b'].map((e) => ({ espacio: e, url: `${ctx.env.apiUrl}/ics/espacio/${e}?k=${ics.clave}` })), publicar: !!(ctx.env.githubToken && ctx.env.githubRepo) };
+    return {
+      ...u,
+      feeds: ['admin', 'operacion'].includes(u.rol) ? ['estudio', 'foro', 'estudio-b'].map((e) => ({ espacio: e, url: `${ctx.env.apiUrl}/ics/espacio/${e}?k=${ics.clave}` })) : [],
+      miCalendario: await urlCalendarioPersona(ctx, u.correo),
+      publicar: !!(ctx.env.githubToken && ctx.env.githubRepo),
+    };
   }));
+  // Mi agenda: lo que tiene asignado quien entra (ingenieros, productores, postproducción)
+  r.get('/admin/mio', cualquiera(async ({ ctx }, u) => agendaDe(ctx.sql, u.correo)));
+  r.post('/admin/mio/trabajos/:id', cualquiera(async ({ ctx, params, cuerpo }, u) => {
+    const [t] = await ctx.sql`select encargado_correo from trabajos where id = ${params.id}`;
+    if (!t || (t.encargadoCorreo !== u.correo && u.rol === 'ingeniero')) throw falla(403, 'SIN_PERMISO', 'Esta pieza no está asignada a ti.');
+    const b = await cuerpo();
+    await actualizarTrabajo(ctx, params.id, { estado: b.estado, entregaUrl: b.entregaUrl, notas: b.notas, reenviar: b.reenviar }, u.correo);
+    return { ok: true };
+  }));
+  r.get('/admin/personas', todos(async ({ ctx }) => personas(ctx.sql)));
   r.get('/admin/resumen', todos(async ({ ctx }) => resumen(ctx)));
   r.get('/admin/agenda', op(async ({ ctx, q }) => agenda(ctx, q('desde') ?? '', q('hasta') ?? '')));
   r.get('/admin/catalogo', todos(async ({ ctx }) => {
@@ -392,7 +410,10 @@ export function rutasAdmin(r: Enrutador) {
     if (!s) throw noEncontrado('Sesión');
     const ing = b.ingenieroAsignado !== undefined ? (String(b.ingenieroAsignado).trim() || null) : s.ingenieroAsignado;
     const estado = b.estado === 'no_presentado' ? 'no_presentado' : b.estado === 'activa' ? 'activa' : s.estado;
-    await ctx.sql`update sesiones set ingeniero_asignado = ${ing}, notas = ${b.notas !== undefined ? String(b.notas) || null : s.notas}, estado = ${estado} where id = ${s.id}`;
+    const persona = b.ingenieroAsignado !== undefined ? await personaDe(ctx.sql, ing) : null;
+    const ingCorreo = b.ingenieroAsignado !== undefined ? persona?.correo ?? null : s.ingenieroCorreo;
+    await ctx.sql`update sesiones set ingeniero_asignado = ${ing}, ingeniero_correo = ${ingCorreo}, notas = ${b.notas !== undefined ? String(b.notas) || null : s.notas}, estado = ${estado} where id = ${s.id}`;
+    if (persona && persona.correo !== s.ingenieroCorreo && estado === 'activa') await avisarSesionAsignada(ctx, params.id, s.id, persona, 'ingeniero');
     if (ing && ing !== s.ingenieroAsignado) await ctx.sql`update tareas set hecha_en = now(), hecha_por = ${u.correo}, nota = ${ing} where sesion_id = ${s.id} and tipo = 'asignar_ingeniero' and hecha_en is null`;
     await bitacora(ctx.sql, u.correo, 'sesion', 'pedido', params.id, b);
     if (b.avisarCliente && ing) {
@@ -426,7 +447,7 @@ export function rutasAdmin(r: Enrutador) {
 
   // Postproducción
   r.get('/admin/trabajos', todos(async ({ ctx, q }) => ctx.sql`
-    select t.*, pr.nombre as producto, p.numero, p.estado as pedido_estado, c.nombre, c.correo
+    select t.*, pr.nombre as producto, p.numero, p.estado as pedido_estado, p.datos->>'proyecto' as proyecto, c.nombre, c.correo
     from trabajos t join pedidos p on p.id = t.pedido_id join clientes c on c.id = p.cliente_id left join productos pr on pr.id = t.producto_id
     where p.estado in ('pagado', 'completado') and (${q('estado')}::text is null or t.estado = ${q('estado')})
       and (t.estado not in ('aprobado', 'cancelado') or t.actualizado > now() - interval '30 days')
@@ -555,7 +576,7 @@ export function rutasAdmin(r: Enrutador) {
     const b = await cuerpo();
     const negocio = await ajuste(ctx.sql, 'negocio') as never;
     const ejemplo: Record<string, string> = { nombre: 'Ana', numero: 'UND-1042', espacio: 'Estudio', total: '$4,500', fecha: 'sábado 17 de octubre de 2026, de 10:00 a 16:00', enlace: `${ctx.env.sitioUrl}/reservas/`, vence: 'jueves 15 de octubre de 2026 a las 23:59', monto: '$1,000', concepto: '2 horas extra', resultado: '$4,500 quedan como saldo a favor.', cuando: 'mañana', servicio: 'mezcla multitrack', titulo: 'Mi canción', revisiones: 'Te quedan 2 revisiones.', ingeniero: 'Carlos', color: 'Verde croma', desde: '13 de octubre', accion: 'Cambio de fecha', detalle: 'Detalle del cambio', pendientes: '• Asignar ingeniero', correo: 'ana@correo.com', telefono: '55 1234 5678', descripcion: 'Descripción del proyecto', notas: 'Más voz en el coro', servicios: 'tu mezcla', resena: '' };
-    const r = renderizar(String(b.asunto ?? def.asunto), String(b.cuerpo ?? def.cuerpo), ejemplo, { resumen: { lineas: [{ concepto: 'Estudio · 6 horas con ingeniero', importe: '$4,500' }], total: '$4,500 MXN', nota: 'IVA incluido: $620.69.' }, botones: [{ texto: 'Ver mis reservas', url: '#' }] }, negocio);
+    const r = renderizar(String(b.asunto ?? def.asunto), String(b.cuerpo ?? def.cuerpo), ejemplo, { resumen: { lineas: [{ concepto: 'Estudio · 6 horas con ingeniero', importe: '$4,500' }], total: '$4,500 MXN', nota: 'IVA incluido: $620.69.' }, botones: [{ texto: 'Ver mis reservas', url: '#' }] }, negocio, logoCorreo(ctx));
     return r;
   }));
   r.get('/admin/correos', op(async ({ ctx }) => ctx.sql`select c.*, p.numero from correos c left join pedidos p on p.id = c.pedido_id where c.estado <> 'omitido' order by c.creado desc limit 200`));
@@ -568,7 +589,7 @@ export function rutasAdmin(r: Enrutador) {
   r.put('/admin/usuarios', admin(async ({ ctx, cuerpo }, u) => {
     const b = await cuerpo();
     const correo = correoValido(b.correo);
-    const rol = ['admin', 'operacion', 'postproduccion'].includes(String(b.rol)) ? String(b.rol) : 'operacion';
+    const rol = ['admin', 'operacion', 'postproduccion', 'ingeniero'].includes(String(b.rol)) ? String(b.rol) : 'operacion';
     const [ya] = await ctx.sql`select correo from usuarios where correo = ${correo}`;
     await ctx.sql`insert into usuarios (correo, nombre, rol, activo) values (${correo}, ${String(b.nombre ?? '') || null}, ${rol}, ${b.activo !== false})
       on conflict (correo) do update set nombre = excluded.nombre, rol = excluded.rol, activo = excluded.activo`;

@@ -6,6 +6,7 @@ import { bitacora } from './db.ts';
 import { falla, texto } from './http.ts';
 import { avisar } from './correo.ts';
 import { infoPedido, tokenCliente, urlMisReservas, urlPanelPedido, varsPedido } from './info.ts';
+import { avisarSesionAsignada, avisarTrabajoAsignado, personaDe } from './equipo.ts';
 
 // deno-lint-ignore no-explicit-any
 type Fila = Record<string, any>;
@@ -66,9 +67,14 @@ export async function actualizarTrabajo(ctx: Ctx, trabajoId: string, d: Fila, us
   const entregaUrl = d.entregaUrl !== undefined ? (d.entregaUrl ? url(d.entregaUrl, 'el enlace de entrega') : null) : t.entregaUrl;
   if (estado === 'entregado' && !entregaUrl) throw falla(422, 'FALTA_ENTREGA', 'Pega el enlace de la entrega antes de marcarla como entregada.');
   const ahora = ctx.ahora();
+  // Si el encargado es usuario del panel se guarda su correo: le llega aviso y lo ve en su agenda.
+  const encargado = d.encargado !== undefined ? (String(d.encargado ?? '').trim() || null) : t.encargado;
+  const persona = d.encargado !== undefined ? await personaDe(ctx.sql, encargado) : null;
+  const encargadoCorreo = d.encargado !== undefined ? persona?.correo ?? null : t.encargadoCorreo;
   await ctx.sql`update trabajos set
     estado = ${estado},
-    encargado = ${d.encargado !== undefined ? (d.encargado || null) : t.encargado},
+    encargado = ${encargado},
+    encargado_correo = ${encargadoCorreo},
     titulo = ${d.titulo !== undefined ? (d.titulo || null) : t.titulo},
     material_url = ${d.materialUrl !== undefined ? (d.materialUrl || null) : t.materialUrl},
     entrega_url = ${entregaUrl},
@@ -79,6 +85,7 @@ export async function actualizarTrabajo(ctx: Ctx, trabajoId: string, d: Fila, us
     actualizado = now()
     where id = ${trabajoId}`;
   await bitacora(ctx.sql, usuario, 'trabajo', 'pedido', t.pedidoId, { trabajoId, de: t.estado, a: estado });
+  if (persona && persona.correo !== t.encargadoCorreo && !['aprobado', 'cancelado'].includes(estado)) await avisarTrabajoAsignado(ctx, trabajoId, persona);
   if (estado === 'entregado' && (t.estado !== 'entregado' || d.reenviar)) {
     const i = await infoPedido(ctx.sql, t.pedidoId);
     const token = await tokenCliente(ctx, i.cliente.id);
@@ -134,7 +141,9 @@ export async function materialSesion(ctx: Ctx, clienteId: string, lineaId: strin
 export async function asignarPersonal(ctx: Ctx, usuario: string, pedidoId: string, lineaId: string, asignado: string, avisarCliente: boolean) {
   const { i, l, s } = await lineaEnSesion(ctx, pedidoId, lineaId);
   const nombre = asignado.trim().slice(0, 200) || null;
-  await ctx.sql`update lineas set datos = coalesce(datos, '{}'::jsonb) || ${ctx.sql.json({ asignado: nombre } as never)} where id = ${lineaId}`;
+  const persona = await personaDe(ctx.sql, nombre);
+  await ctx.sql`update lineas set datos = coalesce(datos, '{}'::jsonb) || ${ctx.sql.json({ asignado: nombre, asignado_correo: persona?.correo ?? null } as never)} where id = ${lineaId}`;
+  if (persona && persona.correo !== l.datos?.asignado_correo && l.sesionId) await avisarSesionAsignada(ctx, pedidoId, l.sesionId, persona, String(l.productoNombre ?? l.concepto).toLowerCase());
   if (nombre && l.productoTarea) {
     await ctx.sql`update tareas set hecha_en = now(), hecha_por = ${usuario}, nota = ${nombre}
       where pedido_id = ${pedidoId} and tipo = ${l.productoTarea} and hecha_en is null and sesion_id is not distinct from ${l.sesionId ?? null}`;

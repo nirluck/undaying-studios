@@ -118,7 +118,7 @@ function cuerpoPedido(p: Pedido, acciones: boolean) {
       <span>${s.estado === 'activa' ? '' : '<s>'}${esc(s.texto)}${s.estado === 'activa' ? '' : '</s>'}${s.conflicto ? ' <b>· Te contactaremos para confirmar el horario</b>' : ''}</span>
       ${acciones && s.estado === 'activa' && p.estado === 'pagado' ? `<span class="mr-acciones">
         ${s.cambio.permitido ? `<button class="rv-link" data-cambiar="${s.id}">Cambiar fecha</button>` : ''}
-        ${p.espacio.id === 'foro' && new Date(s.fin) > new Date() ? `<button class="rv-link" data-invitados="${s.id}">Invitados (${s.invitados.length})</button>` : ''}
+        ${new Date(s.fin) > new Date() ? `<button class="rv-link" data-invitados="${s.id}">Invitados (${s.invitados.length})</button>` : ''}
       </span>` : ''}
     </div>
     <div data-panel="${s.id}"></div>`).join('');

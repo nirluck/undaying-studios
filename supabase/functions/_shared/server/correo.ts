@@ -61,6 +61,9 @@ export interface OpcionesAviso {
   adjuntos?: Adjunto[];
 }
 
+/** Logotipo de la cabecera, servido por el propio sitio. */
+export const logoCorreo = (ctx: Ctx) => `${ctx.env.sitioUrl}/brand/logo-correo.png`;
+
 const unicos = (xs: string[]) => [...new Set(xs.map((x) => x.trim().toLowerCase()).filter(Boolean))];
 
 /**
@@ -85,7 +88,7 @@ export async function avisar(ctx: Ctx, plantillaId: string, op: OpcionesAviso): 
     const para = unicos(op.para === 'equipo' ? await correosDelEquipo(sql, avisos, op) : (Array.isArray(op.para) ? op.para : [op.para]));
     if (!para.length) return false;
     const [ov] = await sql`select asunto, cuerpo, activo from plantillas_correo where id = ${plantillaId}`;
-    const { asunto, html, texto } = renderizar(ov?.asunto ?? def.asunto, ov?.cuerpo ?? def.cuerpo, op.vars, op.bloques ?? {}, negocio);
+    const { asunto, html, texto } = renderizar(ov?.asunto ?? def.asunto, ov?.cuerpo ?? def.cuerpo, op.vars, op.bloques ?? {}, negocio, logoCorreo(ctx));
     const omitir = ov && !ov.activo;
     const [fila] = await sql`
       insert into correos (clave, plantilla, para, asunto, estado, pedido_id)

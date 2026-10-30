@@ -110,6 +110,12 @@ export const PLANTILLAS: DefPlantilla[] = [
   { id: 'material_recibido', nombre: 'Material recibido', para: 'equipo', cuando: 'Cuando el cliente manda material', variables: [...V_PEDIDO, 'servicio', 'titulo'],
     asunto: 'Material recibido · {{servicio}} · {{numero}}',
     cuerpo: '{{nombre}} mandó el material de {{servicio}} de "{{titulo}}".' },
+  { id: 'sesion_asignada', nombre: 'Sesión asignada (al ingeniero o productor)', para: 'equipo', cuando: 'Cuando se asigna una sesión a un usuario del panel', variables: ['persona', 'rol', 'nombre', 'numero', 'espacio', 'fecha'],
+    asunto: 'Te asignaron una sesión · {{fecha}}',
+    cuerpo: 'Hola {{persona}}:\n\nTe asignaron como {{rol}} en la sesión de {{nombre}} en el {{espacio}}: {{fecha}}.' },
+  { id: 'trabajo_asignado', nombre: 'Postproducción asignada', para: 'equipo', cuando: 'Cuando se asigna una pieza de postproducción a un usuario del panel', variables: ['persona', 'servicio', 'titulo', 'nombre', 'numero', 'entrega'],
+    asunto: 'Te asignaron {{servicio}} · {{titulo}}',
+    cuerpo: 'Hola {{persona}}:\n\nTe asignaron {{servicio}} de "{{titulo}}" para {{nombre}} (pedido {{numero}}). Entrega: {{entrega}}.' },
   { id: 'material_sesion', nombre: 'Material para la sesión', para: 'equipo', cuando: 'Cuando el cliente manda demos y referencias para el productor o músico', variables: [...V_PEDIDO, 'servicio'],
     asunto: 'Material para {{servicio}} · {{numero}}',
     cuerpo: '{{nombre}} mandó sus demos y referencias para {{servicio}} (sesión del {{fecha}}).' },
@@ -186,7 +192,11 @@ function bloquesTexto(b: Bloques): string {
   return out.join('\n\n');
 }
 
-export function renderizar(asuntoT: string, cuerpoT: string, vars: Record<string, unknown>, bloques: Bloques, negocio: Negocio): { asunto: string; html: string; texto: string } {
+/**
+ * logo: URL absoluta del PNG del logotipo (brand/logo-correo.png del sitio).
+ * Los correos no muestran SVG; si el cliente bloquea imágenes se lee el alt.
+ */
+export function renderizar(asuntoT: string, cuerpoT: string, vars: Record<string, unknown>, bloques: Bloques, negocio: Negocio, logo?: string): { asunto: string; html: string; texto: string } {
   const asunto = sustituir(asuntoT, vars).replace(/\s+/g, ' ').trim();
   const cuerpo = sustituir(cuerpoT, vars).trim();
   const parrafos = cuerpo.split(/\n{2,}/).map((p) => `<p style="margin:0 0 14px;font-size:15px;line-height:1.6">${esc(p).replace(/\n/g, '<br>')}</p>`).join('');
@@ -195,7 +205,9 @@ export function renderizar(asuntoT: string, cuerpoT: string, vars: Record<string
 <body style="margin:0;padding:0;background:#f3f1ee;font-family:Montserrat,Helvetica,Arial,sans-serif;color:${TINTA}">
 <table role="presentation" width="100%" style="border-collapse:collapse"><tr><td align="center" style="padding:24px 12px">
 <table role="presentation" width="100%" style="max-width:600px;border-collapse:collapse;background:#ffffff;border-radius:14px;overflow:hidden">
-<tr><td style="background:#1b1f21;padding:22px 28px;color:#ffffff;font:700 17px/1 Helvetica,Arial,sans-serif;letter-spacing:.14em">UNDYING <span style="color:#eb9050">STUDIOS</span></td></tr>
+<tr><td align="center" style="background:#1b1f21;padding:26px 28px;color:#ffffff;font:700 17px/1 Helvetica,Arial,sans-serif;letter-spacing:.14em">${logo
+  ? `<img src="${esc(logo)}" width="180" height="92" alt="UNDYING STUDIOS" style="display:block;margin:0 auto;border:0;outline:none;width:180px;height:auto;color:#ffffff;font:700 17px Helvetica,Arial,sans-serif;letter-spacing:.14em">`
+  : 'UNDYING <span style="color:#eb9050">STUDIOS</span>'}</td></tr>
 <tr><td style="padding:28px 28px 20px">${parrafos}${bloquesHtml(bloques)}</td></tr>
 <tr><td style="padding:18px 28px;background:#f7f5f2;font-size:12px;line-height:1.6;color:${GRIS}">${pie}</td></tr>
 </table></td></tr></table></body></html>`;

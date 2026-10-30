@@ -4,6 +4,7 @@
   import { dinero, ESPACIO, ESTADO_PEDIDO, ESTADO_TRABAJO, fecha, fechaHora, intentar, METODO, puede } from '../lib/util.svelte';
   import Modal from '../lib/Modal.svelte';
   import SelectorHorario from '../lib/SelectorHorario.svelte';
+  import ListaPersonas from '../lib/ListaPersonas.svelte';
 
   let { id }: { id: string } = $props();
   let p = $state<any>(null);
@@ -70,6 +71,7 @@
   async function tarea(t: any) { await intentar(() => post(`/admin/tareas/${t.id}`, { hecha: !t.hechaEn })); cargar(); }
 </script>
 
+<ListaPersonas />
 {#if p}
   <div class="cabecera">
     <div>
@@ -108,7 +110,7 @@
                 {/if}
                 {#if s.estado === 'activa' && editable}
                   <form class="fila" onsubmit={(e) => { e.preventDefault(); guardarSesion(s, e.currentTarget as HTMLFormElement); }}>
-                    <input name="ingeniero" placeholder="Ingeniero asignado" value={s.ingenieroAsignado ?? ''} style="flex:1;min-width:140px" />
+                    <input name="ingeniero" list="personas" placeholder="Ingeniero asignado" value={s.ingenieroAsignado ?? ''} style="flex:1;min-width:140px" />
                     <input name="notas" placeholder="Notas de la sesión" value={s.notas ?? ''} style="flex:2;min-width:160px" />
                     <label class="check" title="Al guardar, le manda un correo al cliente con el nombre de su ingeniero"><input type="checkbox" name="avisar" /> Mandar correo al cliente con el nombre de su ingeniero</label>
                     <button class="btn chico">Guardar</button>
@@ -151,7 +153,7 @@
                 {/if}
                 {#if editable}
                   <form class="fila" onsubmit={(e) => { e.preventDefault(); asignar(l, e.currentTarget as HTMLFormElement); }}>
-                    <input name="asignado" placeholder="Nombre de quien lo atiende" value={l.datos?.asignado ?? ''} style="flex:1;min-width:160px" />
+                    <input name="asignado" list="personas" placeholder="Nombre de quien lo atiende" value={l.datos?.asignado ?? ''} style="flex:1;min-width:160px" />
                     <label class="check" title="Al guardar, le manda un correo al cliente con el nombre"><input type="checkbox" name="avisar" /> Mandar correo al cliente con el nombre</label>
                     <button class="btn chico">Guardar</button>
                   </form>

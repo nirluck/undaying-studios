@@ -46,7 +46,7 @@ test('catálogo público del estudio', async () => {
   const r = await api('GET', '/catalogo?espacio=estudio');
   assert.equal(r.estado, 200);
   assert.equal(r.datos.catalogo.bloques.length, 3);
-  assert.equal(r.datos.catalogo.productos.length, 6);
+  assert.equal(r.datos.catalogo.productos.length, 7);
   assert.equal(r.datos.catalogo.bloques[1].precios['estudio-ing'].precio, 4500);
   const no = await api('GET', '/catalogo?espacio=estudio-b');
   assert.equal(no.estado, 404);
@@ -396,4 +396,49 @@ test('productor: demos del cliente, asignación, avisos por espacio y calendario
   } finally {
     await e.ctx.sql`update ajustes set valor = valor - 'correos_espacio' where clave = 'avisos'`;
   }
+});
+
+test('rol ingeniero: asignación con aviso, Mi agenda, permisos y calendario personal', async () => {
+  const ING = 'dev:tono@undying.test';
+  assert.equal((await api('PUT', '/admin/usuarios', { correo: 'tono@undying.test', nombre: 'Toño Rivera', rol: 'ingeniero' }, ADMIN)).estado, 200);
+
+  const carrito = { espacioId: 'estudio', sesiones: [{ bloqueId: 'estudio-3h', modalidadId: 'estudio-ing', inicio: local('2026-11-17', 10) }], productos: [{ id: 'mezcla', cantidad: 1 }, { id: 'musico-linea', cantidad: 1, datos: [{ instrumento: 'Bajo' }] }] };
+  const r = await api('POST', '/pedidos', { carrito, cliente: cliente('ing@correo.com'), consentimiento, datos: { proyecto: 'EP Luna' } });
+  assert.equal(r.estado, 200, JSON.stringify(r.datos));
+  assert.equal(await pagarConTarjeta(r.datos.pedido), 'ok');
+  const [s] = await e.ctx.sql`select id from sesiones where pedido_id = ${r.datos.pedido}`;
+
+  // Asignar por nombre (sin importar mayúsculas): se guarda el correo y le llega el aviso con calendario
+  assert.equal((await api('POST', `/admin/pedidos/${r.datos.pedido}/sesion`, { sesion: s.id, ingenieroAsignado: 'toño rivera' }, ADMIN)).estado, 200);
+  const [s2] = await e.ctx.sql`select ingeniero_correo from sesiones where id = ${s.id}`;
+  assert.equal(s2.ingenieroCorreo, 'tono@undying.test');
+  const aviso = e.correo.bandeja.find((m) => m.para.includes('tono@undying.test') && m.asunto.startsWith('Te asignaron una sesión'))!;
+  assert.equal(aviso.adjuntos?.[0].tipo, 'text/calendar');
+
+  // Postproducción: el músico en línea también genera pieza; se asigna al ingeniero
+  const trabajos = await e.ctx.sql`select t.id, t.producto_id from trabajos t where pedido_id = ${r.datos.pedido} order by producto_id`;
+  assert.deepEqual(trabajos.map((t) => t.productoId), ['mezcla', 'musico-linea']);
+  const lista = await api('GET', '/admin/trabajos', undefined, ADMIN);
+  assert.equal(lista.datos.find((t: { id: string }) => t.id === trabajos[0].id).proyecto, 'EP Luna');
+  assert.equal((await api('POST', `/admin/trabajos/${trabajos[0].id}`, { encargado: 'tono@undying.test' }, ADMIN)).estado, 200);
+  assert.ok(bandeja().some((a) => a.startsWith('Te asignaron mezcla')));
+
+  // Lo que ve el ingeniero
+  const yo = await api('GET', '/admin/yo', undefined, ING);
+  assert.equal(yo.datos.rol, 'ingeniero');
+  assert.deepEqual(yo.datos.feeds, []);
+  const mio = await api('GET', '/admin/mio', undefined, ING);
+  assert.equal(mio.datos.sesiones.length, 1);
+  assert.equal(mio.datos.sesiones[0].proyecto, 'EP Luna');
+  assert.equal(mio.datos.trabajos.length, 1);
+  assert.equal((await api('GET', `/admin/pedidos/${r.datos.pedido}`, undefined, ING)).estado, 403);
+  assert.equal((await api('POST', `/admin/mio/trabajos/${trabajos[0].id}`, { estado: 'en_proceso' }, ING)).estado, 200);
+  assert.equal((await api('POST', `/admin/mio/trabajos/${trabajos[1].id}`, { estado: 'en_proceso' }, ING)).estado, 403);
+
+  // Calendario personal: sesión y entrega; con otra clave no entra
+  const ruta = String(yo.datos.miCalendario).replace('http://api.test/api', '');
+  const cal = await api('GET', ruta);
+  assert.equal(cal.estado, 200);
+  assert.match(cal.datos, /UID:sesion-/);
+  assert.equal((await api('GET', ruta.replace(/k=\w+/, 'k=otra'))).estado, 401);
 });

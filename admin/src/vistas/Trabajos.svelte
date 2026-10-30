@@ -2,6 +2,7 @@
   import { get, post } from '../lib/api';
   import { ESTADO_TRABAJO, fechaSola, intentar, TZ } from '../lib/util.svelte';
   import Modal from '../lib/Modal.svelte';
+  import ListaPersonas from '../lib/ListaPersonas.svelte';
 
   let trabajos = $state<any[]>([]);
   let sel = $state<any>(null);
@@ -24,6 +25,7 @@
   }
 </script>
 
+<ListaPersonas />
 <div class="cabecera"><h1>Postproducción</h1><p class="mute">Cada tarjeta es una pieza: una mezcla de una canción, un máster, una edición.</p></div>
 <div class="tablero">
   {#each COLUMNAS as c}
@@ -35,6 +37,7 @@
         <button class="tarjeta" class:tarde onclick={() => abrir(t)}>
           <b style="color:var(--ink)">{t.producto}</b>
           <span>{t.titulo ?? `Pieza ${t.unidad}`}</span>
+          {#if t.proyecto}<span>{t.proyecto}</span>{/if}
           <span class="mute">{t.nombre} · {t.numero}</span>
           {#if t.fechaEntrega}<span class="mute" class:err={tarde}>Entrega {fechaSola(String(t.fechaEntrega).slice(0, 10) + 'T12:00:00')}</span>{/if}
           {#if t.encargado}<span class="mute">{t.encargado}</span>{/if}
@@ -47,13 +50,14 @@
 
 <Modal titulo={sel ? `${sel.producto} · ${sel.titulo ?? 'pieza ' + sel.unidad}` : ''} bind:abierto>
   {#if sel}
+    {#if sel.proyecto}<p>Proyecto: <b>{sel.proyecto}</b></p>{/if}
     <p class="mute">{sel.nombre} · <a href={'#/pedidos/' + sel.pedidoId}>{sel.numero}</a> · {sel.correo}</p>
     {#if sel.materialUrl}<p>Material: <a href={sel.materialUrl} target="_blank" rel="noopener">{sel.materialUrl}</a></p>{/if}
     {#if sel.referencias}<p>Referencias: {sel.referencias}</p>{/if}
     {#if sel.notasCliente}<p style="white-space:pre-line">Notas del cliente:<br />{sel.notasCliente}</p>{/if}
     <div class="form">
       <label class="campo">Estado<select bind:value={sel.estado}>{#each [...COLUMNAS, 'cancelado'] as c}<option value={c}>{ESTADO_TRABAJO[c]}</option>{/each}</select></label>
-      <label class="campo">Encargado<input bind:value={sel.encargado} /></label>
+      <label class="campo">Encargado<input list="personas" bind:value={sel.encargado} /></label>
       <label class="campo">Fecha de entrega<input type="date" bind:value={sel.fechaEntrega} /></label>
       <label class="campo">Título<input bind:value={sel.titulo} /></label>
       <label class="campo ancho">Enlace de entrega<input type="url" bind:value={sel.entregaUrl} placeholder="https://" /></label>

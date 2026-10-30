@@ -3,6 +3,7 @@
   import { API, cambiarContrasena, entrar, entrarConContrasena, get, modoLocal, salir, supabase } from './lib/api';
   import { aviso, avisar, puede, sesion, ROL } from './lib/util.svelte';
   import Hoy from './vistas/Hoy.svelte';
+  import MiAgenda from './vistas/MiAgenda.svelte';
   import Agenda from './vistas/Agenda.svelte';
   import Pedidos from './vistas/Pedidos.svelte';
   import Pedido from './vistas/Pedido.svelte';
@@ -88,6 +89,7 @@
   const enlaces = $derived([
     { grupo: 'Operación' },
     { href: '/', texto: 'Hoy', roles: ['operacion', 'postproduccion'], cuenta: pendientes.tareas },
+    { href: '/mi-agenda', texto: 'Mi agenda', roles: ['operacion', 'postproduccion', 'ingeniero'] },
     { href: '/agenda', texto: 'Agenda', roles: ['operacion'] },
     { href: '/pedidos', texto: 'Pedidos', roles: ['operacion', 'postproduccion'] },
     { href: '/pedidos/nuevo', texto: 'Nuevo pedido', roles: ['operacion'] },
@@ -104,6 +106,8 @@
     { href: '/ajustes', texto: 'Ajustes', roles: [] },
   ] as { href?: string; texto?: string; roles?: string[]; grupo?: string; cuenta?: number }[]);
 
+  // Un título de grupo solo se muestra si el usuario ve algún enlace de ese grupo
+  const grupoVisible = (i: number) => { for (let k = i + 1; k < enlaces.length && !enlaces[k].grupo; k++) if (puede(...(enlaces[k].roles ?? []))) return true; return false; };
   const activo = (href: string) => (href === '/' ? ruta === '/' : ruta === href || (ruta.startsWith(href + '/') && href !== '/pedidos') || (href === '/pedidos' && /^\/pedidos\/(?!nuevo)/.test(ruta)));
 </script>
 
@@ -141,10 +145,10 @@
   <div class="app">
     <nav class="lateral" class:abierto={menu}>
       <p class="marca">UNDYING <span>STUDIOS</span></p>
-      {#each enlaces as e}
-        {#if e.grupo}
+      {#each enlaces as e, i}
+        {#if e.grupo && grupoVisible(i)}
           <p class="grupo">{e.grupo}</p>
-        {:else if puede(...(e.roles ?? []))}
+        {:else if !e.grupo && puede(...(e.roles ?? []))}
           <a href={'#' + e.href} class:on={activo(e.href!)}>{e.texto}{#if e.cuenta}<span class="cuenta">{e.cuenta}</span>{/if}</a>
         {/if}
       {/each}
@@ -166,7 +170,9 @@
     </nav>
     <main class="principal">
       {#key ruta}
-        {#if partes.length === 0}<Hoy />
+        {#if partes.length === 0 && sesion.rol === 'ingeniero'}<MiAgenda />
+        {:else if partes.length === 0}<Hoy />
+        {:else if partes[0] === 'mi-agenda'}<MiAgenda />
         {:else if partes[0] === 'agenda'}<Agenda />
         {:else if partes[0] === 'pedidos' && partes[1] === 'nuevo'}<NuevoPedido {params} />
         {:else if partes[0] === 'pedidos' && partes[1]}<Pedido id={partes[1]} />

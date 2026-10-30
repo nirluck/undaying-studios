@@ -25,3 +25,14 @@ export async function catalogoActivo(): Promise<Catalogo> {
     tiposCargo: c.tiposCargo.filter((x) => x.activo),
   };
 }
+
+let cachePersonas: Promise<{ correo: string; nombre: string | null; rol: string }[]> | null = null;
+
+/** Usuarios del panel para asignar sesiones y trabajos (ingenieros, productores, postproducción). */
+export function personas() {
+  if (!cachePersonas) {
+    cachePersonas = get('/admin/personas');
+    cachePersonas.catch(() => (cachePersonas = null));
+  }
+  return cachePersonas;
+}

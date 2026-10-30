@@ -13,6 +13,7 @@ import { avisar } from './correo.ts';
 import { calendarioIcs, type EventoIcs } from './ics.ts';
 import { cambiarFecha, cancelarPedido, cotizarEnServidor, crearPedido, iniciarPago, limpiarCarrito, vencerPedido, vistaPreviaCancelacion } from './pedidos.ts';
 import { accionCliente, materialSesion } from './trabajos.ts';
+import { feedPersona } from './equipo.ts';
 import { eventosIcs, infoPedido, sesionesActivas, urlMisReservas } from './info.ts';
 import { puedeCambiarFecha } from '../core/politicas.ts';
 
@@ -327,6 +328,7 @@ export function rutasPublicas(r: Enrutador) {
     return new Response(calendarioIcs('Undying Studios', eventosIcs(i, negocio), ctx.ahora()), { headers: { 'content-type': 'text/calendar; charset=utf-8', 'content-disposition': `attachment; filename="undying-${i.pedido.numero}.ics"` } });
   });
 
+  r.get('/ics/persona', async ({ ctx, q }) => feedPersona(ctx, q('c') ?? '', q('k')));
   r.get('/ics/espacio/:id', async ({ ctx, params, q }) => feedEquipo(ctx, params.id, q('k')));
 }
 

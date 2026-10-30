@@ -17,7 +17,7 @@ export const ESTADO_PEDIDO: Record<string, string> = { apartado: 'Apartado', pen
 export const ESTADO_TRABAJO: Record<string, string> = { esperando_material: 'Esperando material', en_cola: 'En cola', en_proceso: 'En proceso', entregado: 'Entregado', en_revision: 'En revisión', aprobado: 'Aprobado', cancelado: 'Cancelado' };
 export const METODO: Record<string, string> = { tarjeta: 'Tarjeta', oxxo: 'OXXO', stripe: 'Stripe', transferencia: 'Transferencia', efectivo: 'Efectivo', credito: 'Saldo a favor' };
 export const ESPACIO: Record<string, string> = { estudio: 'Estudio', foro: 'Foro', 'estudio-b': 'Estudio B' };
-export const ROL: Record<string, string> = { admin: 'Administrador', operacion: 'Operación', postproduccion: 'Postproducción' };
+export const ROL: Record<string, string> = { admin: 'Administrador', operacion: 'Operación', postproduccion: 'Postproducción', ingeniero: 'Ingeniero' };
 
 export function csv(nombre: string, filas: (string | number | null | undefined)[][]) {
   const texto = filas.map((f) => f.map((c) => `"${String(c ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
@@ -49,5 +49,5 @@ export async function intentar<T>(fn: () => Promise<T>, ok?: string): Promise<T 
   }
 }
 
-export const sesion = $state<{ correo: string; rol: string; nombre: string | null; feeds: { espacio: string; url: string }[]; publicar: boolean }>({ correo: '', rol: '', nombre: null, feeds: [], publicar: false });
+export const sesion = $state<{ correo: string; rol: string; nombre: string | null; feeds: { espacio: string; url: string }[]; miCalendario: string; publicar: boolean }>({ correo: '', rol: '', nombre: null, feeds: [], miCalendario: '', publicar: false });
 export const puede = (...roles: string[]) => sesion.rol === 'admin' || roles.includes(sesion.rol);

@@ -104,7 +104,8 @@ insert into productos (id, espacio_id, nombre, descripcion, precio, unidad, requ
 ('edicion', 'estudio', 'Edición multitrack', 'Limpieza, alineación y cuantización rítmica para sesiones de hasta 24 tracks.', 4400, 'cancion', false, null, 20, 0, 5, true, null, '[{"id": "titulo", "etiqueta": "Título de la canción"}]', 1),
 ('vocal', 'estudio', 'Edición y afinación vocal', 'Comping, limpieza, alineación rítmica y afinación detallada de hasta 6 pistas de voz por canción.', 3800, 'cancion', false, null, 20, 0, 5, true, null, '[{"id": "titulo", "etiqueta": "Título de la canción"}]', 4),
 ('productor', 'estudio', 'Productor musical', 'Dirección artística, arreglos y producción musical durante la sesión de grabación.', 7000, 'sesion', true, 1, 20, 0, null, false, 'confirmar_productor', '[]', 5),
-('musico', 'estudio', 'Músico de sesión', 'Músico profesional de nuestra red.', 2500, 'sesion', true, 6, 20, 0, null, false, 'confirmar_musico', '[{"id": "instrumento", "etiqueta": "Instrumento", "al_reservar": true}]', 6);
+('musico', 'estudio', 'Músico de sesión', 'Músico profesional de nuestra red.', 2500, 'sesion', true, 6, 20, 0, null, false, 'confirmar_musico', '[{"id": "instrumento", "etiqueta": "Instrumento", "al_reservar": true}]', 6),
+('musico-linea', 'estudio', 'Músico de sesión en línea', 'Un músico de nuestra red graba tu instrumento a distancia. Nos mandas tu canción y referencias, y te entregamos las pistas listas para mezclar. Incluye 1 revisión.', 2500, 'cancion', false, null, 20, 1, 7, true, 'confirmar_musico', '[{"id": "instrumento", "etiqueta": "Instrumento", "al_reservar": true}, {"id": "titulo", "etiqueta": "Título de la canción"}]', 7);
 
 -- ---------- Paquetes sugeridos ----------
 insert into paquetes (id, espacio_id, nombre, descripcion, bloque_id, modalidad_id, productos, orden) values

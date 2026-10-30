@@ -46,7 +46,7 @@ export async function clienteDeToken(ctx: Ctx, token: string | null | undefined)
 
 // ---------- Panel ----------
 
-export type Rol = 'admin' | 'operacion' | 'postproduccion';
+export type Rol = 'admin' | 'operacion' | 'postproduccion' | 'ingeniero';
 export interface Usuario { correo: string; nombre: string | null; rol: Rol }
 
 /** Verifica el token de Supabase Auth con el servidor de Auth del proyecto. */
