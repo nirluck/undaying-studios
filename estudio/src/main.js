@@ -545,165 +545,113 @@ function renderPricing() {
     <a class="btn btn--ghost" href="${waUrl(pod.whatsapp)}" target="_blank" rel="noopener">Cotizar por WhatsApp</a>`;
 }
 function setMode(m) {
-  mode = m; renderPricing(); quoter.setMode(m, false);
+  mode = m; renderPricing();
 }
 renderPricing();
 $('#modeSwitch').addEventListener('click', (e) => { const b = e.target.closest('[data-mode]'); if (b) setMode(b.dataset.mode); });
 
+/* =====================================================================
+   Servicios: postproducción (tarjetas con foto) y legales (lista)
+   ===================================================================== */
+// Foto del estudio para cada servicio de postproducción
+const FOTOS = {
+  edicion: ['cr-06', 'Sesión abierta en Pro Tools en el Control Room'],
+  mezcla: ['eb-02', 'Consola y equipo analógico del Estudio B'],
+  master: ['eb-03', 'Estudio B de mezcla y máster'],
+  vocal: ['engineer', 'Micrófono de voz en el estudio'],
+  productor: ['cr-07', 'Productor trabajando con un músico en el Control Room'],
+  musico: ['live-01', 'Baterista preparando su set en el Live Room'],
+};
+const solicitar = (id) => `<button class="btn btn--ghost btn--sm" type="button" data-add="${id}">Solicitar</button>`;
+const contador = '<p class="prod__count" aria-live="polite"></p>';
 // Al repintar con precios del panel ya no se anima la entrada.
 const renderPost = (animar = false) => ($('#postGrid').innerHTML = PRICING.products.map((p) => `
-  <article class="prod" data-id="${p.id}" ${animar ? 'data-reveal' : ''}>
+  <article class="prod prod--foto" data-id="${p.id}" ${animar ? 'data-reveal' : ''}>
+    ${FOTOS[p.id] ? `<figure class="prod__img">${img(FOTOS[p.id][0], FOTOS[p.id][1], '(min-width: 1000px) 30vw, (min-width: 640px) 45vw, 100vw')}</figure>` : ''}
     <div class="prod__head"><b>${p.name}</b><p class="prod__price">${money(p.price)}<span>${p.unit}</span></p></div>
     <p class="prod__desc">${p.desc}</p>
-    <div class="prod__foot">
-      <button class="btn btn--ghost btn--sm" type="button" data-add="${p.id}">Agregar a mi cotización</button>
-      <p class="prod__count" aria-live="polite"></p>
-    </div>
+    <div class="prod__foot">${solicitar(p.id)}${contador}</div>
   </article>`).join(''));
+// Legales: lista a dos columnas, más técnica que las tarjetas
+const renderLegal = () => ($('#legalList').innerHTML = PRICING.legal.map((p) => `
+  <li class="litem" data-id="${p.id}">
+    <div class="litem__info">
+      <b>${p.name}</b>
+      <p>${p.desc}</p>
+    </div>
+    <div class="litem__lado">
+      <p class="litem__precio">${money(p.price)}${p.bundle < p.price ? `<span>${money(p.bundle)} con horas de estudio</span>` : ''}</p>
+      ${solicitar(p.id)}
+    </div>
+    ${contador}
+  </li>`).join(''));
 renderPost(true);
+renderLegal();
 
 /* =====================================================================
-   Cotizador: punto de partida + horas + postproducción con cantidades
+   Cotizador por etapas (pop-up). Cada botón lo abre en su categoría
+   (horas de estudio, postproducción o legales) y ofrece las demás junto al
+   pago. Sin VITE_RESERVAS_API, los botones van a WhatsApp.
    ===================================================================== */
-const quoter = (() => {
-  const state = { preset: null, block: '6h', mode: 'ing', items: {}, video: false };
-  // En el cotizador Mezcla va primero; en Tarifas se respeta el orden del catálogo
-  const productos = () => (PRICING.quoterOrder || []).map((id) => PRICING.products.find((p) => p.id === id)).filter(Boolean)
-    .concat(PRICING.products.filter((p) => !(PRICING.quoterOrder || []).includes(p.id)));
-  const videoWrap = $('#qVideoWrap'); const videoBox = $('#qVideo');
-  const presetsEl = $('#qPresets'); const blocksEl = $('#qBlocks'); const prodsEl = $('#qProducts'); const modeEl = $('#qMode');
-  const consent = $('#qConsent');
-  presetsEl.innerHTML = PRICING.presets.map((p) => `<button class="qopt" type="button" data-id="${p.id}" aria-pressed="false"><b>${p.name}</b><span>${p.desc}</span></button>`).join('');
-  const pintarProductos = () => (prodsEl.innerHTML = productos().map((p) => `
-    <div class="qprod" data-id="${p.id}">
-      <div class="qprod__info"><b>${p.name}</b><span>${money(p.price)} ${p.unit}</span></div>
-      <div class="qstepper" role="group" aria-label="Cantidad de ${esc(p.name)}">
-        <button type="button" data-step="-1" aria-label="Quitar uno">−</button>
-        <output>0</output>
-        <button type="button" data-step="1" aria-label="Agregar uno">+</button>
-      </div>
-    </div>`).join(''));
-  pintarProductos();
+$('#qPresets').innerHTML = PRICING.presets.map((p) => `<button class="qopt" type="button" data-preset="${p.id}"><b>${p.name}</b><span>${p.desc}</span></button>`).join('');
+$('#qWa').href = waUrl('Hola, quiero cotizar una sesión en Undying Studios.');
+$('#qFoot').textContent = `${PRICING.policy} Reprogramación sin costo con 48 horas de anticipación. No hay reembolsos por cancelación.`;
 
-  const lines = () => {
-    const out = [];
-    if (state.block) {
-      const b = blockById(state.block);
-      out.push({ label: `Estudio · ${b.hours} horas ${state.mode === 'dry' ? '(Dry Hire)' : 'con ingeniero'}`, amount: b.price[state.mode] });
-    }
-    productos().forEach((p) => { const q = state.items[p.id] || 0; if (q) out.push({ label: `${p.name}${q > 1 ? ` × ${q}` : ''}`, amount: p.price * q }); });
-    // Video e iluminación para podcast: se cotiza aparte, no suma al total
-    if (state.video && PRICING.presets.find((x) => x.id === state.preset)?.videoOption) out.push({ label: 'Equipo de video e iluminación', amount: 0, aparte: true });
-    return out;
-  };
-  let shown = 0;
-  const render = () => {
-    const ls = lines(); const total = ls.reduce((s, l) => s + l.amount, 0);
-    $$('.qopt', presetsEl).forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.id === state.preset)));
-    modeEl.innerHTML = Object.entries(PRICING.modes).map(([id, m]) => `<button type="button" role="radio" aria-checked="${id === state.mode}" data-mode="${id}"><b>${m.label}</b><span>${m.note}</span></button>`).join('');
-    blocksEl.innerHTML = PRICING.blocks.map((b) => `<button class="qblock" type="button" data-id="${b.id}" aria-pressed="${b.id === state.block}"><b>${b.hours}h</b><span>${money(b.price[state.mode])}</span></button>`).join('')
-      + `<button class="qblock qblock--none" type="button" data-id="" aria-pressed="${!state.block}"><b>0h</b><span>Solo postproducción</span></button>`;
-    $$('.qprod', prodsEl).forEach((row) => { const q = state.items[row.dataset.id] || 0; $('output', row).textContent = q; row.classList.toggle('is-on', q > 0); });
-    // Las tarjetas de postproducción muestran cuántos van en la cotización
-    $$('#postGrid .prod').forEach((card) => {
-      const q = state.items[card.dataset.id] || 0;
-      card.classList.toggle('is-added', q > 0);
-      $('.prod__count', card).innerHTML = q ? `${q} en tu cotización · <a href="#cotizador">Ver cotización</a>` : '';
-    });
-    $('#qLines').innerHTML = ls.length
-      ? ls.map((l) => `<li><span>${l.label}</span><b>${l.aparte ? 'Por cotizar' : money(l.amount)}</b></li>`).join('')
-      : '<li class="is-empty">Todavía no hay nada en tu cotización</li>';
-    const p = PRICING.presets.find((x) => x.id === state.preset);
-    videoWrap.hidden = !p?.videoOption; videoBox.checked = state.video;
-    $('#qHint').textContent = p ? `Punto de partida: ${p.name.toLowerCase()}. Ajusta lo que necesites.` : 'Elige un punto de partida o arma tu sesión pieza por pieza.';
-    const num = $('#qTotal');
-    if (reduced) num.textContent = money(total);
-    else { const o = { v: shown }; gsap.to(o, { v: total, duration: 0.6, ease: 'power2.out', onUpdate: () => (num.textContent = money(o.v)) }); }
-    shown = total;
-
-    const ok = consent.checked;
-    const book = $('#qBook');
-    book.disabled = !(ok && state.block);
-    book.textContent = state.block ? `Reservar ${blockById(state.block).hours} horas` : 'Reservar horas';
-    const summary = `Hola, armé esta cotización en la página del estudio:\n${ls.map((l) => `• ${l.label}: ${l.aparte ? 'por cotizar' : money(l.amount)}`).join('\n')}\nTotal: ${money(total)} MXN con IVA.\n¿Me ayudan a confirmarla?`;
-    const wa = $('#qWa'); const active = ok && ls.length;
-    wa.href = active ? waUrl(summary) : '#';
-    wa.classList.toggle('is-disabled', !active); wa.setAttribute('aria-disabled', String(!active));
-    const pay = $('#qPay');
-    pay.hidden = !(LINKS.checkout || reservasActivas());
-    if (LINKS.checkout || reservasActivas()) { pay.href = active && !reservasActivas() ? LINKS.checkout : '#'; pay.classList.toggle('is-disabled', !active); pay.setAttribute('aria-disabled', String(!active)); }
-    $('#qFoot').textContent = ok ? PRICING.policy : 'Acepta el aviso de privacidad y los términos para continuar.';
-  };
-
-  presetsEl.addEventListener('click', (e) => { const b = e.target.closest('.qopt'); if (b) api.preset(b.dataset.id); });
-  modeEl.addEventListener('click', (e) => { const b = e.target.closest('[data-mode]'); if (b) setMode(b.dataset.mode); });
-  blocksEl.addEventListener('click', (e) => { const b = e.target.closest('.qblock'); if (!b) return; state.block = b.dataset.id || null; state.preset = null; render(); });
-  prodsEl.addEventListener('click', (e) => {
-    const b = e.target.closest('[data-step]'); if (!b) return;
-    const id = b.closest('.qprod').dataset.id;
-    state.items[id] = Math.min(20, Math.max(0, (state.items[id] || 0) + +b.dataset.step));
-    state.preset = null; render();
-  });
-  consent.addEventListener('change', render);
-  videoBox.addEventListener('change', () => { state.video = videoBox.checked; render(); });
-  $('#qWa').addEventListener('click', (e) => { if (e.currentTarget.classList.contains('is-disabled')) e.preventDefault(); });
-  $('#qPay').addEventListener('click', (e) => { if (e.currentTarget.classList.contains('is-disabled')) e.preventDefault(); });
-  $('#qBook').addEventListener('click', () => { if (state.block) openBooking(`${state.block}-${state.mode}`, { accepted: true }); });
-
-  const api = {
-    preset(id) {
-      const p = PRICING.presets.find((x) => x.id === id); if (!p) return;
-      state.preset = id; state.block = p.block; state.items = { ...p.products }; state.video = false;
-      render();
-    },
-    setMode(m, rerender = true) { state.mode = m; if (rerender) setMode(m); else render(); },
-    add(id) { state.items[id] = (state.items[id] || 0) + 1; state.preset = null; render(); },
-    estado: () => ({ block: state.block, mode: state.mode, items: { ...state.items } }),
-    repintarProductos() { pintarProductos(); render(); },
-  };
-  render();
-  return api;
-})();
-
-/* =====================================================================
-   Reserva en línea (sistema propio de calendarios y pagos). Sin
-   VITE_RESERVAS_API no hace nada y todo sigue con WhatsApp y Prospex.
-   ===================================================================== */
 const reservas = iniciarReservas('estudio', {
+  etapas: true,
   boton: (k) => (k === 'scouting' ? { tipo: 'visita' } : { tipo: 'reserva', abrir: { bloqueId: `estudio-${k.split('-')[0]}`, modalidadId: `estudio-${k.split('-')[1]}` } }),
-  carrito: () => {
-    const s = quoter.estado();
-    return {
-      sesiones: s.block ? [{ bloqueId: `estudio-${s.block}`, modalidadId: `estudio-${s.mode}`, inicio: null, extras: [] }] : [],
-      productos: Object.entries(s.items).filter(([, n]) => n > 0).map(([id, cantidad]) => ({ id, cantidad, sesion: s.block ? 0 : null })),
-    };
-  },
+  alCambiar: (c) => marcar(c),
   aviso: (t) => toast(t),
 });
 // Los precios del panel mandan: si cambiaron, se vuelven a pintar las tarjetas.
-reservas?.catalogo().then((cat) => { if (preciosEstudio(PRICING, cat)) { renderPricing(); renderPost(); quoter.repintarProductos(); } }).catch(() => {});
+reservas?.catalogo().then((cat) => { if (preciosEstudio(PRICING, cat)) { renderPricing(); renderPost(); renderLegal(); marcar(enPedido); } }).catch(() => {});
 
-// Tarjetas de "para quién", podcast y productos alimentan el cotizador
-document.addEventListener('click', (e) => {
-  const pre = e.target.closest('[data-preset]');
-  if (pre) {
-    if (pre.dataset.preset === 'dry') setMode('dry');
-    else quoter.preset(pre.dataset.preset);
-    scrollTo('#cotizador');
+// Las tarjetas de servicios muestran cuántos van en la cotización
+let enPedido = null;
+function marcar(c) {
+  enPedido = c;
+  $$('#postGrid [data-id], #legalList [data-id]').forEach((card) => {
+    const q = (c?.productos ?? []).filter((x) => x.id === card.dataset.id).reduce((n, x) => n + x.cantidad, 0);
+    card.classList.toggle('is-added', q > 0);
+    $('.prod__count', card).innerHTML = q ? `${q} en tu cotización · <a href="#cotizador" data-ver-cotizacion>Ver cotización</a>` : '';
+  });
+}
+
+const nombreServicio = (id) => [...PRICING.products, ...PRICING.legal].find((p) => p.id === id)?.name ?? '';
+const porSesion = (id) => PRICING.products.find((x) => x.id === id)?.unit === 'por sesión';
+function abrirPaquete(id) {
+  if (id === 'dry') setMode('dry');
+  const p = PRICING.presets.find((x) => x.id === id);
+  if (!reservas) {
+    if (id === 'dry') scrollTo('#tarifas');
+    else if (p) window.open(waUrl(`Hola, quiero cotizar: ${p.name}. ${p.desc}`), '_blank', 'noopener');
     return;
   }
+  if (id === 'dry') { reservas.abrir({ bloqueId: 'estudio-6h', modalidadId: 'estudio-dry', etapa: 'estudio' }); return; }
+  if (!p) return;
+  reservas.abrir({
+    etapa: 'estudio',
+    carrito: {
+      sesiones: [{ bloqueId: `estudio-${p.block}`, modalidadId: `estudio-${mode}`, inicio: null, extras: [] }],
+      productos: Object.entries(p.products).map(([pid, cantidad]) => ({ id: pid, cantidad, sesion: porSesion(pid) ? 0 : null })),
+    },
+  });
+}
+
+// Tarjetas de "para quién", paquetes del cotizador y servicios abren el cotizador
+document.addEventListener('click', (e) => {
+  const pre = e.target.closest('[data-preset]');
+  if (pre) { abrirPaquete(pre.dataset.preset); return; }
   const add = e.target.closest('[data-add]');
   if (add) {
-    quoter.add(add.dataset.add);
-    toast(`${PRICING.products.find((p) => p.id === add.dataset.add).name} agregado a tu cotización`);
-    // +1 que sube desde el botón
-    const mas = document.createElement('span');
-    mas.className = 'prod__plus'; mas.textContent = '+1'; mas.setAttribute('aria-hidden', 'true');
-    mas.style.left = `${add.offsetLeft + add.offsetWidth + 10}px`;
-    mas.style.top = `${add.offsetTop + add.offsetHeight / 2 - 14}px`;
-    add.parentElement.appendChild(mas);
-    mas.addEventListener('animationend', () => mas.remove());
-    if (reduced) setTimeout(() => mas.remove(), 900);
+    if (reservas) reservas.abrir({ producto: add.dataset.add });
+    else window.open(waUrl(`Hola, quiero cotizar este servicio: ${nombreServicio(add.dataset.add)}.`), '_blank', 'noopener');
+    return;
+  }
+  if (e.target.closest('[data-ver-cotizacion], #qStart')) {
+    e.preventDefault();
+    if (reservas) reservas.abrir({ etapa: e.target.closest('#legalList') ? 'legal' : e.target.closest('#postGrid') ? 'post' : undefined });
+    else window.open($('#qWa').href, '_blank', 'noopener');
   }
 });
 
@@ -819,7 +767,7 @@ else {
     start: 'top 88%', once: true,
     onEnter: (els) => gsap.to(els, { y: 0, opacity: 1, duration: 0.9, stagger: 0.08, ease: 'power3.out', overwrite: true }),
   });
-  ['.rooms__layout', '.gear__studios', '.gear__tabs', '.gear__grid', '.work__clips-head', '.work__clips', '.work__listen', '.mode', '.pricing__grid', '.podcast-strip', '.post__head', '.custom', '.quoter__layout', '.scout__card', '.where__layout', '.reviews__score'].forEach((s) => {
+  ['.rooms__layout', '.gear__studios', '.gear__tabs', '.gear__grid', '.work__clips-head', '.work__clips', '.work__listen', '.mode', '.pricing__grid', '.podcast-strip', '.post__head', '.llist', '.custom', '.quoter__presets', '.scout__card', '.where__layout', '.reviews__score'].forEach((s) => {
     const el = $(s); if (el) gsap.from(el, { y: 32, opacity: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 85%' } });
   });
   $$('.scout__media img').forEach((im) => gsap.fromTo(im, { yPercent: -6 }, { yPercent: 6, ease: 'none', scrollTrigger: { trigger: im, start: 'top bottom', end: 'bottom top', scrub: true } }));

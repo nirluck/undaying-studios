@@ -603,6 +603,38 @@ on conflict (id) do nothing;
 
 
 -- ---------------------------------------------------------------------
+-- 20261031000001_servicios_legales.sql
+-- ---------------------------------------------------------------------
+-- =====================================================================
+-- Servicios legales del estudio (hoja "Redacción Comercial de Productos
+-- Legales para la Web" del cliente).
+--
+-- Se venden por pieza, con o sin horas de estudio. `precio` es el precio
+-- suelto y `precio_con_reserva` el de paquete, que aplica cuando el pedido
+-- trae horas. Generan un trabajo para darle seguimiento a la entrega.
+-- =====================================================================
+
+-- En una instalación nueva el catálogo todavía no existe aquí (lo carga
+-- seed.sql, que ya trae estos servicios); solo se agregan a bases en uso.
+insert into productos (id, espacio_id, nombre, descripcion, precio, precio_con_reserva, unidad, requiere_sesion, max_por_sesion, max_cantidad, revisiones, entrega_dias, genera_trabajo, tarea, campos, orden)
+select v.id, 'estudio', v.nombre, v.descripcion, v.precio, v.con_reserva, 'pieza', false, null, 10, 0, null, true, null, '[]', v.orden
+from (values
+  ('legal-split', 'Split Sheet (Acuerdo de Coautoría)', 'Identificación de participantes, porcentajes de autoría y titularidad de regalías.', 1100, 800, 21),
+  ('legal-registro-obra', 'Registro de Obra Musical & Fonograma', 'Protección jurídica ante INDAUTOR para determinar la propiedad de la canción y el máster audio/podcast.', 2000, 1700, 22),
+  ('legal-produccion', 'Contrato de Producción Musical', 'Estipulación formal de derechos, obligaciones, regalías y créditos del productor.', 4200, 3800, 23),
+  ('legal-musico', 'Contrato para Músico de Sesión', 'Cesión formal de derechos de ejecución para instrumentistas contratados en la grabación.', 4200, 3800, 24),
+  ('legal-locucion', 'Contrato de Locución', 'Regulación de la prestación de servicio vocal y cesión de derechos de uso comercial de la voz.', 4200, 3800, 25),
+  ('legal-encargo', 'Contrato de Obra por Encargo', 'Encomienda formal para creación de jingles o música por encargo con transferencia total de titularidad.', 4200, 3800, 26),
+  ('legal-agrupacion', 'Acuerdo Interno de Agrupación Musical', 'Reglas claras entre integrantes de la banda: titularidad del nombre, ingresos, salidas y obligaciones.', 6800, 6200, 27),
+  ('legal-marca', 'Registro de Marca (IMPI)', 'Registro de marca artística o comercial para proteger el nombre del proyecto o solista (incluye derechos).', 6800, 6200, 28),
+  ('legal-samples', 'Acuerdo de Liquidación de Samples', 'Licenciamiento y autorización legal para el uso de fragmentos de obras preexistentes.', 7900, 7200, 29),
+  ('legal-imagen', 'Release de Imagen', 'Autorización formal para captar, utilizar y difundir el rostro/figura en fotos y videoclips.', 1100, 800, 30)
+) as v(id, nombre, descripcion, precio, con_reserva, orden)
+where exists (select 1 from espacios where id = 'estudio')
+on conflict (id) do nothing;
+
+
+-- ---------------------------------------------------------------------
 -- seed.sql (catálogo inicial)
 -- ---------------------------------------------------------------------
 set search_path = public, extensions;
@@ -715,6 +747,19 @@ insert into productos (id, espacio_id, nombre, descripcion, precio, unidad, requ
 ('musico', 'estudio', 'Músico de sesión', 'Músico profesional de nuestra red.', 2500, 'sesion', true, 6, 20, 0, null, false, 'confirmar_musico', '[{"id": "instrumento", "etiqueta": "Instrumento", "al_reservar": true}]', 6),
 ('musico-linea', 'estudio', 'Músico de sesión en línea', 'Un músico de nuestra red graba tu instrumento a distancia. Nos mandas tu canción y referencias, y te entregamos las pistas listas para mezclar. Incluye 1 revisión.', 2500, 'cancion', false, null, 20, 1, 7, true, 'confirmar_musico', '[{"id": "instrumento", "etiqueta": "Instrumento", "al_reservar": true}, {"id": "titulo", "etiqueta": "Título de la canción"}]', 7);
 
+-- Servicios legales: precio suelto y precio con reserva de horas (paquete)
+insert into productos (id, espacio_id, nombre, descripcion, precio, precio_con_reserva, unidad, requiere_sesion, max_por_sesion, max_cantidad, revisiones, entrega_dias, genera_trabajo, tarea, campos, orden) values
+('legal-split', 'estudio', 'Split Sheet (Acuerdo de Coautoría)', 'Identificación de participantes, porcentajes de autoría y titularidad de regalías.', 1100, 800, 'pieza', false, null, 10, 0, null, true, null, '[]', 21),
+('legal-registro-obra', 'estudio', 'Registro de Obra Musical & Fonograma', 'Protección jurídica ante INDAUTOR para determinar la propiedad de la canción y el máster audio/podcast.', 2000, 1700, 'pieza', false, null, 10, 0, null, true, null, '[]', 22),
+('legal-produccion', 'estudio', 'Contrato de Producción Musical', 'Estipulación formal de derechos, obligaciones, regalías y créditos del productor.', 4200, 3800, 'pieza', false, null, 10, 0, null, true, null, '[]', 23),
+('legal-musico', 'estudio', 'Contrato para Músico de Sesión', 'Cesión formal de derechos de ejecución para instrumentistas contratados en la grabación.', 4200, 3800, 'pieza', false, null, 10, 0, null, true, null, '[]', 24),
+('legal-locucion', 'estudio', 'Contrato de Locución', 'Regulación de la prestación de servicio vocal y cesión de derechos de uso comercial de la voz.', 4200, 3800, 'pieza', false, null, 10, 0, null, true, null, '[]', 25),
+('legal-encargo', 'estudio', 'Contrato de Obra por Encargo', 'Encomienda formal para creación de jingles o música por encargo con transferencia total de titularidad.', 4200, 3800, 'pieza', false, null, 10, 0, null, true, null, '[]', 26),
+('legal-agrupacion', 'estudio', 'Acuerdo Interno de Agrupación Musical', 'Reglas claras entre integrantes de la banda: titularidad del nombre, ingresos, salidas y obligaciones.', 6800, 6200, 'pieza', false, null, 10, 0, null, true, null, '[]', 27),
+('legal-marca', 'estudio', 'Registro de Marca (IMPI)', 'Registro de marca artística o comercial para proteger el nombre del proyecto o solista (incluye derechos).', 6800, 6200, 'pieza', false, null, 10, 0, null, true, null, '[]', 28),
+('legal-samples', 'estudio', 'Acuerdo de Liquidación de Samples', 'Licenciamiento y autorización legal para el uso de fragmentos de obras preexistentes.', 7900, 7200, 'pieza', false, null, 10, 0, null, true, null, '[]', 29),
+('legal-imagen', 'estudio', 'Release de Imagen', 'Autorización formal para captar, utilizar y difundir el rostro/figura en fotos y videoclips.', 1100, 800, 'pieza', false, null, 10, 0, null, true, null, '[]', 30);
+
 -- ---------- Paquetes sugeridos ----------
 insert into paquetes (id, espacio_id, nombre, descripcion, bloque_id, modalidad_id, productos, orden) values
 ('banda', 'estudio', 'Banda', 'Grabación en vivo, edición, mezcla y máster.', 'estudio-6h', 'estudio-ing', '{"edicion": 1, "mezcla": 1, "master": 1}', 1),
@@ -740,7 +785,8 @@ create table if not exists supabase_migrations.schema_migrations (version text p
 insert into supabase_migrations.schema_migrations (version, name) values
   ('20261006000001', 'reservas'),
   ('20261006000002', 'tareas_programadas'),
-  ('20261030000001', 'ingenieros')
+  ('20261030000001', 'ingenieros'),
+  ('20261031000001', 'servicios_legales')
 on conflict (version) do nothing;
 
 -- Listo. Revisa en Table Editor que existan las tablas espacios, bloques,

@@ -422,6 +422,20 @@ export const PRICING = {
     { id: 'productor', name: 'Productor musical', desc: 'Dirección artística, arreglos y producción musical durante la sesión de grabación.', price: 7000, unit: 'por sesión' },
     { id: 'musico', name: 'Músico de sesión', desc: 'Músico profesional de nuestra red.', price: 2500, unit: 'por sesión' },
   ],
+  // Servicios legales (hoja "Redacción Comercial de Productos Legales para la Web").
+  // price: compra individual; bundle: precio en paquete, cuando el pedido trae horas.
+  legal: [
+    { id: 'legal-split', name: 'Split Sheet (Acuerdo de Coautoría)', desc: 'Identificación de participantes, porcentajes de autoría y titularidad de regalías.', price: 1100, bundle: 800 },
+    { id: 'legal-registro-obra', name: 'Registro de Obra Musical & Fonograma', desc: 'Protección jurídica ante INDAUTOR para determinar la propiedad de la canción y el máster audio/podcast.', price: 2000, bundle: 1700 },
+    { id: 'legal-produccion', name: 'Contrato de Producción Musical', desc: 'Estipulación formal de derechos, obligaciones, regalías y créditos del productor.', price: 4200, bundle: 3800 },
+    { id: 'legal-musico', name: 'Contrato para Músico de Sesión', desc: 'Cesión formal de derechos de ejecución para instrumentistas contratados en la grabación.', price: 4200, bundle: 3800 },
+    { id: 'legal-locucion', name: 'Contrato de Locución', desc: 'Regulación de la prestación de servicio vocal y cesión de derechos de uso comercial de la voz.', price: 4200, bundle: 3800 },
+    { id: 'legal-encargo', name: 'Contrato de Obra por Encargo', desc: 'Encomienda formal para creación de jingles o música por encargo con transferencia total de titularidad.', price: 4200, bundle: 3800 },
+    { id: 'legal-agrupacion', name: 'Acuerdo Interno de Agrupación Musical', desc: 'Reglas claras entre integrantes de la banda: titularidad del nombre, ingresos, salidas y obligaciones.', price: 6800, bundle: 6200 },
+    { id: 'legal-marca', name: 'Registro de Marca (IMPI)', desc: 'Registro de marca artística o comercial para proteger el nombre del proyecto o solista (incluye derechos).', price: 6800, bundle: 6200 },
+    { id: 'legal-samples', name: 'Acuerdo de Liquidación de Samples', desc: 'Licenciamiento y autorización legal para el uso de fragmentos de obras preexistentes.', price: 7900, bundle: 7200 },
+    { id: 'legal-imagen', name: 'Release de Imagen', desc: 'Autorización formal para captar, utilizar y difundir el rostro/figura en fotos y videoclips.', price: 1100, bundle: 800 },
+  ],
   // Orden de los productos en el cotizador (2a revisión: Edición, Mezcla, Máster);
   // en Tarifas se usa el orden de `products`, que sigue el catálogo del cliente.
   quoterOrder: ['edicion', 'mezcla', 'master', 'vocal', 'productor', 'musico'],

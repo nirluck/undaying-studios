@@ -37,6 +37,8 @@ html.rv-abierto, html.rv-abierto body { overflow: hidden; }
 .rv__pasos li.is-on { color: var(--ink); }
 .rv__pasos li.is-on::before { background: var(--orange); border-color: var(--orange); color: #fff; }
 .rv__pasos li.is-ok::before { content: "✓"; color: var(--orange-2); border-color: var(--orange-2); }
+.rv__pasos li button { color: inherit; font: inherit; text-decoration: underline; text-decoration-color: var(--line-2); text-underline-offset: 3px; }
+.rv__pasos li button:hover { color: var(--orange-3); }
 .rv__cerrar { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line-2); font-size: 22px; line-height: 1; color: var(--ink); flex: none; }
 .rv__cerrar:hover { border-color: var(--orange-2); color: var(--orange-3); }
 .rv__pasos:empty { display: none; }
@@ -53,6 +55,9 @@ html.rv-abierto, html.rv-abierto body { overflow: hidden; }
   .rv__panel { max-height: 100dvh; height: 100dvh; }
   .rv__cab { padding: 14px 16px; gap: 12px; flex-wrap: wrap; }
   .rv__pasos { order: 3; width: 100%; margin-left: 0; }
+  .rv__pasos--etapas li { position: relative; }
+  .rv__pasos--etapas li:not(.is-on) .rv__paso-txt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .rv__pasos--etapas li button::after { content: ""; position: absolute; inset: 0; }
   .rv__cerrar { margin-left: auto; }
   .rv__cuerpo { display: block; overflow-y: auto; overscroll-behavior: contain; }
   .rv__principal, .rv__resumen { overflow: visible; padding: 16px; }
@@ -148,7 +153,7 @@ html.rv-abierto, html.rv-abierto body { overflow: hidden; }
 .cal__ayuda { padding: 20px; border: 1px dashed var(--line-2); border-radius: 12px; text-align: center; }
 
 /* ---------- Productos ---------- */
-.rv-prods { display: grid; gap: 10px; }
+.rv-prods { display: grid; gap: 10px; padding: 0; }
 .rv-prods > .rv-ayuda { margin-top: -4px; }
 .rv-prod { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: start; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--card-flat); }
 .rv-prod.is-off { opacity: 0.55; }
@@ -165,6 +170,20 @@ html.rv-abierto, html.rv-abierto body { overflow: hidden; }
 .rv-stepper button:disabled { opacity: 0.3; cursor: default; }
 .rv-stepper output { min-width: 24px; text-align: center; color: var(--ink); font-weight: 600; }
 @media (max-width: 520px) { .rv-prod { grid-template-columns: 1fr; } .rv-prod__cant { justify-items: start; } }
+.rv-prod.is-on { border-color: var(--orange); background: rgba(201, 116, 56, 0.08); }
+.rv-prod__info > span s { color: var(--ink-4); margin-right: 4px; }
+.rv-prod__info > span em { font-style: normal; color: var(--ink-3); margin-left: 4px; }
+.rv-prod__desc { font-size: 13px; color: var(--ink-3); line-height: 1.5; margin-top: 2px; }
+
+/* ---------- Etapas del cotizador ---------- */
+.rv-etapa { display: grid; gap: 12px; justify-items: start; padding: 24px; border: 1px dashed var(--line-2); border-radius: var(--r-card); }
+.rv-ofertas { display: grid; gap: 8px; padding-top: 4px; }
+.rv-ofertas .rv-etq { margin-bottom: 0; }
+.rv-oferta { display: grid; gap: 2px; text-align: left; padding: 12px 14px; border: 1px dashed var(--line-2); border-radius: 12px; transition: border-color .2s, background .2s; }
+.rv-oferta b { color: var(--orange-2); font-weight: 600; font-size: 15px; }
+.rv-oferta b::before { content: "+ "; }
+.rv-oferta span { font-size: 13px; color: var(--ink-3); line-height: 1.45; }
+.rv-oferta:hover { border-color: var(--orange-2); background: rgba(201, 116, 56, 0.06); }
 
 /* ---------- Formulario ---------- */
 .rv-form { display: grid; gap: 14px; }
