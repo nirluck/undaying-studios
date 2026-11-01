@@ -552,10 +552,13 @@ $('#modeSwitch').addEventListener('click', (e) => { const b = e.target.closest('
 
 // Al repintar con precios del panel ya no se anima la entrada.
 const renderPost = (animar = false) => ($('#postGrid').innerHTML = PRICING.products.map((p) => `
-  <article class="prod" ${animar ? 'data-reveal' : ''}>
+  <article class="prod" data-id="${p.id}" ${animar ? 'data-reveal' : ''}>
     <div class="prod__head"><b>${p.name}</b><p class="prod__price">${money(p.price)}<span>${p.unit}</span></p></div>
     <p class="prod__desc">${p.desc}</p>
-    <button class="btn btn--ghost btn--sm" type="button" data-add="${p.id}">Agregar a mi cotización</button>
+    <div class="prod__foot">
+      <button class="btn btn--ghost btn--sm" type="button" data-add="${p.id}">Agregar a mi cotización</button>
+      <p class="prod__count" aria-live="polite"></p>
+    </div>
   </article>`).join(''));
 renderPost(true);
 
@@ -601,6 +604,12 @@ const quoter = (() => {
     blocksEl.innerHTML = PRICING.blocks.map((b) => `<button class="qblock" type="button" data-id="${b.id}" aria-pressed="${b.id === state.block}"><b>${b.hours}h</b><span>${money(b.price[state.mode])}</span></button>`).join('')
       + `<button class="qblock qblock--none" type="button" data-id="" aria-pressed="${!state.block}"><b>0h</b><span>Solo postproducción</span></button>`;
     $$('.qprod', prodsEl).forEach((row) => { const q = state.items[row.dataset.id] || 0; $('output', row).textContent = q; row.classList.toggle('is-on', q > 0); });
+    // Las tarjetas de postproducción muestran cuántos van en la cotización
+    $$('#postGrid .prod').forEach((card) => {
+      const q = state.items[card.dataset.id] || 0;
+      card.classList.toggle('is-added', q > 0);
+      $('.prod__count', card).innerHTML = q ? `${q} en tu cotización · <a href="#cotizador">Ver cotización</a>` : '';
+    });
     $('#qLines').innerHTML = ls.length
       ? ls.map((l) => `<li><span>${l.label}</span><b>${l.aparte ? 'Por cotizar' : money(l.amount)}</b></li>`).join('')
       : '<li class="is-empty">Todavía no hay nada en tu cotización</li>';
@@ -687,6 +696,14 @@ document.addEventListener('click', (e) => {
   if (add) {
     quoter.add(add.dataset.add);
     toast(`${PRICING.products.find((p) => p.id === add.dataset.add).name} agregado a tu cotización`);
+    // +1 que sube desde el botón
+    const mas = document.createElement('span');
+    mas.className = 'prod__plus'; mas.textContent = '+1'; mas.setAttribute('aria-hidden', 'true');
+    mas.style.left = `${add.offsetLeft + add.offsetWidth + 10}px`;
+    mas.style.top = `${add.offsetTop + add.offsetHeight / 2 - 14}px`;
+    add.parentElement.appendChild(mas);
+    mas.addEventListener('animationend', () => mas.remove());
+    if (reduced) setTimeout(() => mas.remove(), 900);
   }
 });
 

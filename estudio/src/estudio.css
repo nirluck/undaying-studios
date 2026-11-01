@@ -65,6 +65,11 @@
 /* ---------- Escucha ---------- */
 .wcard__hp { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 16px; font-weight: 500; color: var(--orange-3); }
 .wcard__hp svg { width: 16px; height: 16px; flex: none; }
+/* La carátula también se ve en pantallas de menos de 900 px (antes se ocultaba) */
+@media (max-width: 899px) {
+  .track { grid-template-columns: 52px 56px minmax(0, 1fr); }
+  .track__cover { display: block; width: 56px; height: 56px; }
+}
 .track.is-info { cursor: default; }
 .track.is-info:hover { background: none; }
 .track__play--info { color: var(--orange-2); border-style: dashed; }
@@ -110,6 +115,20 @@
 .prod__price span { display: block; font-family: var(--f-body); font-weight: 500; font-size: 16px; color: var(--ink-4); }
 .prod__desc { font-size: 16px; color: var(--ink-3); line-height: 1.55; flex: 1; }
 .prod .btn { align-self: flex-start; }
+/* Agregar a la cotización: +1 que sube y contador en la tarjeta */
+.prod__foot { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.prod.is-added { border-color: var(--orange); }
+.prod__count { font-size: 16px; font-weight: 600; color: var(--orange-3); }
+.prod__count:empty { display: none; }
+.prod__count a { color: var(--ink-2); text-decoration: underline; font-weight: 500; }
+.prod__count a:hover { color: var(--ink); }
+.prod__plus {
+  position: absolute; pointer-events: none; line-height: 28px;
+  font-family: var(--f-display); font-weight: 800; font-size: 22px; color: var(--orange-3);
+  animation: prodMas .9s var(--ease) forwards;
+}
+@keyframes prodMas { 0% { opacity: 0; transform: translateY(8px) scale(.8); } 25% { opacity: 1; transform: translateY(-4px) scale(1.1); } 100% { opacity: 0; transform: translateY(-34px) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .prod__plus { animation: none; } }
 
 /* ---------- Cotizador ---------- */
 .qblocks--4 { grid-template-columns: repeat(4, 1fr); }
