@@ -216,3 +216,4 @@ select.rv-input { appearance: auto; }
 .mr-panel > .btn { justify-self: start; }
 .mr-ok { color: #8fe9b6; font-size: 14px; }
 .mr-entrar { max-width: 460px; display: grid; gap: 12px; }
+.mr-entrar + .rv-nota { max-width: 460px; margin-top: 16px; }

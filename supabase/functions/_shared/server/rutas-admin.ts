@@ -5,7 +5,7 @@ import { calendario as _cal, ventanasDelDia } from '../core/disponibilidad.ts';
 import { diasEntre, fechaLocal, inicioDelDia, rangoTexto, sumarDias } from '../core/tiempo.ts';
 import { redondear } from '../core/util.ts';
 import type { Ctx, Sql } from './ctx.ts';
-import { ajuste, bitacora, cargarCatalogo, camelProfundo, esEmpalme, ocupacionDe, snakeProfundo, type Avisos } from './db.ts';
+import { ajuste, bitacora, cargarCatalogo, camelProfundo, esEmpalme, ocupacionDe, snakeProfundo, type Avisos, type Negocio } from './db.ts';
 import { correoValido, Enrutador, esFecha, falla, json, noEncontrado, numero, texto, type Solicitud } from './http.ts';
 import { exigir, usuarioDe, type Usuario } from './seguridad.ts';
 import { avisar, logoCorreo } from './correo.ts';
@@ -15,7 +15,7 @@ import {
 } from './pedidos.ts';
 import { actualizarTrabajo, asignarPersonal } from './trabajos.ts';
 import { agendaDe, avisarSesionAsignada, personaDe, personas, urlCalendarioPersona } from './equipo.ts';
-import { bloqueResumen, bloqueSesiones, etiquetaTarea, icsDePedido, infoPedido, tokenCliente, urlMisReservas, urlPagar, varsPedido } from './info.ts';
+import { bloqueResumen, bloqueSesiones, bloquesConfirmacion, etiquetaTarea, icsDePedido, infoPedido, plantillaConfirmacion, tokenCliente, urlMisReservas, urlPagar, varsPedido } from './info.ts';
 import { cancelarVisita } from './rutas-publicas.ts';
 
 // deno-lint-ignore no-explicit-any
@@ -432,8 +432,8 @@ export function rutasAdmin(r: Enrutador) {
   }));
   r.post('/admin/pedidos/:id/reenviar', op(async ({ ctx, params }, u) => {
     const i = await infoPedido(ctx.sql, params.id);
-    const token = await tokenCliente(ctx, i.cliente.id);
-    await avisar(ctx, 'pedido_confirmado', { para: i.cliente.correo, pedidoId: params.id, vars: varsPedido(i, urlMisReservas(ctx, token)), bloques: { lista: bloqueSesiones(i), resumen: bloqueResumen(i), botones: [{ texto: 'Ver mis reservas', url: urlMisReservas(ctx, token) }] }, adjuntos: await icsDePedido(ctx, i) });
+    const enlace = urlMisReservas(ctx, await tokenCliente(ctx, i.cliente.id));
+    await avisar(ctx, plantillaConfirmacion(i), { para: i.cliente.correo, pedidoId: params.id, vars: varsPedido(i, enlace), bloques: bloquesConfirmacion(i, await ajuste<Negocio>(ctx.sql, 'negocio'), enlace), adjuntos: await icsDePedido(ctx, i) });
     await bitacora(ctx.sql, u.correo, 'reenviar', 'pedido', params.id);
     return { ok: true };
   }));

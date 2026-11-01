@@ -12,7 +12,7 @@ import { ajuste, bitacora, cargarCatalogo, esEmpalme, ocupacionDe, type Negocio 
 import { correoValido, falla, texto } from './http.ts';
 import { avisar, omitirAviso } from './correo.ts';
 import {
-  bloqueResumen, bloqueSesiones, carritoDeSesiones, etiquetaTarea, eventosEquipo, icsDePedido, icsEquipo, infoPedido, sesionesActivas, textoSesionCorta,
+  bloqueResumen, bloqueSesiones, bloquesConfirmacion, carritoDeSesiones, etiquetaTarea, eventosEquipo, icsDePedido, icsEquipo, infoPedido, plantillaConfirmacion, sesionesActivas, textoSesionCorta,
   tokenCliente, urlGoogleCalendar, urlLanding, urlMisReservas, urlPagar, urlPanelPedido, urlPedido, varsPedido, type InfoPedido,
 } from './info.ts';
 
@@ -482,22 +482,10 @@ async function avisosConfirmacion(ctx: Ctx, pedidoId: string, sinHorario: boolea
   const enlace = urlMisReservas(ctx, token);
   const vars = varsPedido(i, enlace);
   const ahora = ctx.ahora();
-  const pendientesCliente: string[] = [];
-  if (i.trabajos.length) pendientesCliente.push('Mándanos el material de tu postproducción desde "Mis reservas" (enlace de Drive, WeTransfer o Dropbox).');
-  if (i.espacio.id === 'foro' && sesionesActivas(i).length) pendientesCliente.push(`Registra a tu equipo e invitados antes de la sesión (aforo de ${i.espacio.aforo ?? 25} personas).`);
-  const enSesion = i.lineas.filter((l) => l.enSesion && l.importe >= 0);
-  if (enSesion.length) pendientesCliente.push(`Mándanos tus demos, tracks y referencias para ${[...new Set(enSesion.map((l) => String(l.productoNombre).toLowerCase()))].join(' y ')} desde "Mis reservas", así preparamos tu sesión.`);
-  if (sesionesActivas(i).length && negocio.llegada) pendientesCliente.push(negocio.llegada);
-
-  await avisar(ctx, 'pedido_confirmado', {
+  await avisar(ctx, plantillaConfirmacion(i), {
     para: i.cliente.correo, pedidoId, clave: `confirmado:${pedidoId}`,
     vars,
-    bloques: {
-      lista: bloqueSesiones(i),
-      resumen: bloqueResumen(i),
-      botones: [{ texto: 'Ver mis reservas', url: enlace }, ...(sesionesActivas(i).length && negocio.mapa ? [{ texto: 'Cómo llegar', url: negocio.mapa, secundario: true }] : [])],
-      tabla: pendientesCliente.length ? { titulo: 'Antes de tu sesión', columnas: [''], filas: pendientesCliente.map((x) => [x]) } : undefined,
-    },
+    bloques: bloquesConfirmacion(i, negocio, enlace),
     adjuntos: await icsDePedido(ctx, i),
   });
 

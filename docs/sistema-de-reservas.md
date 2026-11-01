@@ -558,6 +558,7 @@ Se envían desde `reservas@undyingstudios.mx`, con respuesta a
 | Evento | Cuándo | Contenido |
 |---|---|---|
 | Pedido confirmado | Al entrar el pago | Número, sesiones, extras, productos, total con IVA, .ics, cómo llegar, reglas básicas, enlace a Mis reservas |
+| Pedido confirmado (sin sesión) | Al entrar el pago de un pedido sin fecha (mezcla, máster, edición, músico en línea) | Número, productos, total con IVA, cómo mandar el material y botón «Mandar material» |
 | Ficha OXXO | Al elegir OXXO | Monto, referencia, fecha límite, aviso de que el horario se libera si no paga |
 | Apartado por vencer | 6 h antes de que venza la ficha OXXO | Recordatorio de pago |
 | Apartado vencido | Al vencer | El horario se liberó; enlace para volver a reservar |

@@ -119,6 +119,34 @@ export function bloqueSesiones(i: InfoPedido): Bloques['lista'] {
   return { titulo: act.length > 1 ? 'Tus sesiones' : 'Tu sesión', elementos: act.map((s) => `${s.texto} · ${s.bloqueHoras ? s.bloqueHoras + ' h' : ''} ${s.modalidadCorta ?? ''}`.replace(/\s+/g, ' ').trim()) };
 }
 
+/** Los pedidos sin sesión (solo postproducción) usan su propio texto: no hay fecha ni calendario. */
+export const plantillaConfirmacion = (i: InfoPedido) => (sesionesActivas(i).length ? 'pedido_confirmado' : 'pedido_confirmado_sin_sesion');
+
+/** Bloques del correo "Pedido confirmado" (al pagar y al reenviarlo desde el panel). */
+export function bloquesConfirmacion(i: InfoPedido, negocio: Negocio, enlace: string): Bloques {
+  const conSesion = sesionesActivas(i).length > 0;
+  const faltan = i.trabajos.filter((t) => t.estado === 'esperando_material');
+  const pendientes: string[] = [];
+  if (faltan.length) {
+    const servicios = [...new Set(faltan.map((t) => String(t.productoNombre ?? '').toLowerCase()))].join(' y ');
+    pendientes.push(`Mándanos el material de tu ${servicios} desde "Mis reservas": sube tus archivos a Drive, WeTransfer o Dropbox y pega el enlace. La fecha de entrega se cuenta desde que lo recibimos.`);
+  }
+  if (i.espacio.id === 'foro' && conSesion) pendientes.push(`Registra a tu equipo e invitados antes de la sesión (aforo de ${i.espacio.aforo ?? 25} personas).`);
+  const enSesion = i.lineas.filter((l) => l.enSesion && l.importe >= 0);
+  if (enSesion.length) pendientes.push(`Mándanos tus demos, tracks y referencias para ${[...new Set(enSesion.map((l) => String(l.productoNombre).toLowerCase()))].join(' y ')} desde "Mis reservas", así preparamos tu sesión.`);
+  if (conSesion && negocio.llegada) pendientes.push(negocio.llegada);
+  return {
+    lista: bloqueSesiones(i),
+    resumen: bloqueResumen(i),
+    botones: [
+      ...(faltan.length ? [{ texto: 'Mandar material', url: `${enlace}#material` }] : []),
+      { texto: 'Ver mis reservas', url: enlace, secundario: faltan.length > 0 },
+      ...(conSesion && negocio.mapa ? [{ texto: 'Cómo llegar', url: negocio.mapa, secundario: true }] : []),
+    ],
+    tabla: pendientes.length ? { titulo: conSesion ? 'Antes de tu sesión' : 'Lo que sigue', columnas: [''], filas: pendientes.map((x) => [x]) } : undefined,
+  };
+}
+
 export function eventosIcs(i: InfoPedido, negocio: Negocio): EventoIcs[] {
   return sesionesActivas(i).map((s) => ({
     uid: `sesion-${s.id}`,

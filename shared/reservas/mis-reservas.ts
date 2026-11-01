@@ -42,12 +42,13 @@ function mensaje(titulo: string, texto: string, extra = '') {
 function vistaEntrar(aviso = '') {
   app.innerHTML = `
     <h1>Mis reservas</h1>
-    <p>Escribe el correo con el que reservaste y te mandamos un enlace para ver tus reservas, cambiar la fecha o mandar tu material.</p>
+    <p>Aquí ves tus reservas, cambias la fecha, registras invitados y nos mandas tu material. No necesitas contraseña: escribe el correo con el que reservaste y te mandamos un enlace para entrar.</p>
     ${aviso ? `<p class="rv-aviso">${esc(aviso)}</p>` : ''}
     <form class="mr-entrar" id="entrar">
       <label class="rv-campo"><span>Correo electrónico</span><input class="rv-input" type="email" name="correo" autocomplete="email" required /></label>
       <button class="btn btn--primary" type="submit">Mandarme el enlace</button>
-    </form>`;
+    </form>
+    <p class="rv-nota">El enlace funciona durante 7 días. Si no te llega en unos minutos, revisa la carpeta de spam o promociones. También puedes entrar con el botón «Ver mis reservas» del correo de confirmación de tu pedido.</p>`;
   document.getElementById('entrar')!.addEventListener('submit', async (e) => {
     e.preventDefault();
     const correo = (e.target as HTMLFormElement).correo.value;
@@ -71,8 +72,12 @@ async function vistaConfirmacion(id: string) {
     }
     const resumen = `<div class="mr-card">${cuerpoPedido(p, false)}</div>`;
     if (p.estado === 'pagado' || p.estado === 'completado') {
-      mensaje(`Tu pedido ${p.numero} está confirmado`, 'Te mandamos la confirmación por correo con el archivo para tu calendario.', `${resumen}
-        <div class="mr-acciones"><a class="btn btn--primary" href="?t=${encodeURIComponent(t)}">Ver mis reservas</a>${p.sesiones.length ? `<a class="btn btn--ghost" href="${API}/ics/pedido/${p.id}?t=${encodeURIComponent(t)}">Agregar a mi calendario</a>` : ''}</div>`);
+      const faltaMaterial = p.trabajos.some((w) => w.estado === 'esperando_material');
+      const siguiente = faltaMaterial
+        ? '<p class="rv-aviso">El siguiente paso es mandarnos tu material: súbelo a Drive, WeTransfer o Dropbox y pega el enlace en Mis reservas.</p>'
+        : '';
+      mensaje(`Tu pedido ${p.numero} está confirmado`, `Te mandamos la confirmación por correo${p.sesiones.length ? ' con el archivo para tu calendario' : ''}.`, `${siguiente}${resumen}
+        <div class="mr-acciones">${faltaMaterial ? `<a class="btn btn--primary" href="?t=${encodeURIComponent(t)}#material">Mandar mi material</a>` : ''}<a class="btn ${faltaMaterial ? 'btn--ghost' : 'btn--primary'}" href="?t=${encodeURIComponent(t)}">Ver mis reservas</a>${p.sesiones.length ? `<a class="btn btn--ghost" href="${API}/ics/pedido/${p.id}?t=${encodeURIComponent(t)}">Agregar a mi calendario</a>` : ''}</div>`);
     } else if (p.estado === 'pendiente_pago') {
       mensaje('Tu horario está apartado', `Paga ${esc(dinero(p.total))} en cualquier OXXO antes del ${p.oxxo ? esc(new Date(p.oxxo.vence).toLocaleString('es-MX', { dateStyle: 'full', timeStyle: 'short', timeZone: 'America/Mexico_City' })) : 'vencimiento de tu ficha'}. Cuando se acredite el pago te mandamos la confirmación.`,
         `${p.oxxo?.url ? `<p><a class="btn btn--primary" href="${esc(p.oxxo.url)}" target="_blank" rel="noopener">Ver ficha de pago</a></p>` : ''}${resumen}`);
@@ -187,6 +192,11 @@ async function vistaMisReservas() {
   };
   const actualizar = (p: Pedido) => { datos.pedidos = datos.pedidos.map((x) => (x.id === p.id ? p : x)); pintar(); };
   pintar();
+  // Desde la página de gracias o el correo: lleva directo al formulario del material.
+  if (location.hash === '#material') {
+    const f = app.querySelector<HTMLFormElement>('form[data-material]');
+    if (f) { f.scrollIntoView({ block: 'center' }); f.querySelector<HTMLInputElement>('input:not([value]), input[value=""]')?.focus({ preventScroll: true }); }
+  }
 
   app.addEventListener('click', async (e) => {
     const el = e.target as HTMLElement;

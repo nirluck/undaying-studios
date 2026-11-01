@@ -6,7 +6,7 @@ import Lenis from 'lenis';
 import '../../shared/styles/base.css';
 import '../../shared/styles/components.css';
 import './styles/foro.css';
-import { iniciarReservas, preciosForo } from '../../shared/reservas/landing.ts';
+import { iniciarReservas, reservasActivas, preciosForo } from '../../shared/reservas/landing.ts';
 import { LINKS, PRICING, REVIEWS, FAQS, YOUTUBE } from './data.js';
 import CLIPS from './clips.json';
 
@@ -52,7 +52,10 @@ const lockScroll = (on) => { on ? lenis?.stop() : lenis?.start(); document.body.
 if (import.meta.env.DEV) {
   $$('[data-space="estudio"]').forEach((a) => (a.href = 'http://localhost:5173/'));
   $('#homeLink2').href = 'http://localhost:5175/';
+  $$('a.js-mis-reservas').forEach((a) => (a.href = 'http://localhost:5175/reservas/'));
 }
+// Mis reservas solo aparece cuando el sistema de reservas está activo.
+$$('.js-mis-reservas').forEach((el) => (el.hidden = !reservasActivas()));
 const waHello = `https://wa.me/${LINKS.whatsappNumber}?text=${encodeURIComponent('Hola, quiero información para rentar el foro.')}`;
 ['waFloat', 'drawerWa'].forEach((id) => ($('#' + id).href = waHello));
 $('#riderLink').href = BASE + LINKS.docs.manual;
