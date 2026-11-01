@@ -2,26 +2,24 @@
 // vacía, no hace nada y las landings siguen como antes (WhatsApp, Prospex).
 //
 // - Los botones [data-book] abren el widget en vez del calendario de Prospex.
-// - #qBook y #qPay (cotizador del estudio) abren el widget con lo que el
-//   cliente armó.
+// - Con `etapas` (estudio), el widget es el cotizador por etapas: la landing
+//   lo abre con rv.abrir({ bloqueId | producto | carrito }) desde cada botón.
 // - ?cotizacion=CODIGO abre una cotización compartida.
 // - ?pago=cancelado libera el apartado y retoma el pedido.
 // - Los precios de las tarjetas se actualizan con los del panel.
 
 import type { Carrito } from '../../supabase/functions/_shared/core/mod.ts';
 import { catalogo, llamar, reservasActivas } from './api.ts';
-import type { OpcionesAbrir } from './widget.ts';
+import type { OpcionesAbrir, OpcionesReservas } from './widget.ts';
 
 export { reservasActivas };
 export { preciosEstudio, preciosForo } from './precios-landing.ts';
 
 export type Accion = { tipo: 'visita' } | { tipo: 'reserva'; abrir: OpcionesAbrir } | null;
 
-export interface OpcionesLanding {
+export interface OpcionesLanding extends OpcionesReservas {
   /** Traduce la llave de un botón [data-book] a una acción. */
   boton: (llave: string) => Accion;
-  /** Carrito armado en el cotizador de la landing (estudio). */
-  carrito?: () => Partial<Carrito> | null;
   aviso?: (texto: string) => void;
 }
 
@@ -29,7 +27,7 @@ export function iniciarReservas(espacioId: string, op: OpcionesLanding) {
   if (!reservasActivas()) return null;
   // El widget se descarga solo cuando alguien abre una reserva.
   let widget: Promise<ReturnType<typeof import('./widget.ts').crearReservas>> | null = null;
-  const cargar = () => (widget ??= import('./widget.ts').then((m) => m.crearReservas(espacioId)));
+  const cargar = () => (widget ??= import('./widget.ts').then((m) => m.crearReservas(espacioId, { etapas: op.etapas, alCambiar: op.alCambiar })));
   const rv = {
     abrir: (o?: OpcionesAbrir) => cargar().then((w) => w.abrir(o)),
     abrirVisita: () => cargar().then((w) => w.abrirVisita()),
@@ -46,14 +44,6 @@ export function iniciarReservas(espacioId: string, op: OpcionesLanding) {
       e.stopImmediatePropagation();
       if (a.tipo === 'visita') rv.abrirVisita();
       else rv.abrir(a.abrir);
-      return;
-    }
-    const cot = t.closest<HTMLElement>('#qBook, #qPay');
-    if (cot && op.carrito) {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      if ((cot as HTMLButtonElement).disabled || cot.classList.contains('is-disabled')) return;
-      rv.abrir({ carrito: op.carrito() ?? undefined });
     }
   }, true);
 

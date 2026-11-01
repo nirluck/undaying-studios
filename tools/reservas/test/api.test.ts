@@ -46,7 +46,9 @@ test('catálogo público del estudio', async () => {
   const r = await api('GET', '/catalogo?espacio=estudio');
   assert.equal(r.estado, 200);
   assert.equal(r.datos.catalogo.bloques.length, 3);
-  assert.equal(r.datos.catalogo.productos.length, 7);
+  // 7 de estudio y postproducción + 10 servicios legales
+  assert.equal(r.datos.catalogo.productos.length, 17);
+  assert.equal(r.datos.catalogo.productos.find((p: { id: string }) => p.id === 'legal-split').precioConReserva, 800);
   assert.equal(r.datos.catalogo.bloques[1].precios['estudio-ing'].precio, 4500);
   const no = await api('GET', '/catalogo?espacio=estudio-b');
   assert.equal(no.estado, 404);

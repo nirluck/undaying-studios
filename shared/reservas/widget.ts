@@ -18,9 +18,34 @@ export interface OpcionesAbrir {
   carrito?: Partial<Carrito>;
   bloqueId?: string;
   modalidadId?: string;
+  /** Agrega uno de este producto al pedido que ya se está armando. */
+  producto?: string;
+  /** Con etapas: con cuál empieza el recorrido. */
+  etapa?: Etapa;
   /** Código de una cotización compartida. */
   cotizacion?: string;
 }
+
+export interface OpcionesReservas {
+  /** Cotizador por etapas (estudio): horas, postproducción y servicios legales. */
+  etapas?: boolean;
+  /** Avisa cada cambio del pedido, para que la landing marque lo que lleva. */
+  alCambiar?: (c: Carrito) => void;
+}
+
+// ---------- Etapas del cotizador ----------
+// Abre en la categoría del botón que se usó. Las otras categorías no se
+// imponen como pasos: se ofrecen junto al botón de pago, para agregarlas si
+// el cliente quiere. Al final van los datos y el pago.
+export type Etapa = 'estudio' | 'post' | 'legal';
+const ETAPAS: Record<Etapa, { titulo: string; corto: string; oferta: string }> = {
+  estudio: { titulo: 'Tiempo de estudio', corto: 'Estudio', oferta: 'Bloques de horas con nuestro ingeniero o con el tuyo.' },
+  post: { titulo: 'Postproducción', corto: 'Postproducción', oferta: 'Edición, mezcla y máster por canción.' },
+  legal: { titulo: 'Servicios legales', corto: 'Legales', oferta: 'Contratos y registros. Con horas de estudio pagas el precio de paquete.' },
+};
+const ORDEN: Etapa[] = ['estudio', 'post', 'legal'];
+/** Lo que se contrata con horas va con el estudio; lo que se vende por pieza, con los legales. */
+export const etapaDe = (p: Producto): Etapa => (p.requiereSesion ? 'estudio' : p.unidad === 'pieza' ? 'legal' : 'post');
 
 interface Datos {
   nombre: string; correo: string; telefono: string; empresa: string; proyecto: string; notas: string;
@@ -35,7 +60,8 @@ const USOS = ['G03 Gastos en general', 'G01 Adquisición de mercancías', 'S01 S
 const guardar = (k: string, v: unknown) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* sin almacenamiento */ } };
 const leer = <T>(k: string): T | null => { try { return JSON.parse(localStorage.getItem(k) ?? 'null'); } catch { return null; } };
 
-export function crearReservas(espacioId: string) {
+export function crearReservas(espacioId: string, ajustes: OpcionesReservas = {}) {
+  const conEtapas = !!ajustes.etapas;
   let dlg: HTMLDialogElement | null = null;
   let r: RespuestaCatalogo;
   let cat: Catalogo;
@@ -44,6 +70,8 @@ export function crearReservas(espacioId: string) {
   const ahora = () => new Date(Date.now() + desfase);
   let carrito: Carrito = { espacioId, sesiones: [], productos: [] };
   let paso: 1 | 2 | 3 = 1;
+  let orden: Etapa[] = ORDEN;
+  let etapa: Etapa = 'estudio';
   let qServidor: Cotizacion | null = null;
   let cuponAplicado: string | null = null;
   let error = '';
@@ -112,6 +140,7 @@ export function crearReservas(espacioId: string) {
   function cambio(repintar: 'todo' | 'resumen' = 'todo') {
     carrito.cupon = cuponAplicado;
     guardar(carritoKey, { carrito, fecha: Date.now() });
+    ajustes.alCambiar?.(carrito);
     compartido = null;
     error = '';
     refrescarServidor();
@@ -193,26 +222,94 @@ export function crearReservas(espacioId: string) {
   function pintar() {
     if (!dlg) return;
     const pasos = $('.rv__pasos', dlg);
-    pasos.innerHTML = ['Tu pedido', 'Tus datos'].map((t, k) => `<li class="${paso === k + 1 ? 'is-on' : paso > k + 1 ? 'is-ok' : ''}">${t}</li>`).join('');
+    if (conEtapas) {
+      // Las etapas ya vistas se pueden volver a abrir desde aquí.
+      // Las categorías se abren en cualquier orden; la palomita marca las que
+      // ya llevan algo. En celular solo se ve el nombre de la actual.
+      const k = paso === 1 ? orden.indexOf(etapa) : orden.length;
+      pasos.classList.add('rv__pasos--etapas');
+      pasos.innerHTML = [...orden.map((e) => ETAPAS[e].corto), 'Tus datos'].map((t, j) => {
+        const cls = j === k ? 'is-on' : j < orden.length ? (enEtapa(orden[j]) ? 'is-ok' : '') : '';
+        const txt = `<span class="rv__paso-txt">${t}</span>`;
+        return `<li class="${cls}">${j < orden.length && j !== k ? `<button type="button" data-ir-etapa="${orden[j]}">${txt}</button>` : txt}</li>`;
+      }).join('');
+    } else {
+      pasos.innerHTML = ['Tu pedido', 'Tus datos'].map((t, k) => `<li class="${paso === k + 1 ? 'is-on' : paso > k + 1 ? 'is-ok' : ''}">${t}</li>`).join('');
+    }
     const p = $('.rv__principal', dlg);
-    if (paso === 1) pintarPedido(p);
+    if (paso === 1) (conEtapas ? pintarEtapa : pintarPedido)(p);
     else if (paso === 2) pintarDatos(p);
     pintarResumen();
   }
 
   function pintarPedido(p: HTMLElement) {
+    // Los servicios legales solo se ofrecen en el cotizador por etapas
+    const productos = productosDe(cat, espacioId).filter((pr) => etapaDe(pr) !== 'legal' || carrito.productos.some((x) => x.id === pr.id));
+    const prods = productos.length ? `
+      <section class="rv-prods">
+        <h3>${espacioId === 'estudio' ? 'Postproducción y servicios' : 'Servicios'}</h3>
+        <p class="rv-ayuda">Se pagan por pieza. ${espacioId === 'estudio' ? 'Puedes pedirlos con o sin horas de estudio.' : ''}</p>
+        ${productos.map((pr) => pintarProducto(pr)).join('')}
+      </section>` : '';
+
+    p.innerHTML = `
+      ${carrito.sesiones.map(pintarSesion).join('')}
+      ${esp.variasSesiones || !carrito.sesiones.length ? `<button type="button" class="rv-agregar" data-agregar-sesion>${carrito.sesiones.length ? '+ Agregar otra sesión' : '+ Agregar horas de ' + esc(esp.nombreCorto.toLowerCase())}</button>` : ''}
+      ${prods}`;
+    montarCalendarios();
+  }
+
+  /** Una etapa del cotizador: horas de estudio, postproducción o servicios legales. */
+  function pintarEtapa(p: HTMLElement) {
+    const prods = productosDe(cat, espacioId).filter((pr) => etapaDe(pr) === etapa);
+    const conHoras = carrito.sesiones.length > 0;
+    let cuerpo = '';
+    if (etapa === 'estudio') {
+      cuerpo = conHoras ? `
+        ${carrito.sesiones.map(pintarSesion).join('')}
+        ${esp.variasSesiones ? '<button type="button" class="rv-agregar" data-agregar-sesion>+ Agregar otra sesión</button>' : ''}
+        ${prods.length ? `
+        <section class="rv-prods">
+          <h3>Durante tu sesión</h3>
+          <p class="rv-ayuda">Productor y músicos para el día de la grabación.</p>
+          ${prods.map((pr) => pintarProducto(pr)).join('')}
+        </section>` : ''}` : `
+        <section class="rv-etapa">
+          <h3>¿Necesitas horas de estudio?</h3>
+          <p class="rv-ayuda">Graba en el Estudio A con nuestro ingeniero o con el tuyo. Al elegir las horas escoges el día y la hora de tu sesión.</p>
+          <button type="button" class="btn btn--ghost" data-agregar-sesion>Agregar horas de estudio</button>
+        </section>`;
+    } else {
+      cuerpo = `
+        <section class="rv-prods">
+          <h3>${ETAPAS[etapa].titulo}</h3>
+          <p class="rv-ayuda">${etapa === 'post'
+            ? 'Se pagan por canción. Puedes pedirlos con o sin horas de estudio.'
+            : conHoras ? 'Como tu pedido trae horas de estudio, pagas el precio de paquete.' : 'Contrátalos solos o con horas de estudio. Con horas de estudio pagas el precio de paquete.'}</p>
+          ${prods.map((pr) => pintarProducto(pr)).join('')}
+        </section>`;
+    }
+    p.innerHTML = cuerpo;
+    if (etapa === 'estudio') montarCalendarios();
+  }
+
+  /** Lo que lleva el pedido en una etapa. */
+  const enEtapa = (e: Etapa) => (e === 'estudio' && carrito.sesiones.length > 0)
+    || carrito.productos.some((x) => { const pr = cat.productos.find((y) => y.id === x.id); return pr && etapaDe(pr) === e; });
+
+  function pintarSesion(s: SesionCarrito, i: number) {
     const mods = modalidadesDe(cat, espacioId);
     const bloques = bloquesDe(cat, espacioId);
-    const productos = productosDe(cat, espacioId);
-    const sesiones = carrito.sesiones.map((s, i) => {
-      const bloque = cat.bloques.find((b) => b.id === s.bloqueId);
-      const extras = extrasDe(cat, espacioId);
-      const elegido = s.inicio && bloque ? rangoTexto(new Date(s.inicio), new Date(new Date(s.inicio).getTime() + bloque.horas * 3600000), esp.zonaHoraria) : '';
-      return `
+    const bloque = cat.bloques.find((b) => b.id === s.bloqueId);
+    // En el cotizador por etapas no se ofrecen los extras que se cotizan aparte
+    // (equipo de video para podcast): solo lo que se puede pagar en línea.
+    const extras = extrasDe(cat, espacioId).filter((x) => !conEtapas || precioVigente(x.precio, ahora()) != null);
+    const elegido = s.inicio && bloque ? rangoTexto(new Date(s.inicio), new Date(new Date(s.inicio).getTime() + bloque.horas * 3600000), esp.zonaHoraria) : '';
+    return `
       <section class="rv-ses" data-sesion="${i}">
         <div class="rv-ses__cab">
           <h3>${carrito.sesiones.length > 1 ? `Sesión ${i + 1}` : 'Tu sesión'}</h3>
-          ${carrito.sesiones.length > 1 || carrito.productos.length ? `<button type="button" class="rv-link" data-quitar-sesion="${i}">Quitar</button>` : ''}
+          ${conEtapas || carrito.sesiones.length > 1 || carrito.productos.length ? `<button type="button" class="rv-link" data-quitar-sesion="${i}">Quitar</button>` : ''}
         </div>
         ${mods.length > 1 ? `
         <div class="rv-opciones" role="radiogroup" aria-label="Modalidad">
@@ -233,20 +330,9 @@ export function crearReservas(espacioId: string) {
           <div class="rv-cal" id="rv-cal-${i}"></div>
         </div>
       </section>`;
-    }).join('');
+  }
 
-    const prods = productos.length ? `
-      <section class="rv-prods">
-        <h3>${espacioId === 'estudio' ? 'Postproducción y servicios' : 'Servicios'}</h3>
-        <p class="rv-ayuda">Se pagan por pieza. ${espacioId === 'estudio' ? 'Puedes pedirlos con o sin horas de estudio.' : ''}</p>
-        ${productos.map((pr) => pintarProducto(pr)).join('')}
-      </section>` : '';
-
-    p.innerHTML = `
-      ${sesiones}
-      ${esp.variasSesiones || !carrito.sesiones.length ? `<button type="button" class="rv-agregar" data-agregar-sesion>${carrito.sesiones.length ? '+ Agregar otra sesión' : '+ Agregar horas de ' + esc(esp.nombreCorto.toLowerCase())}</button>` : ''}
-      ${prods}`;
-
+  function montarCalendarios() {
     carrito.sesiones.forEach((s, i) => {
       const cont = document.getElementById(`rv-cal-${i}`);
       if (!cont) return;
@@ -293,12 +379,20 @@ export function crearReservas(espacioId: string) {
     const filas = porSesion ? carrito.sesiones.map((_, k) => k) : [null];
     const unidad = pr.unidad === 'cancion' ? 'por canción' : pr.unidad === 'sesion' ? 'por sesión' : 'por pieza';
     const bloqueado = pr.requiereSesion && !carrito.sesiones.length;
+    // Precio de paquete: aplica cuando el pedido trae horas de estudio (como en cotizar()).
+    const paquete = precio != null && pr.precioConReserva != null && pr.precioConReserva < precio ? Number(pr.precioConReserva) : null;
+    const precioTxt = precio == null ? 'Se cotiza'
+      : paquete == null ? `${dinero(precio)} ${unidad}`
+      : carrito.sesiones.length ? `<s>${dinero(precio)}</s> ${dinero(paquete)} <em>Ahorras ${dinero(precio - paquete)} con tus horas</em>`
+      : `${dinero(precio)} <em>o ${dinero(paquete)} con horas de estudio</em>`;
+    const desc = `${esc(pr.descripcion ?? '')}${pr.entregaDias ? ` Entrega en ${pr.entregaDias} días hábiles desde que recibimos tu material.` : ''}`;
+    const lleva = carrito.productos.some((x) => x.id === pr.id);
     return `
-      <div class="rv-prod${bloqueado ? ' is-off' : ''}" data-producto="${pr.id}">
+      <div class="rv-prod${bloqueado ? ' is-off' : ''}${lleva ? ' is-on' : ''}" data-producto="${pr.id}">
         <div class="rv-prod__info">
           <b>${esc(pr.nombre)}</b>
-          <span>${precio == null ? 'Se cotiza' : `${dinero(precio)} ${unidad}`}</span>
-          <details><summary>Qué incluye</summary><p>${esc(pr.descripcion ?? '')}${pr.entregaDias ? ` Entrega en ${pr.entregaDias} días hábiles desde que recibimos tu material.` : ''}</p></details>
+          <span>${precioTxt}</span>
+          ${pr.unidad === 'pieza' ? `<p class="rv-prod__desc">${desc}</p>` : `<details><summary>Qué incluye</summary><p>${desc}</p></details>`}
           ${bloqueado ? '<p class="rv-ayuda">Se contrata junto con horas de estudio.</p>' : ''}
         </div>
         <div class="rv-prod__cant">
@@ -376,7 +470,29 @@ export function crearReservas(espacioId: string) {
     const pol = esp.politica;
     const metodos = ['tarjeta de crédito o débito', ...(q.msi ? ['meses sin intereses'] : []), ...(q.oxxo.disponible ? ['efectivo en OXXO'] : [])];
     let accion = '';
-    if (paso === 1) {
+    const btnBarra = $<HTMLButtonElement>('.rv__barra button', dlg);
+    btnBarra.removeAttribute('data-continuar');
+    btnBarra.toggleAttribute('data-ir-resumen', true);
+    btnBarra.textContent = 'Ver resumen';
+    btnBarra.disabled = false;
+    if (paso === 1 && conEtapas) {
+      // Pagar está siempre a la mano; las categorías que el pedido todavía no
+      // trae se ofrecen debajo, sin obligar a pasar por ellas.
+      const listo = q.lineas.length > 0 && !errores.length && !faltaFecha;
+      const ayuda = faltaFecha ? `<p class="rv-ayuda">${esc(q.errores.find((e) => e.codigo === 'FALTA_FECHA')!.mensaje)}${etapa === 'estudio' ? '' : ' <button type="button" class="rv-link" data-ir-etapa="estudio">Elegir fecha</button>'}</p>` : '';
+      const ofertas = orden.filter((e) => e !== etapa && !enEtapa(e));
+      accion = `<button type="button" class="btn btn--primary btn--block" data-continuar ${listo ? '' : 'disabled'}>Continuar al pago</button>${ayuda}
+        ${ofertas.length ? `
+        <div class="rv-ofertas">
+          <p class="rv-etq">${q.lineas.length ? 'También puedes agregar' : 'O empieza por'}</p>
+          ${ofertas.map((e) => `<button type="button" class="rv-oferta" data-ir-etapa="${e}"><b>${ETAPAS[e].titulo}</b><span>${ETAPAS[e].oferta}</span></button>`).join('')}
+        </div>` : ''}`;
+      btnBarra.removeAttribute('data-ir-resumen');
+      btnBarra.toggleAttribute('data-continuar', true);
+      btnBarra.textContent = 'Continuar al pago';
+      btnBarra.disabled = !listo;
+      barra.innerHTML = q.lineas.length ? `Total <b>${dinero(q.total)}</b>` : '';
+    } else if (paso === 1) {
       accion = `<button type="button" class="btn btn--primary btn--block" data-continuar ${q.lineas.length && !errores.length && !faltaFecha ? '' : 'disabled'}>Continuar</button>
         ${faltaFecha ? `<p class="rv-ayuda">${esc(q.errores.find((e) => e.codigo === 'FALTA_FECHA')!.mensaje)}</p>` : ''}`;
     } else if (paso === 2) {
@@ -410,6 +526,25 @@ export function crearReservas(espacioId: string) {
   }
 
   // ---------- Eventos ----------
+
+  // En escritorio se desplaza la columna principal; en celular, todo el cuerpo.
+  const arriba = () => { $('.rv__principal', dlg!).scrollTop = 0; $('.rv__cuerpo', dlg!).scrollTop = 0; };
+
+  function irEtapa(e: Etapa) {
+    paso = 1;
+    etapa = e;
+    qServidor = null;
+    pintar();
+    arriba();
+  }
+
+  function irDatos() {
+    paso = 2;
+    refrescarServidor();
+    pintar();
+    arriba();
+    ($('input[name="nombre"]', dlg!) as HTMLInputElement)?.focus();
+  }
 
   function enlazar() {
     const d = dlg!;
@@ -458,12 +593,10 @@ export function crearReservas(espacioId: string) {
         item.datos = (item.datos ?? []).slice(0, item.cantidad);
         carrito.productos = carrito.productos.filter((p) => p.cantidad > 0);
         cambio();
+      } else if (btn('[data-ir-etapa]')) {
+        irEtapa(btn('[data-ir-etapa]')!.dataset.irEtapa as Etapa);
       } else if (btn('[data-continuar]')) {
-        paso = 2;
-        refrescarServidor();
-        pintar();
-        $('.rv__principal', d).scrollTop = 0;
-        ($('input[name="nombre"]', d) as HTMLInputElement)?.focus();
+        irDatos();
       } else if (btn('[data-volver]')) {
         paso = 1;
         qServidor = null;
@@ -591,6 +724,9 @@ export function crearReservas(espacioId: string) {
     try {
       await llamar('POST', '/solicitudes', { carrito, nombre: datos.nombre, correo: datos.correo, telefono: datos.telefono, descripcion: datos.descripcion });
       paso = 3;
+      carrito = { espacioId, sesiones: [], productos: [] };
+      try { localStorage.removeItem(carritoKey); } catch { /* */ }
+      ajustes.alCambiar?.(carrito);
       $('.rv__principal', dlg!).innerHTML = `<div class="rv-listo"><h3>Recibimos tu solicitud</h3><p>Te escribimos a ${esc(datos.correo)} con la cotización en menos de un día hábil.</p></div>`;
       $('.rv__resumen', dlg!).innerHTML = '';
     } catch (e) { error = (e as Error).message; }
@@ -601,7 +737,7 @@ export function crearReservas(espacioId: string) {
   // ---------- API pública ----------
 
   async function abrir(op: OpcionesAbrir = {}) {
-    abrirDialogo(espacioId === 'foro' ? 'Reserva el foro' : 'Reserva el estudio');
+    abrirDialogo(conEtapas ? 'Arma tu cotización' : espacioId === 'foro' ? 'Reserva el foro' : 'Reserva el estudio');
     $('.rv__principal', dlg!).innerHTML = '<p class="rv-cargando">Cargando disponibilidad…</p>';
     try { await preparar(); } catch (e) { $('.rv__principal', dlg!).innerHTML = `<p class="rv-error">${esc((e as Error).message)}</p>`; return; }
     paso = 1;
@@ -609,7 +745,11 @@ export function crearReservas(espacioId: string) {
     qServidor = null;
     compartido = null;
     cuponAplicado = null;
-    if (op.cotizacion) {
+    orden = ORDEN;
+    etapa = 'estudio';
+    if (conEtapas && !op.cotizacion) {
+      armarConEtapas(op);
+    } else if (op.cotizacion) {
       try {
         const c = await llamar<{ carrito: Carrito }>('GET', `/cotizaciones/${encodeURIComponent(op.cotizacion)}`);
         carrito = { ...c.carrito, espacioId };
@@ -627,10 +767,48 @@ export function crearReservas(espacioId: string) {
       .filter((s) => cat.bloques.some((b) => b.id === s.bloqueId))
       .map((s) => ({ ...s, modalidadId: cat.modalidades.some((m) => m.id === s.modalidadId) ? s.modalidadId : modalidadesDe(cat, espacioId)[0].id, inicio: s.inicio && new Date(s.inicio).getTime() > ahora().getTime() ? s.inicio : null }));
     carrito.productos = carrito.productos.filter((p) => cat.productos.some((x) => x.id === p.id));
-    if (!carrito.sesiones.length && !carrito.productos.length) carrito.sesiones.push(sesionNueva());
+    if (!conEtapas && !carrito.sesiones.length && !carrito.productos.length) carrito.sesiones.push(sesionNueva());
+    ajustes.alCambiar?.(carrito);
     enlazar();
     pintar();
     carrito.sesiones.forEach((_, i) => revalidar(i));
+  }
+
+  /**
+   * Con etapas, cada botón de la landing suma al pedido que ya se está
+   * armando (en esta visita a la página) y el recorrido empieza por la etapa
+   * de lo que se agregó: horas → estudio, mezcla → postproducción, etc.
+   */
+  function armarConEtapas(o: OpcionesAbrir) {
+    const vacio = (): Carrito => ({ espacioId, sesiones: [], productos: [] });
+    const enCurso = carrito.sesiones.length || carrito.productos.length;
+    if (o.carrito) carrito = { espacioId, sesiones: o.carrito.sesiones ?? [], productos: o.carrito.productos ?? [] };
+    else if (!enCurso && !o.bloqueId && !o.modalidadId && !o.producto) {
+      const guardado = leer<{ carrito: Carrito; fecha: number }>(carritoKey);
+      carrito = guardado && Date.now() - guardado.fecha < 3 * 86400000 ? guardado.carrito : vacio();
+    } else if (!enCurso) carrito = vacio();
+
+    if (o.bloqueId || o.modalidadId) {
+      const s = carrito.sesiones[0];
+      if (!s) carrito.sesiones.push(sesionNueva(o.bloqueId, o.modalidadId));
+      else {
+        const nueva = sesionNueva(o.bloqueId, o.modalidadId);
+        s.bloqueId = nueva.bloqueId;
+        s.modalidadId = nueva.modalidadId;
+      }
+    }
+    const pr = o.producto ? cat.productos.find((x) => x.id === o.producto && x.activo) : undefined;
+    if (pr) {
+      if (pr.requiereSesion && !carrito.sesiones.length) carrito.sesiones.push(sesionNueva());
+      const item = carrito.productos.find((x) => x.id === pr.id);
+      const max = pr.maxPorSesion ?? pr.maxCantidad;
+      if (item) item.cantidad = Math.min(max, item.cantidad + 1);
+      else carrito.productos.push({ id: pr.id, cantidad: 1, sesion: pr.unidad === 'sesion' ? 0 : null, datos: [] });
+    }
+    const inicio: Etapa = o.etapa ?? (pr ? etapaDe(pr) : 'estudio');
+    orden = [inicio, ...ORDEN.filter((e) => e !== inicio)];
+    etapa = inicio;
+    guardar(carritoKey, { carrito, fecha: Date.now() });
   }
 
   async function abrirVisita() {

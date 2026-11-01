@@ -42,6 +42,7 @@ const schema = () => [
           priceCurrency: 'MXN',
         }))),
         ...PRICING.products.map((p) => ({ '@type': 'Offer', name: p.name, description: p.desc, price: p.price, priceCurrency: 'MXN' })),
+        ...PRICING.legal.map((p) => ({ '@type': 'Offer', name: p.name, description: p.desc, price: p.price, priceCurrency: 'MXN' })),
       ],
     },
   },

@@ -1,154 +1,16 @@
 /* =====================================================================
-   Prueba de reserva: tarifas, cotizador y calendario en un solo flujo.
-   Usa los tokens de shared/styles/base.css y las piezas de
-   shared/reservas/reservas.css (calendario, contador, campos).
-   Tamaño mínimo de letra: 16 px.
+   Página de prueba del cotizador por etapas. Usa las mismas piezas que la
+   landing (tarifas, tarjetas de servicios, paquetes del cotizador) y el
+   pop-up de shared/reservas/reservas.css. Tamaño mínimo de letra: 16 px.
    ===================================================================== */
 
-.pr { padding-block: clamp(40px, 6vw, 72px) clamp(96px, 10vw, 140px); }
-
-/* ---------- Cabecera ---------- */
-.pr-head { max-width: 780px; margin-bottom: clamp(32px, 4vw, 48px); }
-.pr-head h1 { font-size: clamp(36px, 5vw, 60px); font-weight: 800; color: #fff; letter-spacing: -0.03em; line-height: 1.02; margin: 10px 0 14px; }
+.pr-head { padding-top: clamp(40px, 6vw, 72px); max-width: 820px; }
+.pr-head h1 { font-size: clamp(36px, 5vw, 56px); font-weight: 800; color: #fff; letter-spacing: -0.03em; line-height: 1.05; margin: 10px 0 14px; }
 .pr-demo { margin-top: 18px; font-size: 16px; color: var(--ink-2); line-height: 1.5; padding: 12px 16px; border-radius: 12px; border: 1px dashed rgba(235, 144, 80, 0.5); background: rgba(201, 116, 56, 0.08); }
 .pr-demo b { color: var(--orange-3); font-weight: 600; }
-.pr-presets { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 24px; }
-.pr-presets__etq { font-size: 16px; color: var(--ink-3); }
-.pr-presets > div { display: flex; flex-wrap: wrap; gap: 8px; }
-.pr-chip { padding: 10px 18px; border-radius: var(--r-pill); border: 1px solid var(--line-2); font-size: 16px; font-weight: 500; color: var(--ink-2); transition: border-color .25s, background .25s, color .25s; }
-.pr-chip:hover { border-color: var(--orange-2); color: var(--ink); }
-.pr-chip[aria-pressed="true"] { background: var(--orange); border-color: var(--orange); color: #fff; }
 
-/* ---------- Columnas: pasos + pedido ---------- */
-.pr-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px; align-items: start; }
-@media (min-width: 1100px) {
-  .pr-layout { grid-template-columns: minmax(0, 1fr) 380px; gap: 48px; }
-  .pr-resumen { position: sticky; top: 24px; }
-}
-
-/* ---------- Pasos ---------- */
-.pr-paso { padding-block: clamp(32px, 4vw, 44px); border-top: 1px solid var(--line); }
-.pr-paso:first-child { border-top: 0; padding-top: 0; }
-.pr-paso__cab { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 24px; }
-.pr-paso__cab h2 { font-size: clamp(24px, 2.6vw, 32px); }
-.pr-paso__cab p { font-size: 16px; color: var(--ink-3); margin-top: 6px; line-height: 1.55; }
-.pr-paso__cab p b { color: var(--ink); font-weight: 600; }
-.pr-paso__num {
-  flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
-  font-family: var(--f-display); font-weight: 700; font-size: 18px; color: var(--orange-3);
-  border: 1px solid rgba(235, 144, 80, 0.5); background: rgba(201, 116, 56, 0.08);
-}
-.pr-paso.is-off .pr-paso__num { color: var(--ink-4); border-color: var(--line-2); background: none; }
-
-/* 1. Horas: las tarjetas de tarifas son el selector */
-.pr-paso .mode { margin: 0 0 24px; }
-.pr-planes { margin-bottom: 16px; }
-@media (min-width: 900px) { .pr-planes { padding-top: 10px; } }
-.pr-planes .plan { cursor: pointer; padding-top: 56px; }
-.pr-planes .plan.is-sel { border-color: var(--orange); box-shadow: var(--sh-glow); }
-.pr-planes .plan .btn svg { width: 16px; height: 16px; }
-@media (min-width: 900px) and (max-width: 1240px) {
-  .pr-planes .plan { padding: 22px; }
-  .pr-planes .plan__price { font-size: 34px; }
-}
-.pr-sinhoras { width: 100%; padding: 16px; border-radius: var(--r-card); border: 1px dashed var(--line-2); font-size: 16px; color: var(--ink-3); transition: border-color .25s, color .25s, background .25s; }
-.pr-sinhoras:hover { border-color: var(--orange-2); color: var(--ink); }
-.pr-sinhoras[aria-pressed="true"] { border-style: solid; border-color: var(--orange-2); color: var(--ink); background: rgba(201, 116, 56, 0.08); }
-
-/* 2. Calendario: más grande y con letra de 16 px */
-.pr-fecha .cal { max-width: 560px; grid-template-columns: minmax(0, 1fr); }
-.pr-fecha .cal__semana, .pr-fecha .cal__dias { grid-template-columns: repeat(7, minmax(0, 1fr)); }
-.pr-fecha .cal__dia { min-width: 0; padding: 0; }
-.pr-fecha .cal__dia, .pr-fecha .cal__hora, .pr-fecha .cal__motivo, .pr-fecha .cal__ayuda, .pr-fecha .cal__titulo { font-size: 16px; }
-.pr-fecha .cal__semana span { font-size: 16px; }
-.pr-fecha .cal__horas { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
-
-/* 3 y 4. Servicios con contador */
-.pr-items { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
-.pr-item {
-  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px 24px; align-items: center;
-  padding: 18px 20px; border-radius: var(--r-card); border: 1px solid var(--line); background: var(--card-flat);
-  transition: border-color .25s, background .25s;
-}
-.pr-item.is-on { border-color: var(--orange); background: rgba(201, 116, 56, 0.08); }
-.pr-item.is-off { opacity: 0.55; }
-.pr-item__info b { display: block; font-family: var(--f-display); font-weight: 600; font-size: 18px; color: var(--ink); }
-.pr-item__info p { font-size: 16px; color: var(--ink-3); line-height: 1.5; margin-top: 4px; }
-.pr-item__nota { color: var(--orange-3) !important; }
-.pr-item__campos { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-.pr-item__campos .rv-input--sm { font-size: 16px; width: min(220px, 100%); }
-.pr-item__lado { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
-.pr-item__precio { font-family: var(--f-display); font-weight: 800; font-size: 20px; color: var(--orange-3); text-align: right; line-height: 1.1; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.pr-item__precio span { display: block; font-family: var(--f-body); font-weight: 500; font-size: 16px; color: var(--ink-4); }
-.pr-item .rv-stepper button { width: 40px; height: 40px; font-size: 20px; }
-.pr-item .rv-stepper output { font-size: 16px; min-width: 28px; }
-.pr-toggle { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: var(--r-pill); border: 1px solid var(--line-2); font-size: 16px; color: var(--ink); cursor: pointer; }
-.pr-toggle input { width: 18px; height: 18px; accent-color: var(--orange); }
-.pr-toggle:has(input:checked) { border-color: var(--orange); }
-.pr-toggle:has(input:disabled) { cursor: default; }
-@media (max-width: 600px) {
-  .pr-item { grid-template-columns: minmax(0, 1fr); padding: 16px; }
-  .pr-item__lado { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; }
-  .pr-item__precio { text-align: left; }
-}
-
-/* 5. Servicios legales: tarjetas de recomendados */
-.pr-lgrid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr)); }
-.pr-lgrid + .pr-mas, .pr-mas + .pr-lgrid { margin-top: 14px; }
-.pr-lcard {
-  display: flex; flex-direction: column; gap: 8px; padding: 20px; border-radius: var(--r-card);
-  border: 1px solid var(--line); background: var(--card); box-shadow: var(--sh-soft); transition: border-color .25s;
-}
-.pr-lcard.is-on { border-color: var(--orange); }
-.pr-lcard__motivo { align-self: flex-start; font-family: var(--f-accent); font-size: 16px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--orange-3); }
-.pr-lcard__nombre { font-family: var(--f-display); font-weight: 600; font-size: 18px; color: var(--ink); line-height: 1.25; }
-.pr-lcard__desc { font-size: 16px; color: var(--ink-3); line-height: 1.5; flex: 1; }
-.pr-lcard__pie { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
-.pr-lcard__precio { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
-.pr-lcard__precio span { font-family: var(--f-display); font-weight: 800; font-size: 22px; color: var(--orange-3); font-variant-numeric: tabular-nums; }
-.pr-lcard__precio s { font-size: 16px; color: var(--ink-4); }
-.pr-lcard__precio small { flex-basis: 100%; font-size: 16px; color: var(--green-2); color: #8fb894; }
-.pr-mas { width: 100%; padding: 14px; border-radius: var(--r-card); border: 1px dashed var(--line-2); font-size: 16px; font-weight: 600; color: var(--orange-2); }
-.pr-mas:hover { border-color: var(--orange-2); background: rgba(201, 116, 56, 0.06); }
-
-/* 6. Datos */
-.pr-form { display: grid; gap: 16px; max-width: 720px; }
-.pr-form .rv-campo, .pr-form .rv-input, .pr-form .rv-check { font-size: 16px; }
-
-/* ---------- Pedido ---------- */
-.pr-res { padding: 24px; border-radius: var(--r-frame); border: 1px solid var(--line-2); background: var(--bg-deep); box-shadow: var(--sh-card); display: grid; gap: 14px; }
-.pr-res .eyebrow { margin: 0; }
-.pr-res__vacio { font-size: 16px; color: var(--ink-3); line-height: 1.5; }
-.pr-res__grupo { display: grid; gap: 6px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
-.pr-res__titulo { font-size: 16px; font-weight: 600; color: var(--ink); }
-.pr-res__grupo ul { display: grid; gap: 6px; }
-.pr-res__grupo li { display: flex; justify-content: space-between; gap: 12px; font-size: 16px; color: var(--ink-3); line-height: 1.4; }
-.pr-res__grupo li b { color: var(--ink-2); font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.pr-res__fecha { font-size: 16px; color: var(--orange-3); }
-.pr-res__fecha a { color: var(--orange-2); text-decoration: underline; }
-.pr-res__total { display: flex; justify-content: space-between; align-items: baseline; }
-.pr-res__total span { font-size: 16px; color: var(--ink-2); }
-.pr-res__total b { font-family: var(--f-display); font-weight: 800; font-size: 34px; color: #fff; font-variant-numeric: tabular-nums; }
-.pr-res__total small { font-family: var(--f-body); font-size: 16px; font-weight: 500; color: var(--ink-3); margin-left: 6px; }
-.pr-res__iva { font-size: 16px; color: var(--ink-4); margin-top: -10px; }
-.pr-res__ahorro { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600; color: #8fb894; }
-.pr-res__ahorro svg { width: 16px; height: 16px; flex: none; }
-.pr-res__falta { font-size: 16px; color: var(--ink-2); padding-left: 14px; position: relative; }
-.pr-res__falta::before { content: ""; position: absolute; left: 0; top: .6em; width: 6px; height: 6px; border-radius: 50%; background: var(--orange-2); }
-.pr-res__wa { font-size: 16px; color: var(--ink-3); text-align: center; text-decoration: underline; }
-.pr-res__wa:hover { color: var(--ink); }
-.pr-res .rv-aviso, .pr-res .rv-nota { font-size: 16px; }
-.pr-res .rv-aviso b { color: var(--orange-3); }
-
-/* ---------- Barra de celular ---------- */
-.pr-barra {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
-  display: flex; align-items: center; justify-content: space-between; gap: 16px;
-  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-  background: rgba(27, 31, 33, 0.94); backdrop-filter: blur(12px); border-top: 1px solid var(--line-2);
-  transition: transform .35s var(--ease);
-}
-.pr-barra span { display: block; font-size: 16px; color: var(--ink-3); }
-.pr-barra b { font-family: var(--f-display); font-weight: 800; font-size: 22px; color: #fff; font-variant-numeric: tabular-nums; }
-.pr-barra.is-vacia { transform: translateY(110%); }
-@media (min-width: 1100px) { .pr-barra { display: none; } }
+/* Accesos a las tres categorías */
+.pr-cats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+.pr-cats a { padding: 10px 18px; border-radius: var(--r-pill); border: 1px solid var(--line-2); font-size: 16px; font-weight: 500; color: var(--ink-2); transition: border-color .25s, color .25s; }
+.pr-cats a:hover { border-color: var(--orange-2); color: var(--ink); }
+/* Tarjetas con foto, lista de legales y cotizador: estilos de la landing (estudio.css) */
