@@ -39,8 +39,9 @@
     </h1>
 
     <!-- Cada panel lleva a su landing. En local, main.js manda cada lado a
-         su servidor de desarrollo. -->
-    <a class="panel panel--a" id="panelA" href="foro/" data-dev-href="http://localhost:5176/">
+         su servidor de desarrollo. El aria-label da a cada enlace un nombre
+         descriptivo en vez del texto de la animación. -->
+    <a class="panel panel--a" id="panelA" href="foro/" data-dev-href="http://localhost:5176/" aria-label="Renta de foro audiovisual en CDMX" aria-describedby="descForo">
       <div class="panel__media">
         <video autoplay muted loop playsinline preload="metadata" poster="foro/video/foro-poster.webp" data-dev-poster="http://localhost:5176/video/foro-poster.webp" aria-hidden="true">
           <source src="foro/video/foro-mobile.mp4" data-dev-src="http://localhost:5176/video/foro-mobile.mp4" type="video/mp4" media="(max-width: 720px)" />
@@ -61,13 +62,13 @@
         <h2 class="panel__word">Foro</h2>
         <div class="panel__more">
           <p class="panel__title">Filma, fotografía y transmite</p>
-          <p class="panel__desc">72 m² con ciclorama en U, tramoya a 3.5 m y planta de luz. Para videoclips, podcasts, castings y sesiones de foto.</p>
+          <p class="panel__desc" id="descForo">72 m² con ciclorama en U, tramoya a 3.5 m y planta de luz. Para videoclips, podcasts, castings y sesiones de foto.</p>
         </div>
         <span class="panel__cta"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10H5m4-5-5 5 5 5"/></svg> Entrar al foro</span>
       </div>
     </a>
 
-    <a class="panel panel--b" id="panelB" href="estudio/" data-dev-href="http://localhost:5173/">
+    <a class="panel panel--b" id="panelB" href="estudio/" data-dev-href="http://localhost:5173/" aria-label="Renta de estudio de grabación en CDMX" aria-describedby="descEstudio">
       <div class="panel__media">
         <video autoplay muted loop playsinline preload="metadata" poster="estudio/video/hero-poster.webp" data-dev-poster="http://localhost:5173/video/hero-poster.webp" aria-hidden="true">
           <source src="estudio/video/hero-mobile.mp4" data-dev-src="http://localhost:5173/video/hero-mobile.mp4" type="video/mp4" media="(max-width: 720px)" />
@@ -90,7 +91,7 @@
         <h2 class="panel__word">Estudio</h2>
         <div class="panel__more">
           <p class="panel__title">Graba, mezcla y masteriza</p>
-          <p class="panel__desc">Live Room de 34 m², sesiones con ingeniero o Dry Hire, y mezcla y máster analógico en el Estudio Post.</p>
+          <p class="panel__desc" id="descEstudio">Live Room de 34 m², sesiones con ingeniero o Dry Hire, y mezcla y máster analógico en el Estudio Post.</p>
         </div>
         <span class="panel__cta">Entrar al estudio <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11m-4-5 5 5-5 5"/></svg></span>
       </div>
